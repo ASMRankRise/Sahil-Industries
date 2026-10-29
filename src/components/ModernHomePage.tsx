@@ -4,6 +4,7 @@ import { SiteFooter } from '@/components/SiteFooter';
 import { SiteHeader } from '@/components/SiteHeader';
 import { HeroMotion } from '@/components/ui/HeroMotion';
 import { HeroSliderBackdrop } from '@/components/ui/HeroSliderBackdrop';
+import { IndustriesCarousel } from '@/components/ui/IndustriesCarousel';
 import { Reveal } from '@/components/ui/Reveal';
 import { reasonsToChoose } from '@/data/about';
 import { clientLogos, homeProducts, industries } from '@/data/home';
@@ -35,7 +36,7 @@ export default function ModernHomePage() {
 
     <section className="bg-surface py-28 text-white max-md:py-20"><div className="mx-auto w-[min(1240px,calc(100%-64px))] max-md:w-[calc(100%-36px)]"><Heading eyebrow="Why Sahil" title="Built around operational confidence." /><div className="grid grid-cols-3 gap-px border border-white/15 bg-white/15 max-md:grid-cols-1">{reasonsToChoose.map(([title, copy], index) => <Reveal key={title} delay={index * 0.05}><article className="min-h-[230px] bg-surface p-7"><span className="text-xs font-extrabold text-safety">0{index + 1}</span><h3 className="mb-2 mt-10 text-xl font-bold">{title}</h3><p className="m-0 text-sm leading-6 text-slate-300">{copy}</p></article></Reveal>)}</div></div></section>
 
-    <section className="py-28 max-md:py-20"><div className="mx-auto w-[min(1240px,calc(100%-64px))] max-md:w-[calc(100%-36px)]"><Heading eyebrow="Industries we serve" title="Designed to perform wherever work moves." /><div className="grid grid-cols-5 gap-3 max-lg:grid-cols-3 max-md:grid-cols-2">{industries.map((industry) => <article key={industry.title} className="group relative min-h-[180px] overflow-hidden bg-ink text-white max-md:min-h-[145px]"><img className="absolute inset-0 h-full w-full object-cover opacity-60 transition duration-500 group-hover:scale-105" src={asset(`industries-we-serve/${industry.image}`)} alt="" /><span className="absolute bottom-3 left-4 z-10 text-xs font-bold leading-4">{industry.title}</span></article>)}</div></div></section>
+    <section className="py-28 max-md:py-20"><div className="mx-auto w-[min(1240px,calc(100%-64px))] max-md:w-[calc(100%-36px)]"><Heading eyebrow="Industries we serve" title="Designed to perform wherever work moves." /><IndustriesCarousel /></div></section>
 
     <section className="bg-mist py-28 max-md:py-20"><div className="mx-auto w-[min(1240px,calc(100%-64px))] max-md:w-[calc(100%-36px)]"><Heading eyebrow="Trusted partnerships" title="Proud to support leading manufacturers." /><div className="grid grid-cols-6 gap-px border border-ink/15 bg-ink/15 max-lg:grid-cols-4 max-md:grid-cols-3">{clientLogos.map((logo) => <div key={logo} className="flex h-[120px] items-center justify-center bg-white p-5 max-md:h-[92px] max-md:p-3"><img className="max-h-[65px] max-w-full object-contain grayscale opacity-70 transition hover:grayscale-0 hover:opacity-100" src={asset(`customers/${logo}`)} alt="Sahil Industries customer" /></div>)}</div><div className="mt-10 text-center"><Link href="/clients" className="inline-flex items-center gap-2 border-b border-safety pb-1 text-xs font-extrabold uppercase tracking-industrial">Meet our clients <ArrowRight size={16} /></Link></div></div></section>
 

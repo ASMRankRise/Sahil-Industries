@@ -48,8 +48,8 @@ export default function CareerPage() {
               name="contact_form"
               action="https://www.agnisdesigners.co.in/phpmailer/agnis_email_post.php"
               method="post"
-              encType="multipart/form-data" className="border border-ink/20 bg-white p-[clamp(24px,4vw,46px)] shadow-safety">
-              <div className="grid grid-cols-2 gap-x-[18px] max-md:grid-cols-1">
+              encType="multipart/form-data" className="space-y-5 border border-ink/20 bg-white p-[clamp(24px,4vw,46px)] shadow-safety">
+              <div className="grid grid-cols-2 gap-x-5 gap-y-4 max-md:grid-cols-1">
                 <Field
                   id="fullname"
                   name="fullname"
@@ -76,7 +76,8 @@ export default function CareerPage() {
                   optional
                 />
               </div>
-              <div className="form-group">
+              <div className="form-group space-y-2">
+                <label htmlFor="message" className="block text-xs font-bold uppercase tracking-industrial text-ink">Message</label>
                 <textarea
                   id="message"
                   name="enquiry[array_name][Message]"
@@ -86,12 +87,12 @@ export default function CareerPage() {
                   maxLength={500}
                 />
               </div>
-              <div className="form-group">
-                <label htmlFor="uploaded_file">Upload your resume</label>
-                <input type="file" name="uploaded_file" id="uploaded_file" />
+              <div className="form-group space-y-2">
+                <label htmlFor="uploaded_file" className="block text-xs font-bold uppercase tracking-industrial text-ink">Upload your resume</label>
+                <input className="block w-full border border-dashed border-ink/25 bg-mist px-4 py-3 text-sm text-steel file:mr-4 file:border-0 file:bg-safety file:px-4 file:py-2 file:font-bold file:text-ink" type="file" name="uploaded_file" id="uploaded_file" />
               </div>
-              <div className="form-group">
-                <label htmlFor="defaultReal">Security verification</label>
+              <div className="form-group space-y-2">
+                <label htmlFor="defaultReal" className="block text-xs font-bold uppercase tracking-industrial text-ink">Security verification</label>
                 <input
                   type="text"
                   id="defaultReal"
@@ -100,7 +101,7 @@ export default function CareerPage() {
                   required
                 />
               </div>
-              <div className="form-group">
+              <div className="form-group pt-2">
                 {hiddenValues.map(([name, value], index) => (
                   <input
                     key={`${index}-${name}`}
@@ -114,6 +115,7 @@ export default function CareerPage() {
                   name="submit"
                   id="submit"
                   value="Send Your Message"
+                  className="w-full border-0 bg-safety px-6 py-4 text-xs font-extrabold uppercase tracking-industrial text-ink transition hover:-translate-y-0.5 hover:bg-yellow-300"
                 />
               </div>
             </form>
@@ -139,8 +141,8 @@ function Field({
   optional?: boolean;
 }) {
   return (
-    <div className="form-group">
-      <label htmlFor={id} className="sr-only">
+    <div className="form-group space-y-2">
+      <label htmlFor={id} className="block text-xs font-bold uppercase tracking-industrial text-ink">
         {placeholder}
       </label>
       <input
