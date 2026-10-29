@@ -16,5 +16,5 @@ export function HeroMotion() {
     return () => context.revert();
   }, []);
 
-  return <div ref={root} className="hero-motion" aria-hidden="true"><span className="hero-motion__orb" /><i className="hero-motion__line" /><i className="hero-motion__line" /><i className="hero-motion__line" /></div>;
+  return <div ref={root} className="pointer-events-none absolute inset-0 z-[1] overflow-hidden" aria-hidden="true"><span className="hero-motion__orb absolute right-[12%] top-[17%] aspect-square w-[420px] rounded-full border border-safety/50 shadow-[0_0_0_55px_rgba(246,197,21,.055),0_0_0_110px_rgba(246,197,21,.045)] max-md:right-[-50px] max-md:top-[12%] max-md:w-[230px]" /><i className="hero-motion__line absolute right-0 top-[35%] h-px w-[38%] bg-gradient-to-r from-transparent via-safety to-transparent opacity-65" /><i className="hero-motion__line absolute right-[9%] top-[49%] h-px w-[38%] bg-gradient-to-r from-transparent via-safety to-transparent opacity-65" /><i className="hero-motion__line absolute right-[2%] top-[63%] h-px w-[38%] bg-gradient-to-r from-transparent via-safety to-transparent opacity-65" /></div>;
 }
