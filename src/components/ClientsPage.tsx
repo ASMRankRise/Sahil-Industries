@@ -1,11 +1,5 @@
-import { readFile } from 'node:fs/promises';
-import path from 'node:path';
-import { SiteFooter } from '@/components/SiteFooter';
-import { SiteHeader } from '@/components/SiteHeader';
-import { PageHero } from '@/components/PageHero';
+import { ModernPageShell } from '@/components/ModernPageShell';
+import { Reveal } from '@/components/ui/Reveal';
+import { clients } from '@/data/clients';
 
-export default async function ClientsPage() {
-  const source = await readFile(path.join(process.cwd(), 'public', 'clients.html'), 'utf8');
-  const content = source.match(/<section class="service-style2-area">([\s\S]*?)<\/section>/)?.[0] ?? '';
-  return <main><link rel="stylesheet" href="/assets/css/module-css/services-section.css"/><SiteHeader/><PageHero eyebrow="Clients" title="Clients"/><div dangerouslySetInnerHTML={{__html:content}}/><SiteFooter/></main>;
-}
+export default function ClientsPage() { return <ModernPageShell eyebrow="Trusted partnerships" title="Our Esteemed Clients"><section className="modern-section modern-clients"><div className="modern-container"><div className="modern-heading"><p className="modern-eyebrow"><span />Industry partnerships</p><h2>Trusted by manufacturers who move India forward.</h2></div><div className="modern-client-grid">{clients.map(([image, name], index) => <Reveal key={image} delay={(index % 6) * .04}><div><img src={`/sahilcrane/customers/${image}`} alt={name} /></div></Reveal>)}</div></div></section></ModernPageShell>; }

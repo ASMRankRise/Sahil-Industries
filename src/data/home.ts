@@ -1,13 +1,13 @@
-export type ImageContent = { image: string; title: string };
+export type ImageContent = { image: string; title: string; href?: string };
 
 export const homeProducts: ImageContent[] = [
-  { image: 'single-girder-eot-crane.jpg', title: 'Single Girder EOT Crane' },
-  { image: 'double-girder-eot-crane.jpg', title: 'Double Girder EOT Crane' },
-  { image: 'electric-wire-rope-hoist.jpg', title: 'Electric Wire Rope Hoist' },
-  { image: 'underslung-cranes.jpg', title: 'Underslung Cranes' },
-  { image: 'goliath-gantry-crane.jpg', title: 'Goliath / Semi Goliath Crane' },
-  { image: 'jib-crane.jpg', title: 'JIB Crane' },
-  { image: 'monorail-crane.jpg', title: 'Monorail Crane' },
+  { image: 'single-girder-eot-crane.jpg', title: 'Single Girder EOT Crane', href: '/products/single-girder-eot-crane' },
+  { image: 'double-girder-eot-crane.jpg', title: 'Double Girder EOT Crane', href: '/products/double-girder-eot-crane' },
+  { image: 'electric-wire-rope-hoist.jpg', title: 'Electric Wire Rope Hoist', href: '/products/electric-wire-rope-hoist' },
+  { image: 'underslung-cranes.jpg', title: 'Underslung Cranes', href: '/products/underslung-cranes' },
+  { image: 'goliath-gantry-crane.jpg', title: 'Goliath / Semi Goliath Crane', href: '/products/goliath-semi-goliath-crane' },
+  { image: 'jib-crane.jpg', title: 'JIB Crane', href: '/products/jib-crane' },
+  { image: 'monorail-crane.jpg', title: 'Monorail Crane', href: '/products/monorail-crane' },
 ];
 
 export const industries: ImageContent[] = [
