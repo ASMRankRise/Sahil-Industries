@@ -1,4 +1,5 @@
 :root { --si-ink: #101820; --si-surface: #18232e; --si-steel: #5f6b76; --si-mist: #eef1f2; --si-yellow: #f6c515; --si-line: rgba(16, 24, 32, .14); }
+.modern-image-stack img.modern-image-stack__secondary{position:absolute;z-index:3;right:-30px;bottom:-28px;width:42%;height:185px;border:8px solid #fff;box-shadow:0 14px 32px rgba(16,24,32,.2);filter:none}
 .modern-hero__slides{position:absolute;inset:0}.modern-hero__slides .modern-hero__image{position:absolute;inset:0}.modern-hero__dots{position:absolute;z-index:3;right:clamp(22px,4vw,65px);bottom:150px;display:grid;gap:10px}.modern-hero__dots button{width:9px;height:9px;padding:0;border:1px solid rgba(255,255,255,.8);border-radius:50%;background:transparent;transition:.2s}.modern-hero__dots button.is-active{background:var(--si-yellow);border-color:var(--si-yellow);transform:scale(1.25)}
 .modern-site { overflow: hidden; color: var(--si-ink); background: #fff; }
 .modern-container { width: min(1240px, calc(100% - 64px)); margin-inline: auto; }
