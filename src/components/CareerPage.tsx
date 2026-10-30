@@ -1,5 +1,10 @@
+'use client';
+
 import { LegacyRuntime } from "@/components/LegacyRuntime";
 import { ModernPageShell } from "@/components/ModernPageShell";
+import { Reveal, RevealGroup, RevealItem } from "@/components/ui/Reveal";
+import { MagneticButton } from "@/components/ui/MagneticButton";
+import { motion } from 'framer-motion';
 
 const hiddenValues = [
   [
@@ -30,95 +35,135 @@ export default function CareerPage() {
         title="Career at Sahil Industries">
         <section className="py-28 max-md:py-20">
           <div className="mx-auto w-[min(1240px,calc(100%-64px))] max-md:w-[calc(100%-36px)] grid grid-cols-[minmax(260px,.72fr)_minmax(360px,1fr)] items-start gap-[clamp(45px,8vw,130px)] max-md:grid-cols-1">
-            <div>
-              <p className="mb-4 flex items-center gap-2 text-[11px] font-extrabold uppercase tracking-[.15em] text-safety">
-                <span />
-                Join our team
-              </p>
-              <h2 className="mb-6 text-[clamp(34px,4vw,54px)] font-bold leading-[1.06] tracking-[-.05em]">
-                Bring your expertise to material handling.
-              </h2>
-              <p>
-                Share your details and resume with Sahil Industries. Our team
-                will contact suitable candidates.
-              </p>
-            </div>
-            <form
-              id="contact_form"
-              name="contact_form"
-              action="https://www.agnisdesigners.co.in/phpmailer/agnis_email_post.php"
-              method="post"
-              encType="multipart/form-data" className="space-y-5 border border-ink/20 bg-white p-[clamp(24px,4vw,46px)] shadow-safety">
-              <div className="grid grid-cols-2 gap-x-5 gap-y-4 max-md:grid-cols-1">
-                <Field
-                  id="fullname"
-                  name="fullname"
-                  type="text"
-                  placeholder="Enter Name"
-                />
-                <Field
-                  id="EMAIL"
-                  name="email"
-                  type="email"
-                  placeholder="Enter Email"
-                />
-                <Field
-                  id="mobile"
-                  name="mobile"
-                  type="text"
-                  placeholder="Enter Mobile"
-                />
-                <Field
-                  id="form_subject"
-                  name="enquiry[array_name][City]"
-                  type="text"
-                  placeholder="Enter City"
-                  optional
-                />
-              </div>
-              <div className="form-group space-y-2">
-                <label htmlFor="message" className="block text-xs font-bold uppercase tracking-industrial text-ink">Message</label>
-                <textarea
-                  id="message"
-                  name="enquiry[array_name][Message]"
-                  className="form-control required min-h-[145px] w-full border border-ink/20 bg-mist px-4 py-3 text-ink outline-none focus:border-[#d2a300] focus:bg-white focus:ring-2 focus:ring-safety/20"
-                  rows={5}
-                  placeholder="Enter Message"
-                  maxLength={500}
-                />
-              </div>
-              <div className="form-group space-y-2">
-                <label htmlFor="uploaded_file" className="block text-xs font-bold uppercase tracking-industrial text-ink">Upload your resume</label>
-                <input className="block w-full border border-dashed border-ink/25 bg-mist px-4 py-3 text-sm text-steel file:mr-4 file:border-0 file:bg-safety file:px-4 file:py-2 file:font-bold file:text-ink" type="file" name="uploaded_file" id="uploaded_file" />
-              </div>
-              <div className="form-group space-y-2">
-                <label htmlFor="defaultReal" className="block text-xs font-bold uppercase tracking-industrial text-ink">Security verification</label>
-                <input
-                  type="text"
-                  id="defaultReal"
-                  name="defaultReal"
-                  className="form-control"
-                  required
-                />
-              </div>
-              <div className="form-group pt-2">
-                {hiddenValues.map(([name, value], index) => (
-                  <input
-                    key={`${index}-${name}`}
-                    name={name}
-                    type="hidden"
-                    value={value}
-                  />
-                ))}
-                <input
-                  type="submit"
-                  name="submit"
-                  id="submit"
-                  value="Send Your Message"
-                  className="w-full border-0 bg-safety px-6 py-4 text-xs font-extrabold uppercase tracking-industrial text-ink transition hover:-translate-y-0.5 hover:bg-yellow-300"
-                />
-              </div>
-            </form>
+            {/* Left Content - Staggered Reveal */}
+            <RevealGroup staggerChildren={0.1} delayChildren={0.1}>
+              <RevealItem variant="quickEnter">
+                <p className="mb-4 flex items-center gap-2 text-[11px] font-extrabold uppercase tracking-[.15em] text-safety">
+                  <span className="h-0.5 w-8 bg-safety" />
+                  Join our team
+                </p>
+              </RevealItem>
+              <RevealItem variant="quickEnter">
+                <h2 className="mb-6 text-[clamp(34px,4vw,54px)] font-bold leading-[1.06] tracking-[-.05em]">
+                  Bring your expertise to material handling.
+                </h2>
+              </RevealItem>
+              <RevealItem variant="quickEnter">
+                <p>
+                  Share your details and resume with Sahil Industries. Our team
+                  will contact suitable candidates.
+                </p>
+              </RevealItem>
+            </RevealGroup>
+
+            {/* Right Form - Staggered Reveal */}
+            <Reveal variant="pageEnter" delay={0.2}>
+              <form
+                id="contact_form"
+                name="contact_form"
+                action="https://www.agnisdesigners.co.in/phpmailer/agnis_email_post.php"
+                method="post"
+                encType="multipart/form-data" className="space-y-5 border border-ink/20 bg-white p-[clamp(24px,4vw,46px)] shadow-safety">
+                {/* Form Fields Grid - Staggered */}
+                <RevealGroup staggerChildren={0.06} delayChildren={0.1} className="grid grid-cols-2 gap-x-5 gap-y-4 max-md:grid-cols-1">
+                  <RevealItem variant="itemReveal">
+                    <Field
+                      id="fullname"
+                      name="fullname"
+                      type="text"
+                      placeholder="Enter Name"
+                    />
+                  </RevealItem>
+                  <RevealItem variant="itemReveal">
+                    <Field
+                      id="EMAIL"
+                      name="email"
+                      type="email"
+                      placeholder="Enter Email"
+                    />
+                  </RevealItem>
+                  <RevealItem variant="itemReveal">
+                    <Field
+                      id="mobile"
+                      name="mobile"
+                      type="text"
+                      placeholder="Enter Mobile"
+                    />
+                  </RevealItem>
+                  <RevealItem variant="itemReveal">
+                    <Field
+                      id="form_subject"
+                      name="enquiry[array_name][City]"
+                      type="text"
+                      placeholder="Enter City"
+                      optional
+                    />
+                  </RevealItem>
+                </RevealGroup>
+
+                {/* Message Field */}
+                <Reveal variant="quickEnter" delay={0.3}>
+                  <div className="form-group space-y-2">
+                    <label htmlFor="message" className="block text-xs font-bold uppercase tracking-industrial text-ink">Message</label>
+                    <textarea
+                      id="message"
+                      name="enquiry[array_name][Message]"
+                      className="form-control required min-h-[145px] w-full border border-ink/20 bg-mist px-4 py-3 text-ink outline-none focus:border-[#d2a300] focus:bg-white focus:ring-2 focus:ring-safety/20 transition-all duration-200"
+                      rows={5}
+                      placeholder="Enter Message"
+                      maxLength={500}
+                    />
+                  </div>
+                </Reveal>
+
+                {/* File Upload */}
+                <Reveal variant="quickEnter" delay={0.35}>
+                  <div className="form-group space-y-2">
+                    <label htmlFor="uploaded_file" className="block text-xs font-bold uppercase tracking-industrial text-ink">Upload your resume</label>
+                    <input className="block w-full border border-dashed border-ink/25 bg-mist px-4 py-3 text-sm text-steel file:mr-4 file:border-0 file:bg-safety file:px-4 file:py-2 file:font-bold file:text-ink transition-all duration-200 hover:border-safety/50" type="file" name="uploaded_file" id="uploaded_file" />
+                  </div>
+                </Reveal>
+
+                {/* Captcha */}
+                <Reveal variant="quickEnter" delay={0.4}>
+                  <div className="form-group space-y-2">
+                    <label htmlFor="defaultReal" className="block text-xs font-bold uppercase tracking-industrial text-ink">Security verification</label>
+                    <input
+                      type="text"
+                      id="defaultReal"
+                      name="defaultReal"
+                      className="form-control min-h-[54px] w-full border border-ink/20 bg-mist px-4 py-3 text-ink outline-none transition-all duration-200 focus:border-[#d2a300] focus:bg-white focus:ring-2 focus:ring-safety/20"
+                      required
+                    />
+                  </div>
+                </Reveal>
+
+                {/* Submit Button - Magnetic Button */}
+                <Reveal variant="scaleEnter" delay={0.5}>
+                  <div className="form-group pt-2">
+                    {hiddenValues.map(([name, value], index) => (
+                      <input
+                        key={`${index}-${name}`}
+                        name={name}
+                        type="hidden"
+                        value={value}
+                      />
+                    ))}
+                    <MagneticButton
+                      type="submit"
+                      name="submit"
+                      id="submit"
+                      strength={0.25}
+                      area={80}
+                      variant="primary"
+                      className="w-full border-0 bg-safety px-6 py-4 text-xs font-extrabold uppercase tracking-industrial text-ink"
+                    >
+                      Send Your Message
+                    </MagneticButton>
+                  </div>
+                </Reveal>
+              </form>
+            </Reveal>
           </div>
         </section>
       </ModernPageShell>
@@ -127,6 +172,7 @@ export default function CareerPage() {
   );
 }
 
+// Field component with focus animations
 function Field({
   id,
   name,
@@ -145,12 +191,17 @@ function Field({
       <label htmlFor={id} className="block text-xs font-bold uppercase tracking-industrial text-ink">
         {placeholder}
       </label>
-      <input
+      <motion.input
         id={id}
         name={name}
-        className={`form-control min-h-[54px] w-full border border-ink/20 bg-mist px-4 py-3 text-ink outline-none transition focus:border-[#d2a300] focus:bg-white focus:ring-2 focus:ring-safety/20${optional ? "" : " required"}${type === "email" ? " email" : ""}`}
+        className={`form-control min-h-[54px] w-full border border-ink/20 bg-mist px-4 py-3 text-ink outline-none transition-all duration-200${optional ? "" : " required"}${type === "email" ? " email" : ""}`}
         type={type}
         placeholder={placeholder}
+        whileFocus={{
+          borderColor: '#F6C515',
+          boxShadow: '0 0 0 3px rgba(246,197,21,0.2)',
+          transition: { duration: 0.2, ease: 'easeOut' },
+        }}
       />
     </div>
   );
