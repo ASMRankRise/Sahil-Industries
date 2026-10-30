@@ -23,6 +23,7 @@ export const primaryNavigation: NavigationItem[] = [
   { label: 'Career', href: '/career' },
   { label: 'Enquiry', href: '/enquiry' },
   { label: 'Contact', href: '/contact' },
+  { label: 'Admin', href: '/admin' },
 ];
 
 export const siteContact = {

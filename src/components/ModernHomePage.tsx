@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import {
   ArrowRight,
@@ -10,7 +11,7 @@ import {
   Award,
   Users,
 } from "lucide-react";
-import { motion } from "framer-motion";
+import { motion, useAnimation } from "framer-motion";
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
 import { HeroMotion } from "@/components/ui/HeroMotion";
@@ -59,6 +60,30 @@ function Heading({
 
 export default function ModernHomePage() {
   const prefersReduced = useReducedMotion();
+
+  // About section image animation controls for continuous hover loop
+  const aboutControls1 = useAnimation();
+  const [aboutHovered1, setAboutHovered1] = useState(false);
+  const aboutControls2 = useAnimation();
+  const [aboutHovered2, setAboutHovered2] = useState(false);
+
+  useEffect(() => {
+    if (aboutHovered1) {
+      aboutControls1.start({ rotate: [-2, 2, -2] }, { repeat: Infinity, repeatType: "loop", duration: 2, ease: "linear" });
+    } else {
+      aboutControls1.stop();
+      aboutControls1.set({ rotate: 0 });
+    }
+  }, [aboutHovered1, aboutControls1]);
+
+  useEffect(() => {
+    if (aboutHovered2) {
+      aboutControls2.start({ rotate: [-2, 2, -2] }, { repeat: Infinity, repeatType: "loop", duration: 2, ease: "linear" });
+    } else {
+      aboutControls2.stop();
+      aboutControls2.set({ rotate: 0 });
+    }
+  }, [aboutHovered2, aboutControls2]);
 
   return (
     <main>
@@ -258,7 +283,7 @@ export default function ModernHomePage() {
       </section>
 
       {/* Highlights Area */}
-      <section className="py-28 max-md:py-20 bg-white">
+      <section className="py-8 max-md:py-20 bg-white">
         <div className="mx-auto w-[min(1140px,calc(100%-64px))] max-md:w-[calc(100%-36px)]">
           <RevealGroup
             staggerChildren={0.1}
@@ -308,23 +333,26 @@ export default function ModernHomePage() {
             <div className="relative pb-[88px] pr-[18px]">
               <div className="absolute bottom-0 right-0 h-3/4 w-3/4 border border-safety" />
               <motion.img
-                className="relative z-10 h-[510px] w-full object-fill grayscale-[.16] max-md:h-[370px]"
+                className="relative z-10 h-[410px] w-full object-fill grayscale-[.16] max-md:h-[370px]"
                 src="/media/home/about-01.jpg"
                 alt="Sahil Industries crane manufacturing"
+                animate={aboutControls1}
                 whileInView={{ opacity: 1, y: 0, scale: 1 }}
-                whileHover={{ scale: 1.05, rotate: [-2, 2, -2] }}
-                whileHoverTransition={{ repeat: Infinity, repeatType: "loop", duration: 2, ease: "linear" }}
+                whileHover={{ scale: 1.05 }}
+                onHoverStart={() => setAboutHovered1(true)}
+                onHoverEnd={() => setAboutHovered1(false)}
                 initial={{ opacity: 0, y: 0,  }}
                 viewport={{ once: true, amount: 0.3 }}
                 transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
               />
               <motion.img
-                className="absolute -bottom-7 -right-7 z-20 h-[285px] w-[42%] border-8 border-white object-cover shadow-xl max-md:hidden"
+                className="absolute -bottom-7 -right-7 z-20 h-[285px] w-[52%] border-1 object-cover shadow-xl max-md:hidden"
                 src="/media/home/about-02.jpg"
                 alt="Sahil Industries manufacturing facility"
+                animate={aboutControls2}
                 whileInView={{ opacity: 1, y: 0 }}
-                whileHover={{ rotate: [-2, 2, -2] }}
-                whileHoverTransition={{ repeat: Infinity, repeatType: "loop", duration: 2, ease: "linear" }}
+                onHoverStart={() => setAboutHovered2(true)}
+                onHoverEnd={() => setAboutHovered2(false)}
                 initial={{ opacity: 0, y: 30 }}
                 viewport={{ once: true, amount: 0.3 }}
                 transition={{
@@ -397,7 +425,7 @@ export default function ModernHomePage() {
         </RevealGroup>
       </section>
 
-      <section className="bg-mist py-28 max-md:py-20">
+      <section className="bg-white py-28 max-md:py-20">
         <div className="mx-auto w-[min(1240px,calc(100%-64px))] max-md:w-[calc(100%-36px)]">
           <RevealGroup staggerChildren={0.1} delayChildren={0.1}>
             <RevealItem variant="quickEnter">
