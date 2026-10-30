@@ -305,22 +305,26 @@ export default function ModernHomePage() {
           className="mx-auto grid w-[min(1240px,calc(100%-64px))] grid-cols-[minmax(320px,.88fr)_minmax(340px,1fr)] items-center gap-[clamp(50px,9vw,150px)] max-md:w-[calc(100%-36px)] max-md:grid-cols-1">
           {/* Image - Left Side */}
           <RevealItem variant="itemReveal">
-            <div className="relative pb-[38px] pr-[38px]">
+            <div className="relative pb-[88px] pr-[18px]">
               <div className="absolute bottom-0 right-0 h-3/4 w-3/4 border border-safety" />
               <motion.img
-                className="relative z-10 h-[510px] w-full object-cover grayscale-[.16] max-md:h-[370px]"
+                className="relative z-10 h-[510px] w-full object-fill grayscale-[.16] max-md:h-[370px]"
                 src="/media/home/about-01.jpg"
                 alt="Sahil Industries crane manufacturing"
-                whileInView={{ opacity: 1, scale: 1 }}
-                initial={{ opacity: 0, scale: 1.05 }}
+                whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                whileHover={{ scale: 1.05, rotate: [-2, 2, -2] }}
+                whileHoverTransition={{ repeat: Infinity, repeatType: "loop", duration: 2, ease: "linear" }}
+                initial={{ opacity: 0, y: 0,  }}
                 viewport={{ once: true, amount: 0.3 }}
                 transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
               />
               <motion.img
-                className="absolute -bottom-7 -right-7 z-20 h-[185px] w-[42%] border-8 border-white object-cover shadow-xl max-md:hidden"
+                className="absolute -bottom-7 -right-7 z-20 h-[285px] w-[42%] border-8 border-white object-cover shadow-xl max-md:hidden"
                 src="/media/home/about-02.jpg"
                 alt="Sahil Industries manufacturing facility"
                 whileInView={{ opacity: 1, y: 0 }}
+                whileHover={{ rotate: [-2, 2, -2] }}
+                whileHoverTransition={{ repeat: Infinity, repeatType: "loop", duration: 2, ease: "linear" }}
                 initial={{ opacity: 0, y: 30 }}
                 viewport={{ once: true, amount: 0.3 }}
                 transition={{
@@ -474,7 +478,7 @@ export default function ModernHomePage() {
                 {reasonsToChoose.map(([title, copy], index) => (
                   <RevealItem key={title} variant="itemReveal">
                     <motion.article
-                      className="min-h-[230px] bg-surface p-7"
+                      className="h-[230px] bg-surface p-7"
                       whileHover={{ y: -4 }}
                       transition={{ duration: 0.2 }}>
                       <span className="text-xs font-extrabold text-safety">
