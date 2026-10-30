@@ -1,7 +1,10 @@
-'use client';
+"use client";
 
-import { useEffect, useRef, useState } from 'react';
-import { animateCounter, prefersReducedMotion } from '@/components/animations/gsapUtils';
+import { useEffect, useRef, useState } from "react";
+import {
+  animateCounter,
+  prefersReducedMotion,
+} from "@/components/animations/gsapUtils";
 
 interface CounterProps {
   /** Target number to count to */
@@ -25,7 +28,7 @@ interface CounterProps {
   /** Additional CSS classes */
   className?: string;
   /** HTML tag to render (default: 'span') */
-  tag?: 'span' | 'div' | 'p' | 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6';
+  tag?: "span" | "div" | "p" | "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
   /** Trigger animation on scroll into view */
   scrollTrigger?: boolean;
   /** Scroll trigger options */
@@ -44,21 +47,23 @@ export function Counter({
   end,
   start = 0,
   duration = 2,
-  ease = 'power2.out',
+  ease = "power2.out",
   decimals = 0,
-  separator = ',',
-  prefix = '',
-  suffix = '',
+  separator = ",",
+  prefix = "",
+  suffix = "",
   onComplete,
-  className = '',
-  tag: Tag = 'span',
+  className = "",
+  tag: Tag = "span",
   scrollTrigger = false,
   scrollTriggerOptions = {},
 }: CounterProps) {
   const elementRef = useRef<HTMLElement>(null);
   const [isVisible, setIsVisible] = useState(!scrollTrigger);
   const [hasAnimated, setHasAnimated] = useState(false);
-  const scrollTriggerRef = useRef<ReturnType<typeof animateCounter> | null>(null);
+  const scrollTriggerRef = useRef<ReturnType<typeof animateCounter> | null>(
+    null,
+  );
 
   // Handle scroll-triggered animation
   useEffect(() => {
@@ -74,10 +79,10 @@ export function Counter({
         });
       },
       {
-        rootMargin: '0px',
+        rootMargin: "0px",
         threshold: 0.1,
         ...scrollTriggerOptions,
-      }
+      },
     );
 
     if (elementRef.current) {
@@ -117,16 +122,32 @@ export function Counter({
     return () => {
       scrollTriggerRef.current?.kill();
     };
-  }, [isVisible, hasAnimated, end, start, duration, ease, decimals, separator, prefix, suffix, onComplete]);
+  }, [
+    isVisible,
+    hasAnimated,
+    end,
+    start,
+    duration,
+    ease,
+    decimals,
+    separator,
+    prefix,
+    suffix,
+    onComplete,
+  ]);
 
   // Need to import gsap
-  const gsap = typeof window !== 'undefined' ? require('gsap').gsap : null;
+  const gsap = typeof window !== "undefined" ? require("gsap").gsap : null;
 
-  function formatNumber(value: number, decimals: number, separator: string): string {
+  function formatNumber(
+    value: number,
+    decimals: number,
+    separator: string,
+  ): string {
     const fixed = value.toFixed(decimals);
-    const parts = fixed.split('.');
+    const parts = fixed.split(".");
     parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, separator);
-    return parts.join('.');
+    return parts.join(".");
   }
 
   return (
@@ -134,9 +155,14 @@ export function Counter({
       ref={elementRef}
       className={className}
       aria-live="polite"
-      aria-atomic="true"
-    >
-      {prefix}{formatNumber(isVisible && !prefersReducedMotion() ? start : end, decimals, separator)}{suffix}
+      aria-atomic="true">
+      {prefix}
+      {formatNumber(
+        isVisible && !prefersReducedMotion() ? start : end,
+        decimals,
+        separator,
+      )}
+      {suffix}
     </Tag>
   );
 }
@@ -166,7 +192,7 @@ interface CounterGroupProps {
 export function CounterGroup({
   counters,
   stagger = 0.1,
-  className = '',
+  className = "",
   scrollTrigger = false,
 }: CounterGroupProps) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -185,7 +211,7 @@ export function CounterGroup({
           }
         });
       },
-      { rootMargin: '0px', threshold: 0.1 }
+      { rootMargin: "0px", threshold: 0.1 },
     );
 
     if (containerRef.current) {
@@ -205,14 +231,16 @@ export function CounterGroup({
 
     const ctx = gsap.context(() => {
       counters.forEach((counter, index) => {
-        const element = containerRef.current?.querySelector(`[data-counter-index="${index}"]`) as HTMLElement;
+        const element = containerRef.current?.querySelector(
+          `[data-counter-index="${index}"]`,
+        ) as HTMLElement;
         if (element) {
           animateCounter(element, counter.end, {
             duration: counter.duration || 2,
             decimals: counter.decimals || 0,
-            prefix: counter.prefix || '',
-            suffix: counter.suffix || '',
-            separator: ',',
+            prefix: counter.prefix || "",
+            suffix: counter.suffix || "",
+            separator: ",",
             delay: index * stagger,
           });
         }
@@ -222,12 +250,19 @@ export function CounterGroup({
     return () => ctx.revert();
   }, [isVisible, hasAnimated, counters, stagger]);
 
-  const gsap = typeof window !== 'undefined' ? require('gsap').gsap : null;
+  const gsap = typeof window !== "undefined" ? require("gsap").gsap : null;
 
   return (
-    <div ref={containerRef} className={className} role="list" aria-label="Statistics">
+    <div
+      ref={containerRef}
+      className={className}
+      role="list"
+      aria-label="Statistics">
       {counters.map((counter, index) => (
-        <div key={index} className="flex flex-col items-center" data-counter-index={index}>
+        <div
+          key={index}
+          className="flex flex-col items-center"
+          data-counter-index={index}>
           <Counter
             end={counter.end}
             prefix={counter.prefix}
@@ -238,7 +273,9 @@ export function CounterGroup({
             tag="span"
           />
           {counter.label && (
-            <span className="mt-1 text-sm text-steel text-center max-w-[120px]">{counter.label}</span>
+            <span className="mt-1 text-sm text-steel text-center max-w-[120px]">
+              {counter.label}
+            </span>
           )}
         </div>
       ))}

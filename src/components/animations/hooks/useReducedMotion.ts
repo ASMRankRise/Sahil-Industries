@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from "react";
 
 /**
  * Hook to detect prefers-reduced-motion media query.
@@ -11,7 +11,7 @@ export function useReducedMotion(): boolean {
 
   useEffect(() => {
     // Check initial value
-    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
     setPrefersReduced(mediaQuery.matches);
 
     // Listen for changes
@@ -19,8 +19,8 @@ export function useReducedMotion(): boolean {
       setPrefersReduced(event.matches);
     };
 
-    mediaQuery.addEventListener('change', handler);
-    return () => mediaQuery.removeEventListener('change', handler);
+    mediaQuery.addEventListener("change", handler);
+    return () => mediaQuery.removeEventListener("change", handler);
   }, []);
 
   return prefersReduced;
@@ -39,7 +39,9 @@ export function useAnimationConfig() {
     getTransition: <T extends object>(config: T): T | { duration: 0 } =>
       prefersReduced ? { duration: 0 } : config,
     // Returns initial/animate values that skip animation for reduced motion
-    getVariants: <T extends object>(variants: T): T | { initial: false; animate: false } =>
+    getVariants: <T extends object>(
+      variants: T,
+    ): T | { initial: false; animate: false } =>
       prefersReduced ? { initial: false, animate: false } : variants,
   };
 }

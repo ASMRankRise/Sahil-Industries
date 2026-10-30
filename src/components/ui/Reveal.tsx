@@ -1,12 +1,12 @@
-'use client';
+"use client";
 
-import { motion, type HTMLMotionProps, type Variants } from 'framer-motion';
-import { useReducedMotion } from '@/components/animations/hooks/useReducedMotion';
-import { variants, type VariantsMap } from '@/components/animations/variants';
+import { motion, type HTMLMotionProps, type Variants } from "framer-motion";
+import { useReducedMotion } from "@/components/animations/hooks/useReducedMotion";
+import { variants, type VariantsMap } from "@/components/animations/variants";
 
 type RevealVariant = keyof typeof variants;
 
-interface RevealProps extends HTMLMotionProps<'div'> {
+interface RevealProps extends HTMLMotionProps<"div"> {
   /** Animation variant to use */
   variant?: RevealVariant;
   /** Delay before animation starts (seconds) */
@@ -26,7 +26,7 @@ interface RevealProps extends HTMLMotionProps<'div'> {
  * and flexible configuration for entrance animations.
  */
 export function Reveal({
-  variant = 'pageEnter',
+  variant = "pageEnter",
   delay = 0,
   amount = 0.15,
   once = true,
@@ -40,7 +40,11 @@ export function Reveal({
   const resolvedVariants = customVariants || variants[variant];
 
   if (prefersReduced) {
-    return <div className={className} style={style} {...props}>{children}</div>;
+    return (
+      <div className={className} style={style} {...props}>
+        {children}
+      </div>
+    );
   }
 
   return (
@@ -56,8 +60,7 @@ export function Reveal({
       viewport={{ once, amount }}
       className={className}
       style={style}
-      {...props}
-    >
+      {...props}>
       {children}
     </motion.div>
   );
@@ -67,7 +70,7 @@ export function Reveal({
  * RevealGroup - wraps multiple Reveal components for staggered animations.
  * Use with Framer Motion's staggerChildren transition.
  */
-interface RevealGroupProps extends HTMLMotionProps<'div'> {
+interface RevealGroupProps extends HTMLMotionProps<"div"> {
   /** Stagger delay between children (seconds) */
   staggerChildren?: number;
   /** Delay before first child animates (seconds) */
@@ -85,7 +88,11 @@ export function RevealGroup({
   const prefersReduced = useReducedMotion();
 
   if (prefersReduced) {
-    return <div className={className} {...props}>{children}</div>;
+    return (
+      <div className={className} {...props}>
+        {children}
+      </div>
+    );
   }
 
   return (
@@ -102,8 +109,7 @@ export function RevealGroup({
         },
       }}
       className={className}
-      {...props}
-    >
+      {...props}>
       {children}
     </motion.div>
   );
@@ -113,14 +119,14 @@ export function RevealGroup({
  * RevealItem - child component for RevealGroup.
  * Automatically gets staggered animation from parent RevealGroup.
  */
-interface RevealItemProps extends HTMLMotionProps<'div'> {
+interface RevealItemProps extends HTMLMotionProps<"div"> {
   /** Animation variant for this item */
   variant?: RevealVariant;
   children: React.ReactNode;
 }
 
 export function RevealItem({
-  variant = 'itemReveal',
+  variant = "itemReveal",
   children,
   className,
   ...props
@@ -129,15 +135,15 @@ export function RevealItem({
   const resolvedVariants = variants[variant];
 
   if (prefersReduced) {
-    return <div className={className} {...props}>{children}</div>;
+    return (
+      <div className={className} {...props}>
+        {children}
+      </div>
+    );
   }
 
   return (
-    <motion.div
-      variants={resolvedVariants}
-      className={className}
-      {...props}
-    >
+    <motion.div variants={resolvedVariants} className={className} {...props}>
       {children}
     </motion.div>
   );

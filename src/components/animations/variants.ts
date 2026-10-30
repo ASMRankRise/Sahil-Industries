@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import type { Variants } from 'framer-motion';
+import type { Variants } from "framer-motion";
 
 /**
  * Shared Framer Motion variants for consistent animations across the site.
@@ -54,23 +54,23 @@ export const variants: Record<string, Variants> = {
     initial: { opacity: 0 },
     animate: { opacity: 1 },
     exit: { opacity: 0 },
-    transition: { duration: 0.2, ease: 'easeOut' },
+    transition: { duration: 0.2, ease: "easeOut" },
   },
 
   // Slide from right (sidebars, mobile menu)
   slideInRight: {
-    initial: { x: '100%' },
+    initial: { x: "100%" },
     animate: { x: 0 },
-    exit: { x: '100%' },
-    transition: { type: 'tween', duration: 0.3, ease: [0.22, 1, 0.36, 1] },
+    exit: { x: "100%" },
+    transition: { type: "tween", duration: 0.3, ease: [0.22, 1, 0.36, 1] },
   },
 
   // Slide from left
   slideInLeft: {
-    initial: { x: '-100%' },
+    initial: { x: "-100%" },
     animate: { x: 0 },
-    exit: { x: '-100%' },
-    transition: { type: 'tween', duration: 0.3, ease: [0.22, 1, 0.36, 1] },
+    exit: { x: "-100%" },
+    transition: { type: "tween", duration: 0.3, ease: [0.22, 1, 0.36, 1] },
   },
 
   // Slide from bottom (toasts, notifications)
@@ -92,22 +92,22 @@ export const variants: Record<string, Variants> = {
   button: {
     whileHover: { y: -2, scale: 1.02 },
     whileTap: { scale: 0.98 },
-    transition: { duration: 0.15, ease: 'easeOut' },
+    transition: { duration: 0.15, ease: "easeOut" },
   },
 
   // Ghost button (lighter hover)
   buttonGhost: {
     whileHover: { y: -1 },
     whileTap: { scale: 0.99 },
-    transition: { duration: 0.1, ease: 'easeOut' },
+    transition: { duration: 0.1, ease: "easeOut" },
   },
 
   // Form field focus
   field: {
     whileFocus: {
-      borderColor: '#F6C515',
-      boxShadow: '0 0 0 3px rgba(246,197,21,0.2)',
-      transition: { duration: 0.2, ease: 'easeOut' },
+      borderColor: "#F6C515",
+      boxShadow: "0 0 0 3px rgba(246,197,21,0.2)",
+      transition: { duration: 0.2, ease: "easeOut" },
     },
   },
 
@@ -115,35 +115,35 @@ export const variants: Record<string, Variants> = {
   inputLabel: {
     initial: { y: 0, scale: 1, opacity: 0.6 },
     animate: { y: -24, scale: 0.85, opacity: 1 },
-    transition: { duration: 0.2, ease: 'easeOut' },
+    transition: { duration: 0.2, ease: "easeOut" },
   },
 
   // Card hover lift
   cardHover: {
     whileHover: {
       y: -4,
-      boxShadow: '0 20px 40px rgba(0,0,0,0.12)',
-      transition: { duration: 0.2, ease: 'easeOut' },
+      boxShadow: "0 20px 40px rgba(0,0,0,0.12)",
+      transition: { duration: 0.2, ease: "easeOut" },
     },
   },
 
   // Image reveal with clip-path
   imageReveal: {
-    initial: { clipPath: 'inset(100% 0 0 0)', opacity: 0 },
-    animate: { clipPath: 'inset(0 0 0 0)', opacity: 1 },
+    initial: { clipPath: "inset(100% 0 0 0)", opacity: 0 },
+    animate: { clipPath: "inset(0 0 0 0)", opacity: 1 },
     transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1] },
   },
 
   // Text line reveal (for headlines)
   textLine: {
-    initial: { opacity: 0, y: '100%' },
+    initial: { opacity: 0, y: "100%" },
     animate: { opacity: 1, y: 0 },
     transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] },
   },
 
   // Word-by-word reveal
   textWord: {
-    initial: { opacity: 0, y: '50%' },
+    initial: { opacity: 0, y: "50%" },
     animate: { opacity: 1, y: 0 },
     transition: { duration: 0.4, ease: [0.22, 1, 0.36, 1] },
   },
@@ -174,13 +174,21 @@ export const variants: Record<string, Variants> = {
     initial: { opacity: 0, scale: 0.8, y: 10 },
     animate: { opacity: 1, scale: 1, y: 0 },
     exit: { opacity: 0, scale: 0.8, y: 10 },
-    transition: { duration: 0.15, ease: 'easeOut' },
+    transition: { duration: 0.15, ease: "easeOut" },
   },
 
   // Accordion
   accordion: {
-    open: { height: 'auto', opacity: 1, transition: { duration: 0.3, ease: 'easeOut' } },
-    closed: { height: 0, opacity: 0, transition: { duration: 0.3, ease: 'easeIn' } },
+    open: {
+      height: "auto",
+      opacity: 1,
+      transition: { duration: 0.3, ease: "easeOut" },
+    },
+    closed: {
+      height: 0,
+      opacity: 0,
+      transition: { duration: 0.3, ease: "easeIn" },
+    },
   },
 
   // Tab content
@@ -196,7 +204,7 @@ export const variants: Record<string, Variants> = {
     initial: { opacity: 0, y: -10 },
     animate: { opacity: 1, y: 0 },
     exit: { opacity: 0, y: -10 },
-    transition: { duration: 0.15, ease: 'easeOut' },
+    transition: { duration: 0.15, ease: "easeOut" },
   },
 
   // Logo/brand animation
@@ -225,7 +233,7 @@ export const variants: Record<string, Variants> = {
 export function withDelay(variant: Variants, delay: number): Variants {
   const result: Variants = {};
   for (const [key, value] of Object.entries(variant)) {
-    if (typeof value === 'object' && value !== null && 'transition' in value) {
+    if (typeof value === "object" && value !== null && "transition" in value) {
       result[key] = {
         ...value,
         transition: { ...value.transition, delay },
@@ -241,7 +249,7 @@ export function withDelay(variant: Variants, delay: number): Variants {
 export function createStaggerVariant(
   baseVariant: Variants,
   staggerChildren: number = 0.08,
-  delayChildren: number = 0.1
+  delayChildren: number = 0.1,
 ): Variants {
   return {
     ...baseVariant,

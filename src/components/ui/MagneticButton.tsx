@@ -1,10 +1,13 @@
-'use client';
+"use client";
 
-import React, { useEffect, useRef, useState } from 'react';
-import { createMagnetic, prefersReducedMotion } from '@/components/animations/gsapUtils';
-import { motion, type HTMLMotionProps } from 'framer-motion';
+import React, { useEffect, useRef, useState } from "react";
+import {
+  createMagnetic,
+  prefersReducedMotion,
+} from "@/components/animations/gsapUtils";
+import { motion, type HTMLMotionProps } from "framer-motion";
 
-interface MagneticButtonProps extends HTMLMotionProps<'button'> {
+interface MagneticButtonProps extends HTMLMotionProps<"button"> {
   /** Strength of magnetic pull (0-1) */
   strength?: number;
   /** Activation area around button (pixels) */
@@ -16,24 +19,24 @@ interface MagneticButtonProps extends HTMLMotionProps<'button'> {
   /** Additional CSS classes */
   className?: string;
   /** Variant for Framer Motion hover/tap */
-  variant?: 'primary' | 'secondary' | 'ghost';
+  variant?: "primary" | "secondary" | "ghost";
 }
 
 const buttonVariants = {
   primary: {
     whileHover: { scale: 1.02, y: -2 },
     whileTap: { scale: 0.98 },
-    transition: { duration: 0.15, ease: 'easeOut' },
+    transition: { duration: 0.15, ease: "easeOut" },
   },
   secondary: {
     whileHover: { scale: 1.01, y: -1 },
     whileTap: { scale: 0.99 },
-    transition: { duration: 0.1, ease: 'easeOut' },
+    transition: { duration: 0.1, ease: "easeOut" },
   },
   ghost: {
     whileHover: { scale: 1.01 },
     whileTap: { scale: 0.99 },
-    transition: { duration: 0.1, ease: 'easeOut' },
+    transition: { duration: 0.1, ease: "easeOut" },
   },
 };
 
@@ -46,8 +49,8 @@ export function MagneticButton({
   area = 100,
   showIndicator = false,
   children,
-  className = '',
-  variant = 'primary',
+  className = "",
+  variant = "primary",
   ...props
 }: MagneticButtonProps) {
   const buttonRef = useRef<HTMLButtonElement>(null);
@@ -73,7 +76,7 @@ export function MagneticButton({
       ref={buttonRef}
       variants={buttonVariants[variant]}
       initial={false}
-      animate={isHovering ? 'hover' : 'idle'}
+      animate={isHovering ? "hover" : "idle"}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
       className={`
@@ -83,8 +86,7 @@ export function MagneticButton({
         focus:outline-none focus-visible:ring-2 focus-visible:ring-safety/50 focus-visible:ring-offset-2 focus-visible:ring-offset-ink
         ${className}
       `}
-      {...props}
-    >
+      {...props}>
       {showIndicator && (
         <span
           className="absolute inset-0 border border-safety/50 rounded-[inherit] pointer-events-none transition-opacity duration-300"
@@ -99,13 +101,13 @@ export function MagneticButton({
 /**
  * MagneticLink - Link version of MagneticButton.
  */
-interface MagneticLinkProps extends HTMLMotionProps<'a'> {
+interface MagneticLinkProps extends HTMLMotionProps<"a"> {
   strength?: number;
   area?: number;
   showIndicator?: boolean;
   children: React.ReactNode;
   className?: string;
-  variant?: 'primary' | 'secondary' | 'ghost';
+  variant?: "primary" | "secondary" | "ghost";
 }
 
 export function MagneticLink({
@@ -113,8 +115,8 @@ export function MagneticLink({
   area = 100,
   showIndicator = false,
   children,
-  className = '',
-  variant = 'primary',
+  className = "",
+  variant = "primary",
   ...props
 }: MagneticLinkProps) {
   const linkRef = useRef<HTMLAnchorElement>(null);
@@ -140,7 +142,7 @@ export function MagneticLink({
       ref={linkRef}
       variants={buttonVariants[variant]}
       initial={false}
-      animate={isHovering ? 'hover' : 'idle'}
+      animate={isHovering ? "hover" : "idle"}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
       className={`
@@ -150,8 +152,7 @@ export function MagneticLink({
         focus:outline-none focus-visible:ring-2 focus-visible:ring-safety/50 focus-visible:ring-offset-2 focus-visible:ring-offset-ink
         ${className}
       `}
-      {...props}
-    >
+      {...props}>
       {showIndicator && (
         <span
           className="absolute inset-0 border border-safety/50 rounded-[inherit] pointer-events-none transition-opacity duration-300"
@@ -177,7 +178,7 @@ export function MagneticElement({
   strength = 0.2,
   area = 150,
   children,
-  className = '',
+  className = "",
 }: MagneticElementProps) {
   const elementRef = useRef<HTMLElement>(null);
   const cleanupRef = useRef<(() => void) | null>(null);
@@ -195,13 +196,12 @@ export function MagneticElement({
 
   // Clone the child and add ref
   const child = React.Children.only(children) as React.ReactElement;
-  
+
   return (
     <div
       ref={elementRef}
       className={`inline-block ${className}`}
-      style={{ willChange: 'transform' }}
-    >
+      style={{ willChange: "transform" }}>
       {React.cloneElement(child, { ref: elementRef })}
     </div>
   );
@@ -210,7 +210,7 @@ export function MagneticElement({
 /**
  * RippleButton - Button with material-style ripple effect on click.
  */
-interface RippleButtonProps extends HTMLMotionProps<'button'> {
+interface RippleButtonProps extends HTMLMotionProps<"button"> {
   /** Ripple color */
   rippleColor?: string;
   children: React.ReactNode;
@@ -218,13 +218,15 @@ interface RippleButtonProps extends HTMLMotionProps<'button'> {
 }
 
 export function RippleButton({
-  rippleColor = 'rgba(246,197,21,0.4)',
+  rippleColor = "rgba(246,197,21,0.4)",
   children,
-  className = '',
+  className = "",
   ...props
 }: RippleButtonProps) {
   const buttonRef = useRef<HTMLButtonElement>(null);
-  const [ripples, setRipples] = useState<Array<{ x: number; y: number; id: number }>>([]);
+  const [ripples, setRipples] = useState<
+    Array<{ x: number; y: number; id: number }>
+  >([]);
 
   const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     if (prefersReducedMotion()) return;
@@ -253,8 +255,7 @@ export function RippleButton({
         focus:outline-none focus-visible:ring-2 focus-visible:ring-safety/50 focus-visible:ring-offset-2 focus-visible:ring-offset-ink
         ${className}
       `}
-      {...props}
-    >
+      {...props}>
       {ripples.map((ripple) => (
         <span
           key={ripple.id}
@@ -265,7 +266,7 @@ export function RippleButton({
             width: 0,
             height: 0,
             backgroundColor: rippleColor,
-            transform: 'translate(-50%, -50%)',
+            transform: "translate(-50%, -50%)",
           }}
         />
       ))}

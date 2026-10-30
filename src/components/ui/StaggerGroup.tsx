@@ -1,15 +1,15 @@
-'use client';
+"use client";
 
-import { motion, type HTMLMotionProps } from 'framer-motion';
-import { useReducedMotion } from '@/components/animations/hooks/useReducedMotion';
+import { motion, type HTMLMotionProps } from "framer-motion";
+import { useReducedMotion } from "@/components/animations/hooks/useReducedMotion";
 
-interface StaggerGroupProps extends HTMLMotionProps<'div'> {
+interface StaggerGroupProps extends HTMLMotionProps<"div"> {
   /** Stagger delay between children (seconds) */
   stagger?: number;
   /** Delay before first child animates (seconds) */
   delayChildren?: number;
   /** Direction of stagger: 'forward' | 'reverse' | 'random' */
-  staggerDirection?: 'forward' | 'reverse' | 'random';
+  staggerDirection?: "forward" | "reverse" | "random";
   /** Custom variants for the container */
   variants?: Record<string, any>;
   children: React.ReactNode;
@@ -22,7 +22,7 @@ interface StaggerGroupProps extends HTMLMotionProps<'div'> {
 export function StaggerGroup({
   stagger = 0.08,
   delayChildren = 0.1,
-  staggerDirection = 'forward',
+  staggerDirection = "forward",
   variants,
   children,
   className,
@@ -31,7 +31,11 @@ export function StaggerGroup({
   const prefersReduced = useReducedMotion();
 
   if (prefersReduced) {
-    return <div className={className} {...props}>{children}</div>;
+    return (
+      <div className={className} {...props}>
+        {children}
+      </div>
+    );
   }
 
   const containerVariants = {
@@ -53,8 +57,7 @@ export function StaggerGroup({
       animate="visible"
       variants={containerVariants}
       className={className}
-      {...props}
-    >
+      {...props}>
       {children}
     </motion.div>
   );
@@ -63,9 +66,16 @@ export function StaggerGroup({
 /**
  * StaggerItem - A child component for StaggerGroup with predefined variants.
  */
-interface StaggerItemProps extends HTMLMotionProps<'div'> {
+interface StaggerItemProps extends HTMLMotionProps<"div"> {
   /** Predefined animation style */
-  style?: 'fadeUp' | 'fadeDown' | 'fadeLeft' | 'fadeRight' | 'scale' | 'flipX' | 'flipY';
+  style?:
+    | "fadeUp"
+    | "fadeDown"
+    | "fadeLeft"
+    | "fadeRight"
+    | "scale"
+    | "flipX"
+    | "flipY";
   /** Custom delay for this specific item (overrides stagger) */
   itemDelay?: number;
   children: React.ReactNode;
@@ -74,36 +84,64 @@ interface StaggerItemProps extends HTMLMotionProps<'div'> {
 const itemVariants: Record<string, any> = {
   fadeUp: {
     hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] } },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] },
+    },
   },
   fadeDown: {
     hidden: { opacity: 0, y: -20 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] } },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] },
+    },
   },
   fadeLeft: {
     hidden: { opacity: 0, x: 20 },
-    visible: { opacity: 1, x: 0, transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] } },
+    visible: {
+      opacity: 1,
+      x: 0,
+      transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] },
+    },
   },
   fadeRight: {
     hidden: { opacity: 0, x: -20 },
-    visible: { opacity: 1, x: 0, transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] } },
+    visible: {
+      opacity: 1,
+      x: 0,
+      transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] },
+    },
   },
   scale: {
     hidden: { opacity: 0, scale: 0.9 },
-    visible: { opacity: 1, scale: 1, transition: { duration: 0.4, ease: [0.22, 1, 0.36, 1] } },
+    visible: {
+      opacity: 1,
+      scale: 1,
+      transition: { duration: 0.4, ease: [0.22, 1, 0.36, 1] },
+    },
   },
   flipX: {
     hidden: { opacity: 0, rotateX: -90 },
-    visible: { opacity: 1, rotateX: 0, transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] } },
+    visible: {
+      opacity: 1,
+      rotateX: 0,
+      transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] },
+    },
   },
   flipY: {
     hidden: { opacity: 0, rotateY: -90 },
-    visible: { opacity: 1, rotateY: 0, transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] } },
+    visible: {
+      opacity: 1,
+      rotateY: 0,
+      transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] },
+    },
   },
 };
 
 export function StaggerItem({
-  style = 'fadeUp',
+  style = "fadeUp",
   itemDelay,
   children,
   className,
@@ -113,7 +151,11 @@ export function StaggerItem({
   const resolvedVariants = itemVariants[style];
 
   if (prefersReduced) {
-    return <div className={className} {...props}>{children}</div>;
+    return (
+      <div className={className} {...props}>
+        {children}
+      </div>
+    );
   }
 
   return (
@@ -121,8 +163,7 @@ export function StaggerItem({
       variants={resolvedVariants}
       transition={{ delay: itemDelay }}
       className={className}
-      {...props}
-    >
+      {...props}>
       {children}
     </motion.div>
   );
@@ -134,7 +175,7 @@ export function StaggerItem({
 export function createStaggerVariants(
   staggerChildren = 0.08,
   delayChildren = 0.1,
-  staggerDirection: 'forward' | 'reverse' | 'random' = 'forward'
+  staggerDirection: "forward" | "reverse" | "random" = "forward",
 ) {
   return {
     hidden: { opacity: 1 },

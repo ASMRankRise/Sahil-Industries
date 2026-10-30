@@ -1,7 +1,10 @@
-'use client';
+"use client";
 
-import { useEffect, useRef } from 'react';
-import { createParallax, prefersReducedMotion } from '@/components/animations/gsapUtils';
+import { useEffect, useRef } from "react";
+import {
+  createParallax,
+  prefersReducedMotion,
+} from "@/components/animations/gsapUtils";
 
 interface ParallaxProps {
   /** Speed of parallax (0.5 = half scroll speed, 1 = same speed, 2 = double) */
@@ -9,7 +12,7 @@ interface ParallaxProps {
   /** Maximum offset in pixels */
   maxOffset?: number;
   /** Direction: 'vertical' | 'horizontal' */
-  direction?: 'vertical' | 'horizontal';
+  direction?: "vertical" | "horizontal";
   /** Element to use as trigger (default: self) */
   triggerRef?: React.RefObject<HTMLElement>;
   /** Additional CSS classes */
@@ -27,10 +30,10 @@ interface ParallaxProps {
 export function Parallax({
   speed = 0.5,
   maxOffset = 100,
-  direction = 'vertical',
+  direction = "vertical",
   triggerRef,
   children,
-  className = '',
+  className = "",
   style = {},
 }: ParallaxProps) {
   const elementRef = useRef<HTMLDivElement>(null);
@@ -58,10 +61,9 @@ export function Parallax({
       ref={elementRef}
       className={`relative overflow-hidden ${className}`}
       style={{
-        willChange: 'transform',
+        willChange: "transform",
         ...style,
-      }}
-    >
+      }}>
       {children}
     </div>
   );
@@ -100,7 +102,7 @@ export function ParallaxLayer({
   opacity = 1,
   zIndex = 0,
   children,
-  className = '',
+  className = "",
 }: ParallaxLayerProps) {
   const elementRef = useRef<HTMLDivElement>(null);
   const parallaxRef = useRef<ReturnType<typeof createParallax> | null>(null);
@@ -129,9 +131,8 @@ export function ParallaxLayer({
         zIndex,
         opacity,
         transform: `translate3d(${xPercent}%, ${yPercent}%, 0) scale(${scale}) rotate(${rotate}deg)`,
-        willChange: 'transform, opacity',
-      }}
-    >
+        willChange: "transform, opacity",
+      }}>
       {children}
     </div>
   );
@@ -152,8 +153,8 @@ interface ParallaxContainerProps {
 }
 
 export function ParallaxContainer({
-  height = '100vh',
-  className = '',
+  height = "100vh",
+  className = "",
   children,
   style = {},
 }: ParallaxContainerProps) {
@@ -162,10 +163,9 @@ export function ParallaxContainer({
       className={`relative overflow-hidden ${className}`}
       style={{
         height,
-        position: 'relative',
+        position: "relative",
         ...style,
-      }}
-    >
+      }}>
       {children}
     </div>
   );
@@ -189,13 +189,13 @@ export function MouseParallax({
   strength = 0.1,
   resetOnLeave = true,
   children,
-  className = '',
+  className = "",
 }: MouseParallaxProps) {
   const elementRef = useRef<HTMLDivElement>(null);
   const animationRef = useRef<gsap.core.Tween | null>(null);
 
   // Need to import gsap
-  const gsap = typeof window !== 'undefined' ? require('gsap').gsap : null;
+  const gsap = typeof window !== "undefined" ? require("gsap").gsap : null;
 
   useEffect(() => {
     if (prefersReducedMotion() || !gsap || !elementRef.current) return;
@@ -211,8 +211,8 @@ export function MouseParallax({
         x: deltaX,
         y: deltaY,
         duration: 0.3,
-        ease: 'power3.out',
-        overwrite: 'auto',
+        ease: "power3.out",
+        overwrite: "auto",
       });
     };
 
@@ -222,18 +222,18 @@ export function MouseParallax({
           x: 0,
           y: 0,
           duration: 0.5,
-          ease: 'elastic.out(1, 0.5)',
-          overwrite: 'auto',
+          ease: "elastic.out(1, 0.5)",
+          overwrite: "auto",
         });
       }
     };
 
-    elementRef.current.addEventListener('mousemove', handleMouseMove);
-    elementRef.current.addEventListener('mouseleave', handleMouseLeave);
+    elementRef.current.addEventListener("mousemove", handleMouseMove);
+    elementRef.current.addEventListener("mouseleave", handleMouseLeave);
 
     return () => {
-      elementRef.current?.removeEventListener('mousemove', handleMouseMove);
-      elementRef.current?.removeEventListener('mouseleave', handleMouseLeave);
+      elementRef.current?.removeEventListener("mousemove", handleMouseMove);
+      elementRef.current?.removeEventListener("mouseleave", handleMouseLeave);
       animationRef.current?.kill();
     };
   }, [strength, resetOnLeave]);
@@ -243,10 +243,9 @@ export function MouseParallax({
       ref={elementRef}
       className={`relative ${className}`}
       style={{
-        willChange: 'transform',
-        transformStyle: 'preserve-3d',
-      }}
-    >
+        willChange: "transform",
+        transformStyle: "preserve-3d",
+      }}>
       {children}
     </div>
   );

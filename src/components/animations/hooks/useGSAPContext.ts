@@ -1,26 +1,26 @@
-'use client';
+"use client";
 
-import { useLayoutEffect, useRef, useCallback } from 'react';
-import { gsap, type Context } from 'gsap';
-import { useReducedMotion } from './useReducedMotion';
+import { useLayoutEffect, useRef, useCallback } from "react";
+import { gsap, type Context } from "gsap";
+import { useReducedMotion } from "./useReducedMotion";
 
 /**
  * Hook for managing GSAP Context with automatic cleanup.
  * Provides a scoped context for GSAP animations that automatically reverts on unmount.
  * Respects prefers-reduced-motion.
- * 
+ *
  * Usage:
  * ```tsx
  * function MyComponent() {
  *   const { rootRef, ctx } = useGSAPContext();
- *   
+ *
  *   useLayoutEffect(() => {
  *     if (!ctx) return;
  *     ctx.add(() => {
  *       gsap.to('.element', { x: 100 });
  *     });
  *   }, [ctx]);
- *   
+ *
  *   return <div ref={rootRef}>...</div>;
  * }
  * ```
@@ -43,28 +43,25 @@ export function useGSAPContext(scope?: string) {
   }, [prefersReduced]);
 
   // Helper to add animations to context
-  const add = useCallback((callback: () => void) => {
-    if (prefersReduced || !ctxRef.current) return;
-    ctxRef.current.add(callback);
-  }, [prefersReduced]);
+  const add = useCallback(
+    (callback: () => void) => {
+      if (prefersReduced || !ctxRef.current) return;
+      ctxRef.current.add(callback);
+    },
+    [prefersReduced],
+  );
 
   // Helper to create scoped selector
-  const select = useCallback(
-    (selector: string) => {
-      if (!rootRef.current) return null;
-      return rootRef.current.querySelector(selector);
-    },
-    []
-  );
+  const select = useCallback((selector: string) => {
+    if (!rootRef.current) return null;
+    return rootRef.current.querySelector(selector);
+  }, []);
 
   // Helper to create scoped selector all
-  const selectAll = useCallback(
-    (selector: string) => {
-      if (!rootRef.current) return [];
-      return Array.from(rootRef.current.querySelectorAll(selector));
-    },
-    []
-  );
+  const selectAll = useCallback((selector: string) => {
+    if (!rootRef.current) return [];
+    return Array.from(rootRef.current.querySelectorAll(selector));
+  }, []);
 
   return {
     rootRef,
@@ -90,16 +87,19 @@ export function useScrollTrigger() {
       // ScrollTrigger.create returns the instance
       return ScrollTrigger.create(config);
     },
-    [prefersReduced]
+    [prefersReduced],
   );
 
   const batch = useCallback(
-    (targets: gsap.TweenTarget, config: gsap.ScrollTriggerInstanceVars & { interval?: number }) => {
+    (
+      targets: gsap.TweenTarget,
+      config: gsap.ScrollTriggerInstanceVars & { interval?: number },
+    ) => {
       if (prefersReduced) return;
       // ScrollTrigger.batch for staggered scroll animations
       return ScrollTrigger.batch(targets, config);
     },
-    [prefersReduced]
+    [prefersReduced],
   );
 
   return {
@@ -111,5 +111,5 @@ export function useScrollTrigger() {
 }
 
 // Need to import ScrollTrigger type
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 gsap.registerPlugin(ScrollTrigger);

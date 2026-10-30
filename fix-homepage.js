@@ -1,29 +1,32 @@
-const fs = require('fs');
+const fs = require("fs");
 
-let content = fs.readFileSync('src/components/ModernHomePage.tsx', 'utf8');
+let content = fs.readFileSync("src/components/ModernHomePage.tsx", "utf8");
 
 // Find the problematic section - search for the smart quote
-const idx = content.indexOf('Let\u2019s build your lifting solution</Eyebrow>');
+const idx = content.indexOf("Let\u2019s build your lifting solution</Eyebrow>");
 if (idx === -1) {
-  console.log('Not found with smart quote');
+  console.log("Not found with smart quote");
   // Try with regular apostrophe
   const idx2 = content.indexOf("Let's build your lifting solution</Eyebrow>");
-  console.log('Found with regular apostrophe:', idx2);
+  console.log("Found with regular apostrophe:", idx2);
 } else {
-  console.log('Found at:', idx);
+  console.log("Found at:", idx);
 }
 
 // Find the section start
-const sectionStart = content.lastIndexOf('<section className="bg-ink py-[70px] text-white">', idx);
-console.log('Section start:', sectionStart);
+const sectionStart = content.lastIndexOf(
+  '<section className="bg-ink py-[70px] text-white">',
+  idx,
+);
+console.log("Section start:", sectionStart);
 
 // Find the end
-const endIdx = content.indexOf('</main>;', idx);
-console.log('End index:', endIdx);
+const endIdx = content.indexOf("</main>;", idx);
+console.log("End index:", endIdx);
 
 if (sectionStart !== -1 && endIdx !== -1) {
   const before = content.substring(0, sectionStart);
-  
+
   const newSection = `    <section className="bg-ink py-[70px] text-white">
         <RevealGroup staggerChildren={0.1} delayChildren={0.1} className="mx-auto flex w-[min(1240px,calc(100%-64px))] items-center justify-between gap-8 max-md:w-[calc(100%-36px)] max-md:flex-col max-md:items-start">
           <RevealItem variant="quickEnter">
@@ -88,8 +91,8 @@ if (sectionStart !== -1 && endIdx !== -1) {
 }`;
 
   const newContent = before + newSection;
-  fs.writeFileSync('src/components/ModernHomePage.tsx', newContent, 'utf8');
-  console.log('File fixed!');
+  fs.writeFileSync("src/components/ModernHomePage.tsx", newContent, "utf8");
+  console.log("File fixed!");
 } else {
-  console.log('Could not find section boundaries');
+  console.log("Could not find section boundaries");
 }

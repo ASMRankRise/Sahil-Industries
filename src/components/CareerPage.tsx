@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
 import { LegacyRuntime } from "@/components/LegacyRuntime";
 import { ModernPageShell } from "@/components/ModernPageShell";
 import { Reveal, RevealGroup, RevealItem } from "@/components/ui/Reveal";
 import { MagneticButton } from "@/components/ui/MagneticButton";
-import { motion } from 'framer-motion';
+import { motion } from "framer-motion";
 
 const hiddenValues = [
   [
@@ -63,9 +63,13 @@ export default function CareerPage() {
                 name="contact_form"
                 action="https://www.agnisdesigners.co.in/phpmailer/agnis_email_post.php"
                 method="post"
-                encType="multipart/form-data" className="space-y-5 border border-ink/20 bg-white p-[clamp(24px,4vw,46px)] shadow-safety">
+                encType="multipart/form-data"
+                className="space-y-5 border border-ink/20 bg-white p-[clamp(24px,4vw,46px)] shadow-safety">
                 {/* Form Fields Grid - Staggered */}
-                <RevealGroup staggerChildren={0.06} delayChildren={0.1} className="grid grid-cols-2 gap-x-5 gap-y-4 max-md:grid-cols-1">
+                <RevealGroup
+                  staggerChildren={0.06}
+                  delayChildren={0.1}
+                  className="grid grid-cols-2 gap-x-5 gap-y-4 max-md:grid-cols-1">
                   <RevealItem variant="itemReveal">
                     <Field
                       id="fullname"
@@ -104,7 +108,11 @@ export default function CareerPage() {
                 {/* Message Field */}
                 <Reveal variant="quickEnter" delay={0.3}>
                   <div className="form-group space-y-2">
-                    <label htmlFor="message" className="block text-xs font-bold uppercase tracking-industrial text-ink">Message</label>
+                    <label
+                      htmlFor="message"
+                      className="block text-xs font-bold uppercase tracking-industrial text-ink">
+                      Message
+                    </label>
                     <textarea
                       id="message"
                       name="enquiry[array_name][Message]"
@@ -119,15 +127,28 @@ export default function CareerPage() {
                 {/* File Upload */}
                 <Reveal variant="quickEnter" delay={0.35}>
                   <div className="form-group space-y-2">
-                    <label htmlFor="uploaded_file" className="block text-xs font-bold uppercase tracking-industrial text-ink">Upload your resume</label>
-                    <input className="block w-full border border-dashed border-ink/25 bg-mist px-4 py-3 text-sm text-steel file:mr-4 file:border-0 file:bg-safety file:px-4 file:py-2 file:font-bold file:text-ink transition-all duration-200 hover:border-safety/50" type="file" name="uploaded_file" id="uploaded_file" />
+                    <label
+                      htmlFor="uploaded_file"
+                      className="block text-xs font-bold uppercase tracking-industrial text-ink">
+                      Upload your resume
+                    </label>
+                    <input
+                      className="block w-full border border-dashed border-ink/25 bg-mist px-4 py-3 text-sm text-steel file:mr-4 file:border-0 file:bg-safety file:px-4 file:py-2 file:font-bold file:text-ink transition-all duration-200 hover:border-safety/50"
+                      type="file"
+                      name="uploaded_file"
+                      id="uploaded_file"
+                    />
                   </div>
                 </Reveal>
 
                 {/* Captcha */}
                 <Reveal variant="quickEnter" delay={0.4}>
                   <div className="form-group space-y-2">
-                    <label htmlFor="defaultReal" className="block text-xs font-bold uppercase tracking-industrial text-ink">Security verification</label>
+                    <label
+                      htmlFor="defaultReal"
+                      className="block text-xs font-bold uppercase tracking-industrial text-ink">
+                      Security verification
+                    </label>
                     <input
                       type="text"
                       id="defaultReal"
@@ -156,8 +177,7 @@ export default function CareerPage() {
                       strength={0.25}
                       area={80}
                       variant="primary"
-                      className="w-full border-0 bg-safety px-6 py-4 text-xs font-extrabold uppercase tracking-industrial text-ink"
-                    >
+                      className="w-full border-0 bg-safety px-6 py-4 text-xs font-extrabold uppercase tracking-industrial text-ink">
                       Send Your Message
                     </MagneticButton>
                   </div>
@@ -188,7 +208,9 @@ function Field({
 }) {
   return (
     <div className="form-group space-y-2">
-      <label htmlFor={id} className="block text-xs font-bold uppercase tracking-industrial text-ink">
+      <label
+        htmlFor={id}
+        className="block text-xs font-bold uppercase tracking-industrial text-ink">
         {placeholder}
       </label>
       <motion.input
@@ -198,9 +220,9 @@ function Field({
         type={type}
         placeholder={placeholder}
         whileFocus={{
-          borderColor: '#F6C515',
-          boxShadow: '0 0 0 3px rgba(246,197,21,0.2)',
-          transition: { duration: 0.2, ease: 'easeOut' },
+          borderColor: "#F6C515",
+          boxShadow: "0 0 0 3px rgba(246,197,21,0.2)",
+          transition: { duration: 0.2, ease: "easeOut" },
         }}
       />
     </div>

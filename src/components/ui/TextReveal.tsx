@@ -1,16 +1,20 @@
-'use client';
+"use client";
 
-import { useEffect, useRef, useState } from 'react';
-import { splitText, animateSplitText, prefersReducedMotion } from '@/components/animations/gsapUtils';
-import { SplitText } from 'gsap/SplitText';
+import { useEffect, useRef, useState } from "react";
+import {
+  splitText,
+  animateSplitText,
+  prefersReducedMotion,
+} from "@/components/animations/gsapUtils";
+import { SplitText } from "gsap/SplitText";
 
 interface TextRevealProps {
   /** Text content to animate */
   children: React.ReactNode;
   /** Split type: 'lines' | 'words' | 'chars' | 'lines,words' | 'lines,words,chars' */
-  split?: 'lines' | 'words' | 'chars' | 'lines,words' | 'lines,words,chars';
+  split?: "lines" | "words" | "chars" | "lines,words" | "lines,words,chars";
   /** Animation target: 'lines' | 'words' | 'chars' */
-  animate?: 'lines' | 'words' | 'chars';
+  animate?: "lines" | "words" | "chars";
   /** Stagger delay between elements (seconds) */
   stagger?: number;
   /** Delay before animation starts (seconds) */
@@ -50,7 +54,7 @@ interface TextRevealProps {
   /** Additional CSS classes */
   className?: string;
   /** HTML tag to render */
-  tag?: 'p' | 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'span' | 'div';
+  tag?: "p" | "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "span" | "div";
   /** Custom line class */
   linesClass?: string;
   /** Custom word class */
@@ -65,25 +69,27 @@ interface TextRevealProps {
  */
 export function TextReveal({
   children,
-  split = 'lines,words,chars',
-  animate = 'lines',
+  split = "lines,words,chars",
+  animate = "lines",
   stagger = 0.05,
   delay = 0,
   duration = 0.6,
-  ease = 'power3.out',
+  ease = "power3.out",
   from = { opacity: 0, y: 20 },
   to = { opacity: 1, y: 0 },
   scrollTrigger = false,
   scrollTriggerOptions = {},
   onComplete,
-  className = '',
-  tag: Tag = 'p',
-  linesClass = 'split-line',
-  wordsClass = 'split-word',
-  charsClass = 'split-char',
+  className = "",
+  tag: Tag = "p",
+  linesClass = "split-line",
+  wordsClass = "split-word",
+  charsClass = "split-char",
 }: TextRevealProps) {
   const elementRef = useRef<HTMLElement>(null);
-  const splitRef = useRef<{ split: SplitText; revert: () => void } | null>(null);
+  const splitRef = useRef<{ split: SplitText; revert: () => void } | null>(
+    null,
+  );
   const [isVisible, setIsVisible] = useState(!scrollTrigger);
   const [hasAnimated, setHasAnimated] = useState(false);
 
@@ -101,10 +107,10 @@ export function TextReveal({
         });
       },
       {
-        rootMargin: '0px',
+        rootMargin: "0px",
         threshold: 0.1,
         ...scrollTriggerOptions,
-      }
+      },
     );
 
     if (elementRef.current) {
@@ -133,7 +139,8 @@ export function TextReveal({
 
   // Animate when visible
   useEffect(() => {
-    if (!isVisible || hasAnimated || !splitRef.current || !elementRef.current) return;
+    if (!isVisible || hasAnimated || !splitRef.current || !elementRef.current)
+      return;
 
     setHasAnimated(true);
 
@@ -158,7 +165,7 @@ export function TextReveal({
     });
 
     // First show the container
-    tl.to(elementRef.current, { opacity: 1, duration: 0, ease: 'none' });
+    tl.to(elementRef.current, { opacity: 1, duration: 0, ease: "none" });
 
     // Then animate the split elements
     const targets = splitRef.current.split[animate];
@@ -173,24 +180,31 @@ export function TextReveal({
           ease,
           duration,
         },
-        0
+        0,
       );
     }
 
     return () => {
       tl?.kill();
     };
-  }, [isVisible, hasAnimated, animate, stagger, delay, duration, ease, from, to, onComplete]);
+  }, [
+    isVisible,
+    hasAnimated,
+    animate,
+    stagger,
+    delay,
+    duration,
+    ease,
+    from,
+    to,
+    onComplete,
+  ]);
 
   // Need to import gsap
-  const gsap = typeof window !== 'undefined' ? require('gsap').gsap : null;
+  const gsap = typeof window !== "undefined" ? require("gsap").gsap : null;
 
   return (
-    <Tag
-      ref={elementRef}
-      className={className}
-      style={{ opacity: 0 }}
-    >
+    <Tag ref={elementRef} className={className} style={{ opacity: 0 }}>
       {children}
     </Tag>
   );
@@ -199,7 +213,10 @@ export function TextReveal({
 /**
  * TextRevealLine - Convenience component for line-by-line reveal.
  */
-interface TextRevealLineProps extends Omit<TextRevealProps, 'split' | 'animate'> {
+interface TextRevealLineProps extends Omit<
+  TextRevealProps,
+  "split" | "animate"
+> {
   /** Stagger between lines */
   stagger?: number;
 }
@@ -209,19 +226,17 @@ export function TextRevealLine({
   ...props
 }: TextRevealLineProps) {
   return (
-    <TextReveal
-      split="lines"
-      animate="lines"
-      stagger={stagger}
-      {...props}
-    />
+    <TextReveal split="lines" animate="lines" stagger={stagger} {...props} />
   );
 }
 
 /**
  * TextRevealWord - Convenience component for word-by-word reveal.
  */
-interface TextRevealWordProps extends Omit<TextRevealProps, 'split' | 'animate'> {
+interface TextRevealWordProps extends Omit<
+  TextRevealProps,
+  "split" | "animate"
+> {
   /** Stagger between words */
   stagger?: number;
 }
@@ -231,19 +246,17 @@ export function TextRevealWord({
   ...props
 }: TextRevealWordProps) {
   return (
-    <TextReveal
-      split="words"
-      animate="words"
-      stagger={stagger}
-      {...props}
-    />
+    <TextReveal split="words" animate="words" stagger={stagger} {...props} />
   );
 }
 
 /**
  * TextRevealChar - Convenience component for character-by-character reveal.
  */
-interface TextRevealCharProps extends Omit<TextRevealProps, 'split' | 'animate'> {
+interface TextRevealCharProps extends Omit<
+  TextRevealProps,
+  "split" | "animate"
+> {
   /** Stagger between chars */
   stagger?: number;
 }
@@ -253,19 +266,17 @@ export function TextRevealChar({
   ...props
 }: TextRevealCharProps) {
   return (
-    <TextReveal
-      split="chars"
-      animate="chars"
-      stagger={stagger}
-      {...props}
-    />
+    <TextReveal split="chars" animate="chars" stagger={stagger} {...props} />
   );
 }
 
 /**
  * HeadingReveal - Pre-configured for headings with line-by-line animation.
  */
-interface HeadingRevealProps extends Omit<TextRevealProps, 'split' | 'animate' | 'tag'> {
+interface HeadingRevealProps extends Omit<
+  TextRevealProps,
+  "split" | "animate" | "tag"
+> {
   /** Heading level */
   level?: 1 | 2 | 3 | 4 | 5 | 6;
   /** Stagger between lines */
@@ -295,7 +306,7 @@ export function HeadingReveal({
  */
 interface SplitTextOnlyProps {
   children: React.ReactNode;
-  split?: 'lines' | 'words' | 'chars' | 'lines,words' | 'lines,words,chars';
+  split?: "lines" | "words" | "chars" | "lines,words" | "lines,words,chars";
   linesClass?: string;
   wordsClass?: string;
   charsClass?: string;
@@ -304,14 +315,16 @@ interface SplitTextOnlyProps {
 
 export function SplitTextOnly({
   children,
-  split = 'lines,words,chars',
-  linesClass = 'split-line',
-  wordsClass = 'split-word',
-  charsClass = 'split-char',
+  split = "lines,words,chars",
+  linesClass = "split-line",
+  wordsClass = "split-word",
+  charsClass = "split-char",
   render,
 }: SplitTextOnlyProps) {
   const elementRef = useRef<HTMLElement>(null);
-  const splitRef = useRef<{ split: SplitText; revert: () => void } | null>(null);
+  const splitRef = useRef<{ split: SplitText; revert: () => void } | null>(
+    null,
+  );
 
   useEffect(() => {
     if (!elementRef.current) return;
@@ -330,8 +343,10 @@ export function SplitTextOnly({
   }, [split, linesClass, wordsClass, charsClass]);
 
   return (
-    <div ref={elementRef} style={{ display: 'contents' }}>
-      {render(splitRef.current?.split || null, () => splitRef.current?.revert())}
+    <div ref={elementRef} style={{ display: "contents" }}>
+      {render(splitRef.current?.split || null, () =>
+        splitRef.current?.revert(),
+      )}
       {children}
     </div>
   );
