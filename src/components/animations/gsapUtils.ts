@@ -147,6 +147,7 @@ export function createParallax(
     speed?: number; // 0.5 = half speed, 2 = double speed
     yPercent?: number;
     ease?: string;
+    scrub?: boolean | number;
   } = {},
 ): ScrollTrigger | null {
   if (!element || prefersReducedMotion()) return null;

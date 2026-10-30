@@ -66,114 +66,200 @@ export default function ModernHomePage() {
 
       {/* Hero Section */}
       <section className="relative flex min-h-[710px] items-center overflow-hidden bg-ink text-white max-md:min-h-[650px]">
+        {/* Background slider with enhanced transitions */}
         <HeroSliderBackdrop />
+        
+        {/* Subtle grid pattern overlay */}
         <div className="absolute inset-0 opacity-25 [background-image:linear-gradient(rgba(246,197,21,.22)_1px,transparent_1px),linear-gradient(90deg,rgba(246,197,21,.22)_1px,transparent_1px)] [background-size:74px_74px]" />
+        
+        {/* Radial gradient glow for depth */}
+        <div className="absolute inset-0 bg-gradient-to-br from-safety/10 via-transparent to-transparent opacity-50" aria-hidden="true" />
+        
+        {/* HeroMotion GSAP animations */}
         <HeroMotion />
 
+        {/* Main content */}
         <div className="relative z-10 mx-auto w-[min(1240px,calc(100%-64px))] py-[114px] pb-[158px] max-md:w-[calc(100%-36px)] max-md:py-[88px] max-md:pb-[180px]">
           <RevealGroup staggerChildren={0.1} delayChildren={0.1}>
+            {/* Eyebrow with enhanced animation */}
             <RevealItem variant="quickEnter">
-              <motion.p
+              <motion.div
                 className="mb-[18px] flex items-center gap-2 text-[11px] font-extrabold uppercase tracking-[.15em] text-safety"
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.4 }}>
-                <span className="h-0.5 w-8 bg-safety" />
-                Engineered material handling
-              </motion.p>
+                initial={{ opacity: 0, x: -20, scale: 0.95 }}
+                animate={{ opacity: 1, x: 0, scale: 1 }}
+                transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}>
+                <motion.span
+                  className="h-0.5 w-8 bg-safety"
+                  initial={{ width: 0 }}
+                  animate={{ width: '2rem' }}
+                  transition={{ duration: 0.6, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
+                />
+                <span>Engineered material handling</span>
+              </motion.div>
             </RevealItem>
+
+            {/* Headline with proper h1 and enhanced Framer Motion line-by-line animation */}
             <RevealItem variant="quickEnter">
-              <TextRevealLine
-                split="lines"
-                stagger={0.1}
-                className="m-0 max-w-[800px] text-[clamp(48px,6vw,88px)] font-bold leading-[.98] tracking-[-.065em]"
-                from={{ opacity: 0, y: 30 }}
-                to={{ opacity: 1, y: 0 }}
-                duration={0.7}>
-                Precision lifting.
-                <br />
-                <em className="not-italic text-safety">Built for industry.</em>
-              </TextRevealLine>
+              <h1 className="m-0 max-w-[800px] text-[clamp(48px,6vw,88px)] font-bold leading-[.98] tracking-[-.065em]">
+                <motion.div
+                  className="block"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}>
+                  <motion.span
+                    className="block"
+                    initial={{ opacity: 0, y: 40, filter: 'blur(8px)' }}
+                    animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+                    transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}>
+                    Precision lifting.
+                  </motion.span>
+                  <motion.span
+                    className="block not-italic text-safety relative"
+                    initial={{ opacity: 0, y: 40, filter: 'blur(8px)' }}
+                    animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+                    transition={{ duration: 0.7, delay: 0.12, ease: [0.22, 1, 0.36, 1] }}>
+                    Built for industry.
+                    <motion.span
+                      className="absolute -bottom-1 left-0 right-0 h-1 bg-safety/30"
+                      initial={{ scaleX: 0 }}
+                      animate={{ scaleX: 1 }}
+                      transition={{ duration: 0.6, delay: 0.8, ease: [0.22, 1, 0.36, 1] }}
+                    />
+                  </motion.span>
+                </motion.div>
+              </h1>
             </RevealItem>
+
+            {/* Description with enhanced animation */}
             <RevealItem variant="quickEnter">
               <motion.p
                 className="my-7 max-w-[520px] text-[17px] leading-7 text-slate-200 max-md:text-[15px]"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.1 }}>
+                transition={{ duration: 0.6, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}>
                 Manufacturing EOT cranes and hoists for dependable, safe
                 material movement across India.
               </motion.p>
             </RevealItem>
+
+            {/* CTA Buttons with enhanced styling */}
             <RevealItem variant="quickEnter">
-              <div className="flex flex-wrap gap-3 max-md:grid max-md:grid-cols-1">
+              <div className="flex flex-wrap gap-4 max-md:grid max-md:grid-cols-1">
                 <MagneticLink
                   href="/enquiry"
-                  strength={0.2}
-                  area={60}
+                  strength={0.25}
+                  area={80}
                   variant="primary"
-                  className="inline-flex items-center justify-center gap-2 border border-safety bg-safety px-5 py-4 text-xs font-extrabold uppercase tracking-industrial text-ink">
-                  Request a consultation <ArrowRight size={17} />
+                  className="group inline-flex items-center justify-center gap-3 border border-safety bg-safety px-6 py-7.5 text-xs font-extrabold uppercase tracking-industrial text-ink shadow-lg shadow-safety/25 hover:shadow-xl hover:shadow-safety/40 transition-all duration-300">
+                  <span className="relative z-10">Request a consultation</span>
+                  <motion.div
+                    className="absolute inset-0 bg-safety/20"
+                    initial={{ scaleX: 0 }}
+                    whileHover={{ scaleX: 1 }}
+                    transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+                  />
+                  <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform duration-300" />
                 </MagneticLink>
                 <MagneticLink
                   href="/products/single-girder-eot-crane"
                   strength={0.15}
-                  area={50}
+                  area={60}
                   variant="secondary"
-                  className="inline-flex items-center justify-center border border-white/55 px-5 py-4 text-xs font-extrabold uppercase tracking-industrial text-white">
-                  Explore products
+                  className="group inline-flex items-center justify-center gap-3 border border-white/60 bg-white/5 px-7 py-4.5 text-xs font-extrabold uppercase tracking-industrial text-white backdrop-blur-sm hover:bg-white/10 hover:border-white/80 transition-all duration-300">
+                  <span className="relative z-10">Explore products</span>
+                  <motion.div
+                    className="absolute inset-0 bg-white/10"
+                    initial={{ scaleX: 0 }}
+                    whileHover={{ scaleX: 1 }}
+                    transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+                  />
+                  <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform duration-300" />
                 </MagneticLink>
               </div>
             </RevealItem>
           </RevealGroup>
         </div>
 
-        {/* Stats Bar - Animated Counters */}
-        <div className="absolute bottom-0 left-1/2 z-10 grid w-[min(1240px,calc(100%-64px))] -translate-x-1/2 grid-cols-3 border-l border-white/20 max-md:bottom-5 max-md:w-[calc(100%-36px)] max-md:grid-cols-1">
+        {/* Enhanced Stats Bar - Animated Counters */}
+        <div className="absolute bottom-0 left-1/2 z-10 grid w-[min(1240px,calc(100%-64px))] -translate-x-1/2 grid-cols-3 gap-4 border-l border-white/20 max-md:bottom-5 max-md:w-[calc(100%-36px)] max-md:grid-cols-1 max-md:gap-3">
           <Reveal variant="itemReveal" delay={0.1}>
-            <div className="flex items-center gap-4 border border-white/20 border-l-0 bg-ink/80 px-7 py-5 max-md:px-4 max-md:py-2">
-              <Counter
-                end={22}
-                suffix="+"
-                duration={2}
-                className="text-3xl text-safety max-md:text-[22px]"
-              />
-              <span className="max-w-[110px] text-[10px] uppercase tracking-industrial">
+            <motion.div
+              className="group flex items-center gap-4 border border-white/20 border-l-0 bg-ink/80 px-7 py-5 max-md:px-4 max-md:py-2 hover:border-safety/50 hover:bg-ink/90 transition-all duration-300"
+              whileHover={{ y: -2 }}
+              transition={{ duration: 0.2 }}>
+              <div className="relative">
+                <Counter
+                  end={22}
+                  suffix="+"
+                  duration={2.5}
+                  className="text-3xl font-bold text-safety max-md:text-[22px]"
+                />
+                <motion.div
+                  className="absolute -bottom-1 left-0 w-0 h-0.5 bg-safety"
+                  initial={{ width: 0 }}
+                  whileHover={{ width: '100%' }}
+                  transition={{ duration: 0.3 }}
+                />
+              </div>
+              <span className="max-w-[110px] text-[10px] uppercase tracking-industrial text-slate-300 text-nowrap">
                 Years of industry experience
               </span>
-            </div>
+            </motion.div>
           </Reveal>
           <Reveal variant="itemReveal" delay={0.15}>
-            <div className="flex items-center gap-4 border border-white/20 border-l-0 bg-ink/80 px-7 py-5 max-md:px-4 max-md:py-2">
-              <Counter
-                end={100}
-                suffix="+"
-                duration={2}
-                className="text-3xl text-safety max-md:text-[22px]"
-              />
-              <span className="max-w-[110px] text-[10px] uppercase tracking-industrial">
+            <motion.div
+              className="group flex items-center gap-4 border border-white/20 border-l-0 bg-ink/80 px-7 py-5 max-md:px-4 max-md:py-2 hover:border-safety/50 hover:bg-ink/90 transition-all duration-300"
+              whileHover={{ y: -2 }}
+              transition={{ duration: 0.2 }}>
+              <div className="relative">
+                <Counter
+                  end={100}
+                  suffix="+"
+                  duration={2.5}
+                  className="text-3xl font-bold text-safety max-md:text-[22px]"
+                />
+                <motion.div
+                  className="absolute -bottom-1 left-0 w-0 h-0.5 bg-safety"
+                  initial={{ width: 0 }}
+                  whileHover={{ width: '100%' }}
+                  transition={{ duration: 0.3 }}
+                />
+              </div>
+              <span className="max-w-[110px] text-[10px] uppercase tracking-industrial text-slate-300">
                 Satisfied crane customers
               </span>
-            </div>
+            </motion.div>
           </Reveal>
           <Reveal variant="itemReveal" delay={0.2}>
-            <div className="flex items-center gap-4 border border-white/20 border-l-0 bg-ink/80 px-7 py-5 max-md:px-4 max-md:py-2">
-              <Counter
-                end={200}
-                duration={2}
-                className="text-3xl text-safety max-md:text-[22px]"
-              />
-              <span className="max-w-[110px] text-[10px] uppercase tracking-industrial">
+            <motion.div
+              className="group flex items-center gap-4 border border-white/20 border-l-0 bg-ink/80 px-7 py-5 max-md:px-4 max-md:py-2 hover:border-safety/50 hover:bg-ink/90 transition-all duration-300"
+              whileHover={{ y: -2 }}
+              transition={{ duration: 0.2 }}>
+              <div className="relative">
+                <Counter
+                suffix="+"
+                  end={200}
+                  duration={2.5}
+                  className="text-3xl font-bold text-safety max-md:text-[22px]"
+                />
+                <motion.div
+                  className="absolute -bottom-1 left-0 w-0 h-0.5 bg-safety"
+                  initial={{ width: 0 }}
+                  whileHover={{ width: '100%' }}
+                  transition={{ duration: 0.3 }}
+                />
+              </div>
+              <span className="max-w-[110px] text-[10px] uppercase tracking-industrial text-slate-300">
                 Tons lifting capacity
               </span>
-            </div>
+            </motion.div>
           </Reveal>
         </div>
       </section>
 
       {/* Highlights Area */}
       <section className="py-28 max-md:py-20 bg-white">
-        <div className="mx-auto w-[min(1240px,calc(100%-64px))] max-md:w-[calc(100%-36px)]">
+        <div className="mx-auto w-[min(1140px,calc(100%-64px))] max-md:w-[calc(100%-36px)]">
           <RevealGroup
             staggerChildren={0.1}
             delayChildren={0.1}
@@ -211,95 +297,100 @@ export default function ModernHomePage() {
         </div>
       </section>
 
-      <section className="py-28 max-md:py-20">
-        <div className="mx-auto grid w-[min(1240px,calc(100%-64px))] grid-cols-[minmax(320px,.88fr)_minmax(340px,1fr)] items-center gap-[clamp(50px,9vw,150px)] max-md:w-[calc(100%-36px)] max-md:grid-cols-1">
-          <RevealGroup staggerChildren={0.1} delayChildren={0.1}>
-            <RevealItem variant="itemReveal">
-              <div className="relative pb-[38px] pr-[38px]">
-                <div className="absolute bottom-0 right-0 h-3/4 w-3/4 border border-safety" />
-                <motion.img
-                  className="relative z-10 h-[510px] w-full object-cover grayscale-[.16] max-md:h-[370px]"
-                  src="/media/home/about-01.jpg"
-                  alt="Sahil Industries crane manufacturing"
-                  whileInView={{ opacity: 1, scale: 1 }}
-                  initial={{ opacity: 0, scale: 1.05 }}
-                  viewport={{ once: true, amount: 0.3 }}
-                  transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-                />
-                <motion.img
-                  className="absolute -bottom-7 -right-7 z-20 h-[185px] w-[42%] border-8 border-white object-cover shadow-xl max-md:hidden"
-                  src="/media/home/about-02.jpg"
-                  alt="Sahil Industries manufacturing facility"
-                  whileInView={{ opacity: 1, y: 0 }}
-                  initial={{ opacity: 0, y: 30 }}
-                  viewport={{ once: true, amount: 0.3 }}
-                  transition={{
-                    duration: 0.6,
-                    delay: 0.2,
-                    ease: [0.22, 1, 0.36, 1],
-                  }}
-                />
-                <motion.div
-                  className="absolute bottom-3 left-[-22px] z-20 border-l-4 border-safety bg-ink px-5 py-4 text-[10px] tracking-[.12em] text-white"
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.4, duration: 0.4 }}>
-                  ISO
-                  <br />
-                  <b className="text-[15px]">9001:2008</b>
-                </motion.div>
-              </div>
-            </RevealItem>
-            <RevealItem variant="itemReveal">
-              <div>
-                <Heading
-                  eyebrow="Sahil Industries"
-                  title="A capable partner for every lift."
-                  copy="We are an ISO 9001:2008 certified manufacturer and solution partner for industrial EOT cranes and hoists."
-                />
-                <motion.p
-                  className="text-steel"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: 0.1 }}>
-                  For more than two decades, we have engineered material
-                  handling equipment to IS guidelines and supported customers
-                  with installation, maintenance, repair, and service for cranes
-                  of any make.
-                </motion.p>
-                <motion.ul
-                  className="my-7 grid gap-3 p-0 font-semibold"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.2, staggerChildren: 0.1 }}>
-                  {[
-                    "Pre-engineered industrial cranes",
-                    "Purpose-built lifting solutions",
-                    "Service support across equipment makes",
-                  ].map((item, index) => (
-                    <motion.li
-                      key={item}
-                      className="flex items-center gap-2"
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ duration: 0.3 }}>
-                      <Check size={16} className="text-[#b28a00]" />
-                      {item}
-                    </motion.li>
-                  ))}
-                </motion.ul>
-                <MagneticLink
-                  href="/about"
-                  strength={0.15}
-                  area={50}
-                  variant="ghost"
-                  className="inline-flex items-center gap-2 border-b border-safety pb-1 text-xs font-extrabold uppercase tracking-industrial">
-                  Discover our company <ArrowRight size={16} />
-                </MagneticLink>
-              </div>
-            </RevealItem>
-          </RevealGroup>
-        </div>
+      {/* About Section - Side by side layout with background separation */}
+      <section className="py-28 max-md:py-20 bg-mist">
+        <RevealGroup
+          staggerChildren={0.1}
+          delayChildren={0.1}
+          className="mx-auto grid w-[min(1240px,calc(100%-64px))] grid-cols-[minmax(320px,.88fr)_minmax(340px,1fr)] items-center gap-[clamp(50px,9vw,150px)] max-md:w-[calc(100%-36px)] max-md:grid-cols-1">
+          {/* Image - Left Side */}
+          <RevealItem variant="itemReveal">
+            <div className="relative pb-[38px] pr-[38px]">
+              <div className="absolute bottom-0 right-0 h-3/4 w-3/4 border border-safety" />
+              <motion.img
+                className="relative z-10 h-[510px] w-full object-cover grayscale-[.16] max-md:h-[370px]"
+                src="/media/home/about-01.jpg"
+                alt="Sahil Industries crane manufacturing"
+                whileInView={{ opacity: 1, scale: 1 }}
+                initial={{ opacity: 0, scale: 1.05 }}
+                viewport={{ once: true, amount: 0.3 }}
+                transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+              />
+              <motion.img
+                className="absolute -bottom-7 -right-7 z-20 h-[185px] w-[42%] border-8 border-white object-cover shadow-xl max-md:hidden"
+                src="/media/home/about-02.jpg"
+                alt="Sahil Industries manufacturing facility"
+                whileInView={{ opacity: 1, y: 0 }}
+                initial={{ opacity: 0, y: 30 }}
+                viewport={{ once: true, amount: 0.3 }}
+                transition={{
+                  duration: 0.6,
+                  delay: 0.2,
+                  ease: [0.22, 1, 0.36, 1],
+                }}
+              />
+              <motion.div
+                className="absolute bottom-3 left-[-22px] z-20 border-l-4 border-safety bg-ink px-5 py-4 text-[10px] tracking-[.12em] text-white"
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.4, duration: 0.4 }}>
+                ISO
+                <br />
+                <b className="text-[15px]">9001:2008</b>
+              </motion.div>
+            </div>
+          </RevealItem>
+
+          {/* Text Content - Right Side */}
+          <RevealItem variant="itemReveal">
+            <div>
+              <Heading
+                eyebrow="Sahil Industries"
+                title="A capable partner for every lift."
+                copy="We are an ISO 9001:2008 certified manufacturer and solution partner for industrial EOT cranes and hoists."
+              />
+              <motion.p
+                className="text-steel"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.1 }}>
+                For more than two decades, we have engineered material
+                handling equipment to IS guidelines and supported customers
+                with installation, maintenance, repair, and service for cranes
+                of any make.
+              </motion.p>
+              <motion.ul
+                className="my-7 grid gap-3 p-0 font-semibold"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.2, staggerChildren: 0.1 }}>
+                {[
+                  "Pre-engineered industrial cranes",
+                  "Purpose-built lifting solutions",
+                  "Service support across equipment makes",
+                ].map((item, index) => (
+                  <motion.li
+                    key={item}
+                    className="flex items-center gap-2"
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.3 }}>
+                    <Check size={16} className="text-[#b28a00]" />
+                    {item}
+                  </motion.li>
+                ))}
+              </motion.ul>
+              <MagneticLink
+                href="/about"
+                strength={0.15}
+                area={50}
+                variant="ghost"
+                className="inline-flex items-center gap-2 border-b border-safety pb-1 text-xs font-extrabold uppercase tracking-industrial">
+                Discover our company <ArrowRight size={16} />
+              </MagneticLink>
+            </div>
+          </RevealItem>
+        </RevealGroup>
       </section>
 
       <section className="bg-mist py-28 max-md:py-20">
