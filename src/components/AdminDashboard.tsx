@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import {
   LayoutDashboard,
   Users,
@@ -227,6 +228,7 @@ const statusConfig = {
 };
 
 export default function AdminDashboard() {
+  const router = useRouter();
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [activeNav, setActiveNav] = useState("/admin");
   const [isMobile, setIsMobile] = useState(false);
@@ -312,6 +314,7 @@ export default function AdminDashboard() {
               <button
                 key={item.label}
                 onClick={() => {
+                  router.push(item.href);
                   setActiveNav(item.href);
                   if (isMobile) setSidebarOpen(false);
                 }}
