@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { CheckCircle, AlertCircle, Loader2, Mail, Phone, User, MessageSquare, Check, X, Info, Upload, FileText } from "lucide-react";
+import { CheckCircle, AlertCircle, Loader2, Mail, Phone, User, MessageSquare, Check, X, Info, Upload, FileText, RefreshCw, Shield } from "lucide-react";
 
 interface CareerFormData {
   fullname: string;
@@ -12,6 +12,13 @@ interface CareerFormData {
   message: string;
   resume: File | null;
   captcha: string;
+}
+
+// Simple math captcha state
+interface CaptchaState {
+  question: string;
+  answer: number;
+  userAnswer: string;
 }
 
 interface CareerFormErrors {
@@ -52,6 +59,16 @@ const initialFieldState: CareerFieldState = {
   isDirty: false,
   isTouched: false,
   isValidating: false,
+};
+
+// Generate a simple math captcha
+const generateCaptcha = (): CaptchaState => {
+  const num1 = Math.floor(Math.random() * 10) + 1;
+  const num2 = Math.floor(Math.random() * 10) + 1;
+  const operator = Math.random() > 0.5 ? '+' : '-';
+  const answer = operator === '+' ? num1 + num2 : num1 - num2;
+  const question = `${num1} ${operator} ${num2}`;
+  return { question, answer, userAnswer: "" };
 };
 
 // Validation rules
@@ -112,8 +129,9 @@ const validationRules: ValidationRules = {
   },
   captcha: {
     required: true,
-    minLength: 4,
-    maxLength: 10,
+    // Math captcha answer is typically 1-2 digits (0-20)
+    minLength: 1,
+    maxLength: 3,
   },
 };
 
@@ -133,8 +151,38 @@ export function CareerForm({ onSuccess }: CareerFormProps) {
   const [errorMessage, setErrorMessage] = useState("");
   const [touchedFields, setTouchedFields] = useState<Set<keyof CareerFormData>>(new Set());
   
+  // Captcha state
+  const [captcha, setCaptcha] = useState<CaptchaState>(generateCaptcha);
+  
   const validationTimeouts = useRef<Record<string, NodeJS.Timeout>>({});
   const asyncValidationCache = useRef<Record<string, boolean>>({});
+
+  // Refresh captcha
+  const refreshCaptcha = useCallback(() => {
+    setCaptcha(generateCaptcha);
+    setFormData(prev => ({ ...prev, captcha: "" }));
+    setFieldStates(prev => ({
+      ...prev,
+      captcha: { ...prev.captcha, value: "", error: undefined, warning: undefined, isDirty: false, isTouched: false }
+    }));
+    setTouchedFields(prev => {
+      const next = new Set(prev);
+      next.delete("captcha");
+      return next;
+    });
+  }, []);
+
+  // Validate captcha
+  const validateCaptcha = useCallback((value: string): { error?: string } => {
+    const userAnswer = parseInt(value.trim(), 10);
+    if (isNaN(userAnswer)) {
+      return { error: "Please enter the answer to the math question" };
+    }
+    if (userAnswer !== captcha.answer) {
+      return { error: "Incorrect answer. Please try again." };
+    }
+    return {};
+  }, [captcha.answer]);
 
   // Debounced validation
   const validateField = useCallback((name: keyof CareerFormData, value: string, isBlur = false): Promise<{ error?: string; warning?: string }> => {
@@ -154,6 +202,16 @@ export function CareerForm({ onSuccess }: CareerFormProps) {
       validationTimeouts.current[name] = setTimeout(() => {
         let error: string | undefined;
         let warning: string | undefined;
+
+        // Special handling for captcha
+        if (name === "captcha") {
+          const captchaResult = validateCaptcha(value);
+          if (captchaResult.error) {
+            error = captchaResult.error;
+          }
+          resolve({ error, warning });
+          return;
+        }
 
         // Required validation
         if (rules.required && !value.trim()) {
@@ -199,14 +257,14 @@ export function CareerForm({ onSuccess }: CareerFormProps) {
         resolve({ error, warning });
       }, delay);
     });
-  }, []);
+  }, [validateCaptcha]);
 
   // Handle field change with real-time validation
   const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     const fieldName = name as keyof CareerFormData;
     
-    // Format phone number as user types
+    // Format phone number as user types (skip for captcha)
     let formattedValue = value;
     if (fieldName === 'mobile' && validationRules.mobile.format) {
       formattedValue = formatPhoneNumber(value);
@@ -239,7 +297,7 @@ export function CareerForm({ onSuccess }: CareerFormProps) {
         });
       }
     });
-  }, []);
+  }, [validateField]);
 
   // Handle file input change
   const handleFileChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
@@ -322,7 +380,13 @@ export function CareerForm({ onSuccess }: CareerFormProps) {
 
       let error: string | undefined;
       
-      if (rules.required && !value.trim()) {
+      // Special handling for captcha
+      if (fieldName === "captcha") {
+        const captchaResult = validateCaptcha(value);
+        if (captchaResult.error) {
+          error = captchaResult.error;
+        }
+      } else if (rules.required && !value.trim()) {
         error = `${fieldName.charAt(0).toUpperCase() + fieldName.slice(1)} is required`;
       } else if (rules.minLength && value.trim().length > 0 && value.trim().length < (rules.minLength ?? 0)) {
         error = `Must be at least ${rules.minLength} characters`;
@@ -341,7 +405,7 @@ export function CareerForm({ onSuccess }: CareerFormProps) {
     setFieldStates(newFieldStates);
     setTouchedFields(new Set(Object.keys(formData) as Array<keyof CareerFormData>));
     return isValid;
-  }, [formData, fieldStates]);
+  }, [formData, fieldStates, validateCaptcha]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -382,7 +446,7 @@ export function CareerForm({ onSuccess }: CareerFormProps) {
         formDataToSubmit.append(name, value);
       });
 
-      const response = await fetch("https://www.agnisdesigners.co.in/phpmailer/agnis_email_post.php", {
+      const response = await fetch("/api/career", {
         method: "POST",
         body: formDataToSubmit,
       });
@@ -402,6 +466,8 @@ export function CareerForm({ onSuccess }: CareerFormProps) {
         resume: initialFieldState,
         captcha: initialFieldState,
       });
+      // Reset captcha
+      setCaptcha(generateCaptcha);
       setTouchedFields(new Set());
       onSuccess?.();
     } catch (error) {
@@ -414,6 +480,10 @@ export function CareerForm({ onSuccess }: CareerFormProps) {
 
   // Check if form is valid for submit button
   const isFormValid = useCallback(() => {
+    const captchaValid = formData.captcha.trim().length > 0 && 
+      !isNaN(parseInt(formData.captcha.trim(), 10)) && 
+      parseInt(formData.captcha.trim(), 10) === captcha.answer;
+    
     return (
       formData.fullname.trim().length >= (validationRules.fullname.minLength ?? 2) &&
       validationRules.fullname.pattern?.test(formData.fullname.trim()) &&
@@ -423,9 +493,9 @@ export function CareerForm({ onSuccess }: CareerFormProps) {
       validationRules.mobile.pattern?.test(formData.mobile) &&
       formData.message.trim().length >= (validationRules.message.minLength ?? 10) &&
       formData.resume !== null &&
-      formData.captcha.trim().length >= (validationRules.captcha.minLength ?? 4)
+      captchaValid
     );
-  }, [formData]);
+  }, [formData, captcha.answer]);
 
   // Cleanup timeouts on unmount
   useEffect(() => {
@@ -570,20 +640,60 @@ export function CareerForm({ onSuccess }: CareerFormProps) {
         isSubmitting={isSubmitting}
       />
 
-      <CareerField
-        name="captcha"
-        label="Security Verification"
-        type="text"
-        placeholder="Enter the captcha code"
-        icon={FileText}
-        required
-        autoComplete="off"
-        value={formData.captcha}
-        onChange={handleChange}
-        onBlur={handleBlur}
-        fieldState={getFieldState("captcha")}
-        isSubmitting={isSubmitting}
-      />
+      <div className="form-group space-y-2">
+        <label className="block text-xs font-bold uppercase tracking-industrial text-ink flex items-center gap-1">
+          Security Verification <span className="text-safety">*</span>
+        </label>
+        <div className="space-y-2">
+          <div className="flex items-center gap-3 p-4 bg-slate-50 border border-ink/20 rounded-lg">
+            <Shield className="w-6 h-6 text-safety flex-shrink-0" />
+            <span className="text-lg font-mono font-bold text-ink">{captcha.question} =</span>
+            <input
+              type="text"
+              name="captcha"
+              id="captcha"
+              value={formData.captcha}
+              onChange={handleChange}
+              onBlur={handleBlur}
+              className={`form-control w-auto min-w-[100px] pl-4 pr-4 py-2 border border-ink/20 bg-white text-ink outline-none transition-all duration-200 text-center font-mono text-lg ${
+                getFieldState("captcha").isInvalid ? "border-red-500/50 focus:border-red-500 bg-red-500/5" :
+                getFieldState("captcha").isValid ? "border-green-500/50 focus:border-green-500 bg-green-500/5" :
+                "focus:border-safety/50 focus:bg-white focus:ring-2 focus:ring-safety/20"
+              } ${isSubmitting ? "opacity-50 cursor-not-allowed" : ""}`}
+              placeholder="Answer"
+              required
+              disabled={isSubmitting}
+              autoComplete="off"
+              aria-invalid={getFieldState("captcha").isInvalid}
+              aria-describedby="captcha-message"
+            />
+            <button
+              type="button"
+              onClick={refreshCaptcha}
+              disabled={isSubmitting}
+              className="p-2 text-slate-400 hover:text-safety transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              aria-label="Refresh captcha"
+            >
+              <RefreshCw className="w-5 h-5" />
+            </button>
+          </div>
+          <AnimatePresence>
+            {getFieldState("captcha").isInvalid && getFieldState("captcha").showValidation && (
+              <motion.p
+                id="captcha-message"
+                initial={{ opacity: 0, y: -5 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -5 }}
+                className="text-xs text-red-500 flex items-center gap-1"
+              >
+                <AlertCircle className="w-3 h-3" />
+                {getFieldState("captcha").error}
+              </motion.p>
+            )}
+          </AnimatePresence>
+          <p className="text-xs text-slate-400">Solve the math question to verify you're human</p>
+        </div>
+      </div>
 
       <motion.button
         type="submit"
