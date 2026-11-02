@@ -125,6 +125,12 @@ interface AdminDataContextType {
   settings: Record<string, string>;
   updateSettings: (settings: Record<string, string>) => void;
   
+  // Auth (simulated login)
+  isAuthenticated: boolean;
+  user: { name: string; email: string } | null;
+  login: (credentials: { email: string; password: string }) => Promise<void>;
+  logout: () => void;
+  
   // Loading states
   loading: boolean;
 }
@@ -296,6 +302,50 @@ export function AdminDataProvider({ children }: { children: ReactNode }) {
   
   const [loading, setLoading] = useState(false);
 
+  // Auth state (simulated login — persisted in localStorage)
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
+    if (typeof window !== "undefined") {
+      const stored = localStorage.getItem("admin_auth");
+      if (stored) {
+        try { return JSON.parse(stored).isAuthenticated === true; } catch { return false; }
+      }
+    }
+    return false;
+  });
+  const [user, setUser] = useState<{ name: string; email: string } | null>(() => {
+    if (typeof window !== "undefined") {
+      const stored = localStorage.getItem("admin_auth");
+      if (stored) {
+        try { return JSON.parse(stored).user ?? null; } catch { return null; }
+      }
+    }
+    return null;
+  });
+
+  const SIMULATED_CREDENTIALS = {
+    email: "admin@sahilcranes.in",
+    password: "admin123",
+  };
+
+  const login = useCallback(async (credentials: { email: string; password: string }) => {
+    // Simulate network request
+    await new Promise(resolve => setTimeout(resolve, 800));
+    if (credentials.email === SIMULATED_CREDENTIALS.email && credentials.password === SIMULATED_CREDENTIALS.password) {
+      const authUser = { name: "Admin User", email: credentials.email };
+      setUser(authUser);
+      setIsAuthenticated(true);
+      localStorage.setItem("admin_auth", JSON.stringify({ isAuthenticated: true, user: authUser }));
+    } else {
+      throw new Error("Invalid email or password");
+    }
+  }, []);
+
+  const logout = useCallback(() => {
+    setUser(null);
+    setIsAuthenticated(false);
+    localStorage.removeItem("admin_auth");
+  }, []);
+
   // Persist to localStorage
   useEffect(() => { localStorage.setItem("admin_customers", JSON.stringify(customers)); }, [customers]);
   useEffect(() => { localStorage.setItem("admin_products", JSON.stringify(products)); }, [products]);
@@ -396,6 +446,10 @@ export function AdminDataProvider({ children }: { children: ReactNode }) {
       analytics,
       settings,
       updateSettings,
+      isAuthenticated,
+      user,
+      login,
+      logout,
       loading,
     }}>
       {children}

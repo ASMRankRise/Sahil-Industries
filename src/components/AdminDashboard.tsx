@@ -44,6 +44,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
+import { useAdminData } from "@/context/AdminDataContext";
 
 const asset = (path: string) => `/sahilcrane/${path}`;
 
@@ -229,6 +230,12 @@ const statusConfig = {
 
 export default function AdminDashboard() {
   const router = useRouter();
+  const { logout } = useAdminData();
+
+  const handleSignOut = () => {
+    logout();
+    router.push("/admin");
+  };
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [activeNav, setActiveNav] = useState("/admin");
   const [isMobile, setIsMobile] = useState(false);
@@ -341,7 +348,7 @@ export default function AdminDashboard() {
         {/* Sidebar Footer */}
         <div className="p-4 border-t border-white/10 flex-shrink-0 space-y-2">
           <button
-            onClick={() => {}}
+            onClick={handleSignOut}
             className="flex w-full items-center gap-3 px-3 py-2.5 text-sm font-medium text-slate-400 rounded-xl hover:bg-white/5 hover:text-white transition-colors group"
           >
             <LogOut size={17} className="group-hover:text-red-400 transition-colors" />
