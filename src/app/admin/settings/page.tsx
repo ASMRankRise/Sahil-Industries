@@ -30,7 +30,8 @@ import {
   Settings as SettingsIcon,
   Copy,
 } from "lucide-react";
-import { AdminDashboardLayout } from "@/components/AdminDashboardLayout";
+import { AdminDashboardLayoutWrapper } from "@/components/AdminDashboardLayout";
+import { useAdminData } from "@/context/AdminDataContext";
 
 const tabs = [
   { id: "general", label: "General", icon: SettingsIcon },
@@ -42,34 +43,31 @@ const tabs = [
 ];
 
 export default function SettingsPage() {
+  const { settings, updateSettings } = useAdminData();
   const [activeTab, setActiveTab] = useState("general");
-  const [theme, setTheme] = useState<"light" | "dark" | "system">("dark");
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const [compactMode, setCompactMode] = useState(false);
-  const [animationsEnabled, setAnimationsEnabled] = useState(true);
-  const [language, setLanguage] = useState("en");
-  const [timezone, setTimezone] = useState("Asia/Kolkata");
-  const [dateFormat, setDateFormat] = useState("DD/MM/YYYY");
-  const [currency, setCurrency] = useState("INR");
-  const [appName, setAppName] = useState("Sahil Industries Admin");
-  const [companyName, setCompanyName] = useState("Sahil Industries");
-  const [supportEmail, setSupportEmail] = useState("sahilcranes@gmail.com");
-  const [supportPhone, setSupportPhone] = useState("+91 96 2324 2324");
-  const [emailNotifications, setEmailNotifications] = useState(true);
-  const [pushNotifications, setPushNotifications] = useState(true);
-  const [orderUpdates, setOrderUpdates] = useState(true);
-  const [enquiryAlerts, setEnquiryAlerts] = useState(true);
-  const [stockAlerts, setStockAlerts] = useState(true);
-  const [weeklyReports, setWeeklyReports] = useState(false);
-  const [twoFactorEnabled, setTwoFactorEnabled] = useState(false);
-  const [sessionTimeout, setSessionTimeout] = useState(30);
-  const [passwordExpiry, setPasswordExpiry] = useState(90);
-  const [loginAlerts, setLoginAlerts] = useState(true);
-  const [apiKeys, setApiKeys] = useState([
-    { id: "key_1", name: "Production API", key: "sk_live_****_****_****_a1b2", created: "2024-01-10", status: "Active" },
-    { id: "key_2", name: "Development API", key: "sk_test_****_****_****_c3d4", created: "2024-01-12", status: "Active" },
-    { id: "key_3", name: "Webhook Handler", key: "sk_live_****_****_****_e5f6", created: "2023-12-20", status: "Revoked" },
-  ]);
+  const [theme, setTheme] = useState<"light" | "dark" | "system">(settings.theme as "light" | "dark" | "system" || "dark");
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(settings.sidebarCollapsed === "true");
+  const [compactMode, setCompactMode] = useState(settings.compactMode === "true");
+  const [animationsEnabled, setAnimationsEnabled] = useState(settings.animationsEnabled !== "false");
+  const [language, setLanguage] = useState(settings.language || "en");
+  const [timezone, setTimezone] = useState(settings.timezone || "Asia/Kolkata");
+  const [dateFormat, setDateFormat] = useState(settings.dateFormat || "DD/MM/YYYY");
+  const [currency, setCurrency] = useState(settings.currency || "INR");
+  const [appName, setAppName] = useState(settings.appName || "Sahil Industries Admin");
+  const [companyName, setCompanyName] = useState(settings.companyName || "Sahil Industries");
+  const [supportEmail, setSupportEmail] = useState(settings.supportEmail || "sahilcranes@gmail.com");
+  const [supportPhone, setSupportPhone] = useState(settings.supportPhone || "+91 96 2324 2324");
+  const [emailNotifications, setEmailNotifications] = useState(settings.emailNotifications === "true");
+  const [pushNotifications, setPushNotifications] = useState(settings.pushNotifications === "true");
+  const [orderUpdates, setOrderUpdates] = useState(settings.orderUpdates === "true");
+  const [enquiryAlerts, setEnquiryAlerts] = useState(settings.enquiryAlerts === "true");
+  const [stockAlerts, setStockAlerts] = useState(settings.stockAlerts === "true");
+  const [weeklyReports, setWeeklyReports] = useState(settings.weeklyReports === "true");
+  const [twoFactorEnabled, setTwoFactorEnabled] = useState(settings.twoFactorEnabled === "true");
+  const [sessionTimeout, setSessionTimeout] = useState(parseInt(settings.sessionTimeout || "30"));
+  const [passwordExpiry, setPasswordExpiry] = useState(parseInt(settings.passwordExpiry || "90"));
+  const [loginAlerts, setLoginAlerts] = useState(settings.loginAlerts === "true");
+  const [apiKeys, setApiKeys] = useState<Array<{id: string, name: string, key: string, created: string, status: string}>>([]);
   const [showNewKeyModal, setShowNewKeyModal] = useState(false);
   const [newKeyName, setNewKeyName] = useState("");
   const [saving, setSaving] = useState(false);
@@ -77,10 +75,39 @@ export default function SettingsPage() {
 
   const handleSave = async () => {
     setSaving(true);
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    setSaving(false);
-    setSaveSuccess(true);
-    setTimeout(() => setSaveSuccess(false), 3000);
+    try {
+      const newSettings = {
+        appName,
+        companyName,
+        supportEmail,
+        supportPhone,
+        language,
+        timezone,
+        dateFormat,
+        currency,
+        theme,
+        sidebarCollapsed: sidebarCollapsed.toString(),
+        compactMode: compactMode.toString(),
+        animationsEnabled: animationsEnabled.toString(),
+        emailNotifications: emailNotifications.toString(),
+        pushNotifications: pushNotifications.toString(),
+        orderUpdates: orderUpdates.toString(),
+        enquiryAlerts: enquiryAlerts.toString(),
+        stockAlerts: stockAlerts.toString(),
+        weeklyReports: weeklyReports.toString(),
+        twoFactorEnabled: twoFactorEnabled.toString(),
+        sessionTimeout: sessionTimeout.toString(),
+        passwordExpiry: passwordExpiry.toString(),
+        loginAlerts: loginAlerts.toString(),
+      };
+      updateSettings(newSettings);
+      setSaveSuccess(true);
+      setTimeout(() => setSaveSuccess(false), 3000);
+    } catch (error) {
+      console.error('Failed to save settings:', error);
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handleDeleteKey = (id: string) => {
@@ -102,7 +129,7 @@ export default function SettingsPage() {
   };
 
   return (
-    <AdminDashboardLayout activeNav="/admin/settings" pageTitle="Settings" pageDescription="Configure application preferences, security, and integrations">
+    <AdminDashboardLayoutWrapper activeNav="/admin/settings" pageTitle="Settings" pageDescription="Configure application preferences, security, and integrations">
       <div className="space-y-6">
         {/* Header Actions */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -661,6 +688,6 @@ export default function SettingsPage() {
           </div>
         </div>
       </div>
-    </AdminDashboardLayout>
+    </AdminDashboardLayoutWrapper>
   );
 }

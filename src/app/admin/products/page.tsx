@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Box,
@@ -24,24 +24,13 @@ import {
   Image as LucideImage,
 } from "lucide-react";
 import Link from "next/link";
-import { AdminDashboardLayout } from "@/components/AdminDashboardLayout";
-
-const products = [
-  { id: "PRD-001", name: "Single Girder EOT Crane", category: "EOT Cranes", sku: "SG-EOT-001", price: "₹2,45,000", stock: 15, minStock: 5, status: "Active", description: "Heavy-duty single girder overhead crane for industrial applications", image: "products/single-girder-eot-crane.jpg" },
-  { id: "PRD-002", name: "Double Girder EOT Crane", category: "EOT Cranes", sku: "DG-EOT-002", price: "₹4,80,000", stock: 8, minStock: 3, status: "Active", description: "High-capacity double girder crane for heavy manufacturing", image: "products/double-girder-eot-crane.jpg" },
-  { id: "PRD-003", name: "Electric Wire Rope Hoist", category: "Hoists", sku: "EWRH-003", price: "₹85,000", stock: 25, minStock: 10, status: "Active", description: "Precision electric hoist for material handling operations", image: "products/electric-wire-rope-hoist.jpg" },
-  { id: "PRD-004", name: "Goliath Gantry Crane", category: "Gantry Cranes", sku: "GGC-004", price: "₹12,50,000", stock: 3, minStock: 2, status: "Active", description: "Outdoor gantry crane for shipyard and construction sites", image: "products/goliath-gantry-crane.jpg" },
-  { id: "PRD-005", name: "JIB Crane", category: "JIB Cranes", sku: "JIB-005", price: "₹1,20,000", stock: 12, minStock: 5, status: "Active", description: "Articulating jib crane for workshop and assembly lines", image: "products/jib-crane.jpg" },
-  { id: "PRD-006", name: "Monorail Crane", category: "Monorail Systems", sku: "MRC-006", price: "₹6,75,000", stock: 6, minStock: 3, status: "Active", description: "Single-track monorail system for linear material transport", image: "products/monorail-crane.jpg" },
-  { id: "PRD-007", name: "Underslung Crane", category: "Underslung Cranes", sku: "USC-007", price: "₹3,10,000", stock: 9, minStock: 4, status: "Active", description: "Under-running crane system for low headroom applications", image: "products/underslung-cranes.jpg" },
-  { id: "PRD-008", name: "Electric Chain Hoist", category: "Hoists", sku: "ECH-008", price: "₹45,000", stock: 30, minStock: 15, status: "Active", description: "Compact electric chain hoist for light duty applications", image: "products/electric-wire-rope-hoist.jpg" },
-  { id: "PRD-009", name: "Semi-Goliath Crane", category: "Gantry Cranes", sku: "SGC-009", price: "₹8,90,000", stock: 4, minStock: 2, status: "Low Stock", description: "Semi-gantry crane for medium duty outdoor applications", image: "products/goliath-gantry-crane.jpg" },
-  { id: "PRD-010", name: "Wall Mounted JIB Crane", category: "JIB Cranes", sku: "WMJ-010", price: "₹95,000", stock: 0, minStock: 3, status: "Out of Stock", description: "Wall-mounted articulating jib crane for confined spaces", image: "products/jib-crane.jpg" },
-];
+import { AdminDashboardLayoutWrapper } from "@/components/AdminDashboardLayout";
+import { useAdminData, Product } from "@/context/AdminDataContext";
 
 const categories = ["All", "EOT Cranes", "Gantry Cranes", "JIB Cranes", "Hoists", "Monorail Systems", "Underslung Cranes"];
 
 export default function ProductsPage() {
+  const { products, updateProduct, deleteProduct } = useAdminData();
   const [searchQuery, setSearchQuery] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("All");
   const [statusFilter, setStatusFilter] = useState("all");
@@ -49,22 +38,26 @@ export default function ProductsPage() {
   const [selectedProducts, setSelectedProducts] = useState<string[]>([]);
   const [viewMode, setViewMode] = useState<"table" | "grid">("table");
 
-  const filteredProducts = products.filter((product) => {
-    const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      product.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      product.sku.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesCategory = categoryFilter === "All" || product.category === categoryFilter;
-    const matchesStatus = statusFilter === "all" || product.status === statusFilter;
-    return matchesSearch && matchesCategory && matchesStatus;
-  });
+  const filteredProducts = useMemo(() => {
+    return products.filter((product) => {
+      const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        product.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        product.sku.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesCategory = categoryFilter === "All" || product.category === categoryFilter;
+      const matchesStatus = statusFilter === "all" || product.status === statusFilter;
+      return matchesSearch && matchesCategory && matchesStatus;
+    });
+  }, [products, searchQuery, categoryFilter, statusFilter]);
 
-  const sortedProducts = [...filteredProducts].sort((a, b) => {
-    const aVal = a[sortConfig.key as keyof typeof a];
-    const bVal = b[sortConfig.key as keyof typeof b];
-    if (aVal < bVal) return sortConfig.direction === "asc" ? -1 : 1;
-    if (aVal > bVal) return sortConfig.direction === "asc" ? 1 : -1;
-    return 0;
-  });
+  const sortedProducts = useMemo(() => {
+    return [...filteredProducts].sort((a, b) => {
+      const aVal = a[sortConfig.key as keyof typeof a];
+      const bVal = b[sortConfig.key as keyof typeof b];
+      if (aVal < bVal) return sortConfig.direction === "asc" ? -1 : 1;
+      if (aVal > bVal) return sortConfig.direction === "asc" ? 1 : -1;
+      return 0;
+    });
+  }, [filteredProducts, sortConfig]);
 
   const handleSort = (key: string) => {
     setSortConfig(prev => ({
@@ -101,7 +94,7 @@ export default function ProductsPage() {
   };
 
   return (
-    <AdminDashboardLayout activeNav="/admin/products" pageTitle="Products" pageDescription="Manage crane products, inventory, and catalog">
+      <AdminDashboardLayoutWrapper activeNav="/admin/products" pageTitle="Products" pageDescription="Manage crane products, inventory, and catalog">
       <div className="space-y-6">
         {/* Header Actions */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -439,6 +432,6 @@ export default function ProductsPage() {
           </div>
         </div>
       </div>
-    </AdminDashboardLayout>
+              </AdminDashboardLayoutWrapper>
   );
 }

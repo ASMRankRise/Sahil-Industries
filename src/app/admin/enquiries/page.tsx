@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Mail,
@@ -22,7 +22,8 @@ import {
   Flag,
 } from "lucide-react";
 import Link from "next/link";
-import { AdminDashboardLayout } from "@/components/AdminDashboardLayout";
+import { AdminDashboardLayoutWrapper } from "@/components/AdminDashboardLayout";
+import { useAdminData, Enquiry } from "@/context/AdminDataContext";
 
 const statusConfig = {
   New: { label: "New", color: "bg-blue-500/10 text-blue-400 border border-blue-500/20", icon: Mail },
@@ -31,18 +32,8 @@ const statusConfig = {
   Closed: { label: "Closed", color: "bg-slate-500/10 text-slate-400 border border-slate-500/20", icon: AlertCircle },
 };
 
-const enquiries = [
-  { id: "ENQ-001", customer: "Rajesh Kumar", email: "rajesh@company.com", phone: "+91 98765 43210", subject: "Single Girder EOT Crane Inquiry", message: "Need pricing for 10-ton capacity crane for our new facility", status: "New", date: "2024-01-15", priority: "high" },
-  { id: "ENQ-002", customer: "Priya Sharma", email: "priya@industries.in", phone: "+91 98765 43211", subject: "Double Girder EOT Crane Quote", message: "Requesting quote for 20-ton double girder crane with 15m span", status: "In Progress", date: "2024-01-14", priority: "high" },
-  { id: "ENQ-003", customer: "Amit Patel", email: "amit@manufacturing.com", phone: "+91 98765 43212", subject: "Electric Wire Rope Hoist", message: "Looking for 5-ton electric hoist for warehouse operations", status: "Replied", date: "2024-01-13", priority: "medium" },
-  { id: "ENQ-004", customer: "Suresh Reddy", email: "suresh@engineering.co", phone: "+91 98765 43213", subject: "JIB Crane Specification", message: "Need technical specs for 3-ton articulating jib crane", status: "New", date: "2024-01-12", priority: "low" },
-  { id: "ENQ-005", customer: "Neha Singh", email: "neha@construction.in", phone: "+91 98765 43214", subject: "Underslung Crane Quote", message: "Requesting quote for 2-ton underslung crane system", status: "Closed", date: "2024-01-11", priority: "medium" },
-  { id: "ENQ-006", customer: "Vikram Singh", email: "vikram@steelworks.com", phone: "+91 98765 43215", subject: "Goliath Gantry Crane", message: "Need 50-ton gantry crane for shipyard project", status: "In Progress", date: "2024-01-10", priority: "high" },
-  { id: "ENQ-007", customer: "Anita Desai", email: "anita@powergen.in", phone: "+91 98765 43216", subject: "Monorail Crane System", message: "Looking for monorail system for production line", status: "Replied", date: "2024-01-09", priority: "medium" },
-  { id: "ENQ-008", customer: "Rohit Gupta", email: "rohit@infrabuild.com", phone: "+91 98765 43217", subject: "Custom Crane Solution", message: "Need custom crane for specialized application", status: "New", date: "2024-01-08", priority: "high" },
-];
-
 export default function EnquiriesPage() {
+  const { enquiries, updateEnquiry, deleteEnquiry } = useAdminData();
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [sortConfig, setSortConfig] = useState<{ key: string; direction: "asc" | "desc" }>({ key: "date", direction: "desc" });
@@ -52,21 +43,25 @@ export default function EnquiriesPage() {
 
   const getStatusConfig = (status: string) => statusConfig[status as keyof typeof statusConfig] || statusConfig.New;
 
-  const filteredEnquiries = enquiries.filter((enquiry) => {
-    const matchesSearch = enquiry.customer.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      enquiry.subject.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      enquiry.id.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesStatus = statusFilter === "all" || enquiry.status === statusFilter;
-    return matchesSearch && matchesStatus;
-  });
+  const filteredEnquiries = useMemo(() => {
+    return enquiries.filter((enquiry) => {
+      const matchesSearch = enquiry.customer.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        enquiry.subject.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        enquiry.id.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesStatus = statusFilter === "all" || enquiry.status === statusFilter;
+      return matchesSearch && matchesStatus;
+    });
+  }, [enquiries, searchQuery, statusFilter]);
 
-  const sortedEnquiries = [...filteredEnquiries].sort((a, b) => {
-    const aVal = a[sortConfig.key as keyof typeof a];
-    const bVal = b[sortConfig.key as keyof typeof b];
-    if (aVal < bVal) return sortConfig.direction === "asc" ? -1 : 1;
-    if (aVal > bVal) return sortConfig.direction === "asc" ? 1 : -1;
-    return 0;
-  });
+  const sortedEnquiries = useMemo(() => {
+    return [...filteredEnquiries].sort((a, b) => {
+      const aVal = a[sortConfig.key as keyof typeof a];
+      const bVal = b[sortConfig.key as keyof typeof b];
+      if (aVal < bVal) return sortConfig.direction === "asc" ? -1 : 1;
+      if (aVal > bVal) return sortConfig.direction === "asc" ? 1 : -1;
+      return 0;
+    });
+  }, [filteredEnquiries, sortConfig]);
 
   const handleSort = (key: string) => {
     setSortConfig(prev => ({
@@ -94,13 +89,17 @@ export default function EnquiriesPage() {
 
   const confirmDelete = () => {
     if (deletingEnquiry) {
+      deleteEnquiry(deletingEnquiry);
       setShowDeleteModal(false);
       setDeletingEnquiry(null);
     }
   };
 
-  return (
-    <AdminDashboardLayout activeNav="/admin/enquiries" pageTitle="Enquiries" pageDescription="Manage and respond to customer enquiries and quotation requests">
+  const handleStatusChange = (id: string, newStatus: Enquiry["status"]) => {
+    updateEnquiry(id, { status: newStatus });
+  };
+    return (
+      <AdminDashboardLayoutWrapper activeNav="/admin/enquiries" pageTitle="Enquiries" pageDescription="Manage and respond to customer enquiries and quotation requests">
       <div className="space-y-6">
         {/* Header Actions */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -304,6 +303,6 @@ export default function EnquiriesPage() {
           </div>
         </div>
       </div>
-    </AdminDashboardLayout>
+                </AdminDashboardLayoutWrapper>
   );
 }

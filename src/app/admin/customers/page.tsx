@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Users,
@@ -22,43 +22,36 @@ import {
   Activity,
 } from "lucide-react";
 import Link from "next/link";
-import { AdminDashboardLayout } from "@/components/AdminDashboardLayout";
-
-const customers = [
-  { id: "CUST-001", name: "Rajesh Kumar", email: "rajesh@company.com", phone: "+91 98765 43210", company: "Kumar Industries", city: "Mumbai", state: "Maharashtra", totalOrders: 12, totalSpent: "₹45,20,000", lastOrder: "2024-01-15", status: "Active", joined: "2022-03-15" },
-  { id: "CUST-002", name: "Priya Sharma", email: "priya@industries.in", phone: "+91 98765 43211", company: "Sharma Steel Works", city: "Pune", state: "Maharashtra", totalOrders: 8, totalSpent: "₹32,50,000", lastOrder: "2024-01-14", status: "Active", joined: "2021-11-20" },
-  { id: "CUST-003", name: "Amit Patel", email: "amit@manufacturing.com", phone: "+91 98765 43212", company: "Patel Manufacturing", city: "Ahmedabad", state: "Gujarat", totalOrders: 5, totalSpent: "₹18,75,000", lastOrder: "2024-01-13", status: "Active", joined: "2023-02-10" },
-  { id: "CUST-004", name: "Suresh Reddy", email: "suresh@engineering.co", phone: "+91 98765 43213", company: "Reddy Engineering", city: "Hyderabad", state: "Telangana", totalOrders: 3, totalSpent: "₹9,45,000", lastOrder: "2024-01-12", status: "Inactive", joined: "2023-06-05" },
-  { id: "CUST-005", name: "Neha Singh", email: "neha@construction.in", phone: "+91 98765 43214", company: "Singh Construction", city: "Delhi", state: "Delhi", totalOrders: 7, totalSpent: "₹28,90,000", lastOrder: "2024-01-11", status: "Active", joined: "2022-08-22" },
-  { id: "CUST-006", name: "Vikram Singh", email: "vikram@steelworks.com", phone: "+91 98765 43215", company: "Singh Steel Works", city: "Jamshedpur", state: "Jharkhand", totalOrders: 15, totalSpent: "₹67,80,000", lastOrder: "2024-01-10", status: "Active", joined: "2021-05-18" },
-  { id: "CUST-007", name: "Anita Desai", email: "anita@powergen.in", phone: "+91 98765 43216", company: "Desai Power Gen", city: "Vadodara", state: "Gujarat", totalOrders: 4, totalSpent: "₹15,60,000", lastOrder: "2024-01-09", status: "Active", joined: "2023-01-30" },
-  { id: "CUST-008", name: "Rohit Gupta", email: "rohit@infrabuild.com", phone: "+91 98765 43217", company: "Gupta Infra Build", city: "Bangalore", state: "Karnataka", totalOrders: 2, totalSpent: "₹5,20,000", lastOrder: "2024-01-08", status: "New", joined: "2023-12-01" },
-  { id: "CUST-009", name: "Kavya Nair", email: "kavya@shipyard.in", phone: "+91 98765 43218", company: "Nair Shipyard", city: "Kochi", state: "Kerala", totalOrders: 9, totalSpent: "₹42,30,000", lastOrder: "2024-01-07", status: "Active", joined: "2022-04-12" },
-  { id: "CUST-010", name: "Manoj Kumar", email: "manoj@cementworks.com", phone: "+91 98765 43219", company: "Kumar Cement", city: "Raipur", state: "Chhattisgarh", totalOrders: 1, totalSpent: "₹3,80,000", lastOrder: "2024-01-06", status: "Inactive", joined: "2023-09-25" },
-];
+import { AdminDashboardLayoutWrapper } from "@/components/AdminDashboardLayout";
+import { useAdminData, Customer } from "@/context/AdminDataContext";
 
 export default function CustomersPage() {
+  const { customers, updateCustomer, deleteCustomer } = useAdminData();
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [sortConfig, setSortConfig] = useState<{ key: string; direction: "asc" | "desc" }>({ key: "name", direction: "asc" });
   const [selectedCustomers, setSelectedCustomers] = useState<string[]>([]);
 
-  const filteredCustomers = customers.filter((customer) => {
-    const matchesSearch = customer.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      customer.company.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      customer.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      customer.id.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesStatus = statusFilter === "all" || customer.status === statusFilter;
-    return matchesSearch && matchesStatus;
-  });
+  const filteredCustomers = useMemo(() => {
+    return customers.filter((customer) => {
+      const matchesSearch = customer.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        customer.company.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        customer.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        customer.id.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesStatus = statusFilter === "all" || customer.status === statusFilter;
+      return matchesSearch && matchesStatus;
+    });
+  }, [customers, searchQuery, statusFilter]);
 
-  const sortedCustomers = [...filteredCustomers].sort((a, b) => {
-    const aVal = a[sortConfig.key as keyof typeof a];
-    const bVal = b[sortConfig.key as keyof typeof b];
-    if (aVal < bVal) return sortConfig.direction === "asc" ? -1 : 1;
-    if (aVal > bVal) return sortConfig.direction === "asc" ? 1 : -1;
-    return 0;
-  });
+  const sortedCustomers = useMemo(() => {
+    return [...filteredCustomers].sort((a, b) => {
+      const aVal = a[sortConfig.key as keyof typeof a];
+      const bVal = b[sortConfig.key as keyof typeof b];
+      if (aVal < bVal) return sortConfig.direction === "asc" ? -1 : 1;
+      if (aVal > bVal) return sortConfig.direction === "asc" ? 1 : -1;
+      return 0;
+    });
+  }, [filteredCustomers, sortConfig]);
 
   const handleSort = (key: string) => {
     setSortConfig(prev => ({
@@ -89,7 +82,7 @@ export default function CustomersPage() {
   };
 
   return (
-    <AdminDashboardLayout activeNav="/admin/customers" pageTitle="Customers" pageDescription="Manage customer profiles, orders, and relationships">
+      <AdminDashboardLayoutWrapper activeNav="/admin/customers" pageTitle="Customers" pageDescription="Manage customer profiles, orders, and relationships">
       <div className="space-y-6">
         {/* Header Actions */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -321,10 +314,10 @@ export default function CustomersPage() {
             </div>
             <button className="p-2 border border-white/10 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-colors">
               <ChevronRight size={16} />
-            </button>
-          </div>
-        </div>
-      </div>
-    </AdminDashboardLayout>
-  );
-}
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </AdminDashboardLayoutWrapper>
+                );
+              }

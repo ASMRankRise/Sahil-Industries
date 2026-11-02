@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Package,
@@ -21,7 +21,8 @@ import {
   Truck,
 } from "lucide-react";
 import Link from "next/link";
-import { AdminDashboardLayout } from "@/components/AdminDashboardLayout";
+import { AdminDashboardLayoutWrapper } from "@/components/AdminDashboardLayout";
+import { useAdminData, Order } from "@/context/AdminDataContext";
 
 const statusConfig = {
   Delivered: { label: "Delivered", color: "bg-green-500/10 text-green-400 border border-green-500/20", icon: CheckCircle },
@@ -31,20 +32,8 @@ const statusConfig = {
   Cancelled: { label: "Cancelled", color: "bg-red-500/10 text-red-400 border border-red-500/20", icon: AlertCircle },
 };
 
-const orders = [
-  { id: "ORD-001", customer: "Rajesh Kumar", email: "rajesh@company.com", product: "Single Girder EOT Crane", amount: "₹2,45,000", status: "Delivered", date: "2024-01-15", priority: "high" },
-  { id: "ORD-002", customer: "Priya Sharma", email: "priya@industries.in", product: "Double Girder EOT Crane", amount: "₹4,80,000", status: "In Progress", date: "2024-01-14", priority: "high" },
-  { id: "ORD-003", customer: "Amit Patel", email: "amit@manufacturing.com", product: "Electric Wire Rope Hoist", amount: "₹85,000", status: "Pending", date: "2024-01-13", priority: "medium" },
-  { id: "ORD-004", customer: "Suresh Reddy", email: "suresh@engineering.co", product: "JIB Crane", amount: "₹1,20,000", status: "Delivered", date: "2024-01-12", priority: "low" },
-  { id: "ORD-005", customer: "Neha Singh", email: "neha@construction.in", product: "Underslung Crane", amount: "₹3,10,000", status: "Shipped", date: "2024-01-11", priority: "medium" },
-  { id: "ORD-006", customer: "Vikram Singh", email: "vikram@steelworks.com", product: "Goliath Gantry Crane", amount: "₹12,50,000", status: "In Progress", date: "2024-01-10", priority: "high" },
-  { id: "ORD-007", customer: "Anita Desai", email: "anita@powergen.in", product: "Monorail Crane", amount: "₹6,75,000", status: "Pending", date: "2024-01-09", priority: "medium" },
-  { id: "ORD-008", customer: "Rohit Gupta", email: "rohit@infrabuild.com", product: "JIB Crane", amount: "₹1,85,000", status: "Delivered", date: "2024-01-08", priority: "low" },
-  { id: "ORD-009", customer: "Kavya Nair", email: "kavya@shipyard.in", product: "Double Girder EOT Crane", amount: "₹8,90,000", status: "Shipped", date: "2024-01-07", priority: "high" },
-  { id: "ORD-010", customer: "Manoj Kumar", email: "manoj@cementworks.com", product: "Electric Wire Rope Hoist", amount: "₹95,000", status: "Cancelled", date: "2024-01-06", priority: "low" },
-];
-
 export default function OrdersPage() {
+  const { orders, updateOrder, deleteOrder } = useAdminData();
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [sortConfig, setSortConfig] = useState<{ key: string; direction: "asc" | "desc" }>({ key: "date", direction: "desc" });
@@ -54,21 +43,26 @@ export default function OrdersPage() {
 
   const getStatusConfig = (status: string) => statusConfig[status as keyof typeof statusConfig] || statusConfig.Pending;
 
-  const filteredOrders = orders.filter((order) => {
-    const matchesSearch = order.customer.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      order.product.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      order.id.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesStatus = statusFilter === "all" || order.status === statusFilter;
-    return matchesSearch && matchesStatus;
-  });
+  const filteredOrders = useMemo(() => {
+    return orders.filter((order) => {
+      const matchesSearch =
+        order.customer.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        order.product.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        order.id.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesStatus = statusFilter === "all" || order.status === statusFilter;
+      return matchesSearch && matchesStatus;
+    });
+  }, [orders, searchQuery, statusFilter]);
 
-  const sortedOrders = [...filteredOrders].sort((a, b) => {
-    const aVal = a[sortConfig.key as keyof typeof a];
-    const bVal = b[sortConfig.key as keyof typeof b];
-    if (aVal < bVal) return sortConfig.direction === "asc" ? -1 : 1;
-    if (aVal > bVal) return sortConfig.direction === "asc" ? 1 : -1;
-    return 0;
-  });
+  const sortedOrders = useMemo(() => {
+    return [...filteredOrders].sort((a, b) => {
+      const aVal = a[sortConfig.key as keyof typeof a];
+      const bVal = b[sortConfig.key as keyof typeof b];
+      if (aVal < bVal) return sortConfig.direction === "asc" ? -1 : 1;
+      if (aVal > bVal) return sortConfig.direction === "asc" ? 1 : -1;
+      return 0;
+    });
+  }, [filteredOrders, sortConfig]);
 
   const handleSort = (key: string) => {
     setSortConfig(prev => ({
@@ -96,14 +90,18 @@ export default function OrdersPage() {
 
   const confirmDelete = () => {
     if (deletingOrder) {
-      // In real app, call API to delete
+      deleteOrder(deletingOrder);
       setShowDeleteModal(false);
       setDeletingOrder(null);
     }
   };
 
-  return (
-    <AdminDashboardLayout activeNav="/admin/orders" pageTitle="Orders" pageDescription="Manage and track all customer orders and crane deliveries">
+  const handleStatusChange = (id: string, newStatus: Order["status"]) => {
+    updateOrder(id, { status: newStatus });
+      };
+
+      return (
+        <AdminDashboardLayoutWrapper activeNav="/admin/orders" pageTitle="Orders" pageDescription="Manage and track all customer orders and crane deliveries">
       <div className="space-y-6">
         {/* Header Actions */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -314,6 +312,6 @@ export default function OrdersPage() {
           </div>
         </div>
       </div>
-    </AdminDashboardLayout>
+              </AdminDashboardLayoutWrapper>
   );
 }

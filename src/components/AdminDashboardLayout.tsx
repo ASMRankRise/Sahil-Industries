@@ -28,6 +28,7 @@ import {
   Activity,
   Eye,
   Edit,
+  User,
   Trash2,
   Filter,
   Search,
@@ -44,6 +45,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { ReactNode } from "react";
+import { AdminDataProvider } from "@/context/AdminDataContext";
 
 const asset = (path: string) => `/sahilcrane/${path}`;
 
@@ -161,15 +163,15 @@ export function AdminDashboardLayout({ children, activeNav, pageTitle, pageDescr
             onClick={() => {}}
             className="flex w-full items-center gap-3 px-3 py-2.5 text-sm font-medium text-slate-400 rounded-xl hover:bg-white/5 hover:text-white transition-colors group"
           >
-            <LogOut size={17} className="group-hover:text-red-400 transition-colors" />
-            <span>Sign Out</span>
+            <User size={17} className="group-hover:text-blue-400 transition-colors" />
+            <span>Profile</span>
           </button>
           <button
             onClick={() => {}}
             className="flex w-full items-center gap-3 px-3 py-2.5 text-sm font-medium text-slate-400 rounded-xl hover:bg-white/5 hover:text-white transition-colors group"
           >
-            <HelpCircle size={17} className="group-hover:text-blue-400 transition-colors" />
-            <span>Help & Support</span>
+            <LogOut size={17} className="group-hover:text-red-400 transition-colors" />
+            <span>Sign Out</span>
           </button>
           <div className="pt-3 border-t border-white/5 text-center">
             <p className="text-[11px] text-slate-500">v2.1.0 • Sahil Industries</p>
@@ -283,3 +285,13 @@ export function AdminDashboardLayout({ children, activeNav, pageTitle, pageDescr
     </div>
   );
 }
+
+          export function AdminDashboardLayoutWrapper({ children, activeNav, pageTitle, pageDescription }: AdminDashboardLayoutProps) {
+            return (
+              <AdminDataProvider>
+                <AdminDashboardLayout activeNav={activeNav} pageTitle={pageTitle} pageDescription={pageDescription}>
+                  {children}
+                </AdminDashboardLayout>
+              </AdminDataProvider>
+            );
+          }

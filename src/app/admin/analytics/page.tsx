@@ -18,51 +18,26 @@ import {
   PieChart,
   RefreshCw,
 } from "lucide-react";
-import { AdminDashboardLayout } from "@/components/AdminDashboardLayout";
-
-const revenueData = [
-  { month: "Jan", revenue: 48.5, orders: 124, customers: 45, conversion: 3.2 },
-  { month: "Feb", revenue: 52.3, orders: 138, customers: 52, conversion: 3.5 },
-  { month: "Mar", revenue: 45.8, orders: 112, customers: 38, conversion: 2.9 },
-  { month: "Apr", revenue: 61.2, orders: 156, customers: 61, conversion: 3.8 },
-  { month: "May", revenue: 55.7, orders: 142, customers: 55, conversion: 3.4 },
-  { month: "Jun", revenue: 68.9, orders: 178, customers: 68, conversion: 4.1 },
-];
-
-const productPerformance = [
-  { name: "Single Girder EOT Crane", revenue: 18.5, orders: 45, growth: 12 },
-  { name: "Double Girder EOT Crane", revenue: 15.2, orders: 28, growth: 8 },
-  { name: "Electric Wire Rope Hoist", revenue: 8.7, orders: 62, growth: 15 },
-  { name: "Goliath Gantry Crane", revenue: 12.3, orders: 18, growth: 5 },
-  { name: "JIB Crane", revenue: 5.8, orders: 32, growth: 18 },
-  { name: "Monorail Crane", revenue: 4.2, orders: 15, growth: -3 },
-  { name: "Underslung Crane", revenue: 3.5, orders: 22, growth: 9 },
-];
-
-const customerSegments = [
-  { name: "Enterprise", value: 45, color: "bg-blue-500" },
-  { name: "SME", value: 35, color: "bg-green-500" },
-  { name: "Government", value: 12, color: "bg-purple-500" },
-  { name: "Individual", value: 8, color: "bg-orange-500" },
-];
-
-const topCustomers = [
-  { name: "Vikram Singh", company: "Singh Steel Works", revenue: "₹67.8L", orders: 15, growth: 22 },
-  { name: "Kavya Nair", company: "Nair Shipyard", revenue: "₹42.3L", orders: 9, growth: 15 },
-  { name: "Rajesh Kumar", company: "Kumar Industries", revenue: "₹45.2L", orders: 12, growth: 8 },
-  { name: "Priya Sharma", company: "Sharma Steel Works", revenue: "₹32.5L", orders: 8, growth: 12 },
-  { name: "Neha Singh", company: "Singh Construction", revenue: "₹28.9L", orders: 7, growth: 5 },
-];
+import { AdminDashboardLayoutWrapper } from "@/components/AdminDashboardLayout";
+import { useAdminData } from "@/context/AdminDataContext";
 
 export default function AnalyticsPage() {
+  const { analytics } = useAdminData();
   const [timeRange, setTimeRange] = useState("6m");
   const [selectedMetric, setSelectedMetric] = useState("revenue");
 
-  return (
-    <AdminDashboardLayout activeNav="/admin/analytics" pageTitle="Analytics" pageDescription="Business intelligence, performance metrics, and data insights">
-      <div className="space-y-6">
-        {/* Header Actions */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+  const revenueData = analytics.revenueData;
+  const productPerformance = analytics.productPerformance;
+    const customerSegments = analytics.customerSegments;
+    const topCustomers = analytics.topCustomers;
+    const statusDistribution = analytics.statusDistribution;
+    const kpis = analytics.kpis;
+
+    return (
+      <AdminDashboardLayoutWrapper activeNav="/admin/analytics" pageTitle="Analytics" pageDescription="Business intelligence, performance metrics, and data insights">
+        <div className="space-y-6">
+          {/* Header Actions */}
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <h2 className="text-2xl font-bold tracking-tight bg-gradient-to-r from-white to-safety bg-clip-text text-transparent">Analytics</h2>
             <p className="text-slate-400 mt-1">Business intelligence, performance metrics, and data insights</p>
@@ -307,7 +282,7 @@ export default function AnalyticsPage() {
                 >
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-2">
-                      <div className={`h-7 w-7 rounded-lg ${segment.color}`}></div>
+                      <div className={`h-7 w-7 rounded-lg ${segment.color || 'bg-safety'}`}></div>
                       <span className="text-sm font-medium text-white">{segment.name}</span>
                     </div>
                     <span className="text-sm font-bold text-white">{segment.value}%</span>
@@ -318,7 +293,7 @@ export default function AnalyticsPage() {
                       animate={{ width: `${segment.value}%` }}
                       transition={{ delay: i * 0.08 + 0.3, duration: 0.8 }}
                       className="h-full rounded-full"
-                      style={{ backgroundColor: segment.color.replace("bg-", "").replace("-500", "-500") }}
+                      style={{ backgroundColor: (segment.color || 'bg-safety').replace("bg-", "").replace("-500", "-500") }}
                     />
                   </div>
                 </motion.div>
@@ -369,6 +344,6 @@ export default function AnalyticsPage() {
                         </div>
                       </section>
                     </div>
-                  </AdminDashboardLayout>
+                                  </AdminDashboardLayoutWrapper>
                 );
               }
