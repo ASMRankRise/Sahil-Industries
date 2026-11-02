@@ -10,8 +10,11 @@ export default function EnquiryPage() {
   return (
     <ModernPageShell eyebrow="Get in touch" title="Send us an Enquiry">
       <section className="py-28 max-md:py-20">
-        <div className="mx-auto w-[min(1240px,calc(100%-64px))] max-md:w-[calc(100%-36px)] grid grid-cols-[minmax(260px,.72fr)_minmax(360px,1fr)] items-start gap-[clamp(45px,8vw,130px)] max-md:grid-cols-1">
-          <div>
+        <div className="mx-auto w-[min(1240px,calc(100%-64px))] max-md:w-[calc(100%-36px)] grid grid-cols-[minmax(260px,.72fr)_minmax(360px,1fr)] items-start gap-[clamp(45px,8vw,130px)] max-md:grid-cols-1 relative">
+          {/* Vertical divider between columns - only on desktop */}
+          <div className="hidden lg:block absolute left-[calc(45%-2px)] top-[-20px] bottom-[-20px] w-0.5 bg-gradient-to-b from-transparent via-ink/20 to-transparent" aria-hidden="true" />
+          
+          <div className="relative z-10">
             <Reveal>
               <p className="mb-4 flex items-center gap-2 text-[11px] font-extrabold uppercase tracking-[.15em] text-safety">
                 <span className="h-0.5 w-8 bg-safety" />Contact Sahil Industries
@@ -34,7 +37,7 @@ export default function EnquiryPage() {
             </Reveal>
           </div>
           <Reveal delay={.12}>
-            <div className="bg-white/5 border border-white/10 rounded-2xl p-6 md:p-8">
+            <div className="relative z-10 bg-white/5 border border-white/10 rounded-2xl p-6 md:p-8">
               <h3 className="text-xl font-bold mb-6">Send Enquiry</h3>
               <ContactForm formType="enquiry" />
             </div>

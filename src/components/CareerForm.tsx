@@ -524,37 +524,37 @@ export function CareerForm({ onSuccess }: CareerFormProps) {
       <AnimatePresence mode="wait">
         {submitStatus === "success" && (
           <motion.div
-            initial={{ opacity: 0, y: -20, scale: 0.95 }}
+            initial={{ opacity: 0, y: -15, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -20, scale: 0.95 }}
-            className="flex items-center gap-3 p-4 bg-green-500/10 border border-green-500/30 rounded-xl text-green-400"
+            exit={{ opacity: 0, y: -15, scale: 0.95 }}
+            className="flex items-center gap-2 p-3 bg-green-500/10 border border-green-500/30 rounded-lg text-green-400"
             role="alert"
           >
-            <CheckCircle className="w-6 h-6 flex-shrink-0" />
+            <CheckCircle className="w-5 h-5 flex-shrink-0" />
             <div>
-              <p className="font-semibold">Application Submitted Successfully!</p>
-              <p className="text-sm opacity-90">We'll review your application and get back to you soon.</p>
+              <p className="font-semibold text-sm">Application Submitted Successfully!</p>
+              <p className="text-xs opacity-90">We'll review your application and get back to you soon.</p>
             </div>
           </motion.div>
         )}
         {submitStatus === "error" && (
           <motion.div
-            initial={{ opacity: 0, y: -20, scale: 0.95 }}
+            initial={{ opacity: 0, y: -15, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -20, scale: 0.95 }}
-            className="flex items-center gap-3 p-4 bg-red-500/10 border border-red-500/30 rounded-xl text-red-400"
+            exit={{ opacity: 0, y: -15, scale: 0.95 }}
+            className="flex items-center gap-2 p-3 bg-red-500/10 border border-red-500/30 rounded-lg text-red-400"
             role="alert"
           >
-            <AlertCircle className="w-6 h-6 flex-shrink-0" />
+            <AlertCircle className="w-5 h-5 flex-shrink-0" />
             <div>
-              <p className="font-semibold">Failed to Submit Application</p>
-              <p className="text-sm opacity-90">{errorMessage}</p>
+              <p className="font-semibold text-sm">Failed to Submit Application</p>
+              <p className="text-xs opacity-90">{errorMessage}</p>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         <CareerField
           name="fullname"
           label="Full Name"
@@ -585,7 +585,7 @@ export function CareerForm({ onSuccess }: CareerFormProps) {
         />
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         <CareerField
           name="mobile"
           label="Mobile Number"
@@ -626,28 +626,66 @@ export function CareerForm({ onSuccess }: CareerFormProps) {
         fieldState={getFieldState("message")}
         isSubmitting={isSubmitting}
         maxLength={validationRules.message.maxLength ?? 500}
+        rows={3}
       />
 
-      <CareerFileField
-        name="resume"
-        label="Upload Resume"
-        placeholder="Upload your resume (PDF, DOC, DOCX - Max 5MB)"
-        required
-        value={formData.resume?.name || ""}
-        onChange={handleFileChange}
-        onBlur={handleBlur}
-        fieldState={getFieldState("resume")}
-        isSubmitting={isSubmitting}
-      />
+      <div className="form-group space-y-1.5">
+        <label htmlFor="resume" className="block text-xs font-bold uppercase tracking-industrial text-ink flex items-center gap-1">
+          Upload Resume <span className="text-safety">*</span>
+        </label>
+        <div className="relative">
+          <div className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 transition-colors">
+            <FileText className="w-5 h-5" />
+          </div>
+          <input
+            type="file"
+            id="resume"
+            name="resume"
+            onChange={handleFileChange}
+            onBlur={handleBlur}
+            className={`form-control min-h-[44px] w-full pl-11 pr-4 py-2 border border-ink/20 bg-white text-ink outline-none transition-all duration-200 ${getFieldState("resume").isInvalid ? "border-red-500/50 focus:border-red-500 bg-red-500/5" : getFieldState("resume").isValid || (formData.resume?.name || "").length > 0 ? "border-green-500/50 focus:border-green-500 bg-green-500/5" : "focus:border-safety/50 focus:bg-white focus:ring-2 focus:ring-safety/20"} ${isSubmitting ? "opacity-50 cursor-not-allowed" : ""}`}
+            accept=".pdf,.doc,.docx"
+            required
+            disabled={isSubmitting}
+            aria-invalid={getFieldState("resume").isInvalid}
+            aria-describedby={getFieldState("resume").isInvalid ? "resume-message" : undefined}
+          />
+          {(getFieldState("resume").isValid || (formData.resume?.name || "").length > 0) && !getFieldState("resume").isValidating && (
+            <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1">
+              <Check className="w-5 h-5 text-green-500" />
+            </div>
+          )}
+        </div>
+        <AnimatePresence>
+          {getFieldState("resume").isInvalid && getFieldState("resume").showValidation && (
+            <motion.p
+              id="resume-message"
+              initial={{ opacity: 0, y: -5 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -5 }}
+              className="text-xs text-red-500 flex items-center gap-1"
+            >
+              <AlertCircle className="w-3 h-3" />
+              {getFieldState("resume").error}
+            </motion.p>
+          )}
+        </AnimatePresence>
+        {(formData.resume?.name || "").length > 0 && (
+          <p className="text-xs text-green-500 flex items-center gap-1">
+            <Check className="w-3 h-3" />
+            {formData.resume?.name}
+          </p>
+        )}
+      </div>
 
-      <div className="form-group space-y-2">
+      <div className="form-group space-y-1.5">
         <label className="block text-xs font-bold uppercase tracking-industrial text-ink flex items-center gap-1">
           Security Verification <span className="text-safety">*</span>
         </label>
-        <div className="space-y-2">
-          <div className="flex items-center gap-3 p-4 bg-slate-50 border border-ink/20 rounded-lg">
-            <Shield className="w-6 h-6 text-safety flex-shrink-0" />
-            <span className="text-lg font-mono font-bold text-ink">{captcha.question} =</span>
+        <div className="space-y-1.5">
+          <div className="flex items-center gap-2 p-3 bg-slate-50 border border-ink/20 rounded-lg">
+            <Shield className="w-5 h-5 text-safety flex-shrink-0" />
+            <span className="text-base font-mono font-bold text-ink">{captcha.question} =</span>
             <input
               type="text"
               name="captcha"
@@ -655,7 +693,7 @@ export function CareerForm({ onSuccess }: CareerFormProps) {
               value={formData.captcha}
               onChange={handleChange}
               onBlur={handleBlur}
-              className={`form-control w-auto min-w-[100px] pl-4 pr-4 py-2 border border-ink/20 bg-white text-ink outline-none transition-all duration-200 text-center font-mono text-lg ${
+              className={`form-control w-auto min-w-[80px] pl-3 pr-3 py-1.5 border border-ink/20 bg-white text-ink outline-none transition-all duration-200 text-center font-mono text-base ${
                 getFieldState("captcha").isInvalid ? "border-red-500/50 focus:border-red-500 bg-red-500/5" :
                 getFieldState("captcha").isValid ? "border-green-500/50 focus:border-green-500 bg-green-500/5" :
                 "focus:border-safety/50 focus:bg-white focus:ring-2 focus:ring-safety/20"
@@ -671,10 +709,10 @@ export function CareerForm({ onSuccess }: CareerFormProps) {
               type="button"
               onClick={refreshCaptcha}
               disabled={isSubmitting}
-              className="p-2 text-slate-400 hover:text-safety transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="p-1.5 text-slate-400 hover:text-safety transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               aria-label="Refresh captcha"
             >
-              <RefreshCw className="w-5 h-5" />
+              <RefreshCw className="w-4 h-4" />
             </button>
           </div>
           <AnimatePresence>
@@ -700,7 +738,7 @@ export function CareerForm({ onSuccess }: CareerFormProps) {
         disabled={isSubmitting || !isFormValid()}
         whileHover={{ scale: isFormValid() && !isSubmitting ? 1.02 : 1 }}
         whileTap={{ scale: isFormValid() && !isSubmitting ? 0.98 : 1 }}
-        className={`flex items-center justify-center gap-3 w-full min-h-[54px] px-8 py-3 rounded-lg font-bold uppercase tracking-industrial text-ink transition-all duration-200 ${
+        className={`flex items-center justify-center gap-2 w-full min-h-[44px] px-6 py-2 rounded-lg font-bold uppercase tracking-industrial text-ink transition-all duration-200 ${
           isSubmitting
             ? "bg-safety/50 cursor-not-allowed"
             : isFormValid()
@@ -710,12 +748,12 @@ export function CareerForm({ onSuccess }: CareerFormProps) {
       >
         {isSubmitting ? (
           <>
-            <Loader2 className="w-5 h-5 animate-spin" />
+            <Loader2 className="w-4 h-4 animate-spin" />
             Submitting...
           </>
         ) : (
           <>
-            <Upload className="w-5 h-5" />
+            <Upload className="w-4 h-4" />
             Submit Application
           </>
         )}
@@ -764,13 +802,13 @@ function CareerField({ name, label, type, placeholder, icon: Icon, required, aut
   const { isValid, isInvalid, isWarning, isValidating, error, warning, showValidation } = fieldState;
   
   return (
-    <div className="form-group space-y-2">
+    <div className="form-group space-y-1.5">
       <label htmlFor={name} className="block text-xs font-bold uppercase tracking-industrial text-ink flex items-center gap-1">
         {label} {required && <span className="text-safety">*</span>}
         {isValidating && <Loader2 className="w-3 h-3 text-safety animate-spin" title="Validating..." />}
       </label>
       <div className="relative">
-        <div className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 transition-colors">
+        <div className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 transition-colors">
           <Icon className="w-5 h-5" />
         </div>
         <input
@@ -780,7 +818,7 @@ function CareerField({ name, label, type, placeholder, icon: Icon, required, aut
           value={value}
           onChange={onChange}
           onBlur={onBlur}
-          className={`form-control min-h-[54px] w-full pl-12 pr-12 py-3 border border-ink/20 bg-white text-ink outline-none transition-all duration-200 ${
+          className={`form-control min-h-[44px] w-full pl-11 pr-11 py-2 border border-ink/20 bg-white text-ink outline-none transition-all duration-200 ${
             isInvalid ? "border-red-500/50 focus:border-red-500 bg-red-500/5" :
             isValid ? "border-green-500/50 focus:border-green-500 bg-green-500/5" :
             isWarning ? "border-yellow-500/50 focus:border-yellow-500 bg-yellow-500/5" :
@@ -794,15 +832,15 @@ function CareerField({ name, label, type, placeholder, icon: Icon, required, aut
           aria-describedby={isInvalid || isWarning ? `${name}-message` : undefined}
         />
         {(isValid || isInvalid || isWarning) && !isValidating && (
-          <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-1">
-            {isValid && <Check className="w-5 h-5 text-green-500" />}
-            {isInvalid && <X className="w-5 h-5 text-red-500" />}
-            {isWarning && <Info className="w-5 h-5 text-yellow-500" />}
+          <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1">
+            {isValid && <Check className="w-4 h-4 text-green-500" />}
+            {isInvalid && <X className="w-4 h-4 text-red-500" />}
+            {isWarning && <Info className="w-4 h-4 text-yellow-500" />}
           </div>
         )}
         {isValidating && (
-          <div className="absolute right-4 top-1/2 -translate-y-1/2">
-            <Loader2 className="w-5 h-5 text-safety animate-spin" />
+          <div className="absolute right-3 top-1/2 -translate-y-1/2">
+            <Loader2 className="w-4 h-4 text-safety animate-spin" />
           </div>
         )}
       </div>
@@ -839,14 +877,14 @@ interface CareerTextareaFieldProps {
   maxLength: number;
 }
 
-function CareerTextareaField({ name, label, placeholder, required, value, onChange, onBlur, fieldState, isSubmitting, maxLength }: CareerTextareaFieldProps) {
+function CareerTextareaField({ name, label, placeholder, required, value, onChange, onBlur, fieldState, isSubmitting, maxLength, rows = 3 }: CareerTextareaFieldProps) {
   const { isValid, isInvalid, isWarning, isValidating, error, warning, showValidation } = fieldState;
   const charCount = value.length;
   const isNearLimit = charCount > maxLength * 0.8;
   const isOverLimit = charCount > maxLength;
   
   return (
-    <div className="form-group space-y-2">
+    <div className="form-group space-y-1.5">
       <label htmlFor={name} className="block text-xs font-bold uppercase tracking-industrial text-ink flex items-center gap-1">
         {label} {required && <span className="text-safety">*</span>}
       </label>
@@ -857,9 +895,9 @@ function CareerTextareaField({ name, label, placeholder, required, value, onChan
           value={value}
           onChange={onChange}
           onBlur={onBlur}
-          rows={5}
+          rows={rows}
           maxLength={maxLength}
-          className={`form-control min-h-[140px] w-full px-4 py-3 border border-ink/20 bg-white text-ink outline-none transition-all duration-200 resize-none ${
+          className={`form-control min-h-[80px] w-full px-3 py-2 border border-ink/20 bg-white text-ink outline-none transition-all duration-200 resize-none ${
             isInvalid ? "border-red-500/50 focus:border-red-500 bg-red-500/5" :
             isValid ? "border-green-500/50 focus:border-green-500 bg-green-500/5" :
             isWarning ? "border-yellow-500/50 focus:border-yellow-500 bg-yellow-500/5" :
@@ -872,10 +910,10 @@ function CareerTextareaField({ name, label, placeholder, required, value, onChan
           aria-describedby={`${name}-message ${name}-counter`}
         />
         {(isValid || isInvalid || isWarning) && !isValidating && (
-          <div className="absolute right-4 top-4 flex items-center gap-1">
-            {isValid && <Check className="w-5 h-5 text-green-500" />}
-            {isInvalid && <X className="w-5 h-5 text-red-500" />}
-            {isWarning && <Info className="w-5 h-5 text-yellow-500" />}
+          <div className="absolute right-3 top-3 flex items-center gap-1">
+            {isValid && <Check className="w-4 h-4 text-green-500" />}
+            {isInvalid && <X className="w-4 h-4 text-red-500" />}
+            {isWarning && <Info className="w-4 h-4 text-yellow-500" />}
           </div>
         )}
       </div>
