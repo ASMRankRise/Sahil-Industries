@@ -11,6 +11,7 @@ import {
   Phone,
   Share2,
   X,
+  MessageCircle,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { primaryNavigation, siteContact } from "@/data/site";
@@ -154,20 +155,38 @@ export function SiteHeader() {
             </nav>
           </div>
 
-          <motion.a
-            className="flex min-w-[242px] items-center gap-3 border-l border-white/10 px-8 max-lg:hidden"
-            href={siteContact.phoneHref}
-            whileHover={{ x: 4 }}
-            whileTap={{ scale: 0.98 }}
-            transition={{ duration: 0.15 }}>
-            <Phone className="text-safety" />
-            <span>
-              <small className="block text-xs">Make a Call</small>
-              <b className="block text-[15px] text-safety">
-                {siteContact.phone}
-              </b>
-            </span>
-          </motion.a>
+          {/* Contact section - Phone & WhatsApp */}
+          <div className="flex items-center h-[57px] max-lg:hidden">
+            <motion.a
+              className="flex items-center gap-3 border-l border-white/10 px-6 py-2 group relative h-full"
+              href={siteContact.phoneHref}
+              whileHover={{ x: 4 }}
+              whileTap={{ scale: 0.98 }}
+              transition={{ duration: 0.15 }}>
+              <Phone className="text-safety group-hover:scale-110 transition-transform duration-300" size={20} />
+              <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 ease-out whitespace-nowrap pointer-events-none bg-ink/95 backdrop-blur-sm border border-white/10 rounded-lg px-3 py-2 shadow-xl z-10">
+                <small className="block text-xs text-slate-400">Make a Call</small>
+                <b className="block text-[15px] text-safety">{siteContact.phone}</b>
+              </span>
+            </motion.a>
+
+            <div className="h-[42px] w-px bg-white/10" aria-hidden="true" />
+
+            <motion.a
+              className="flex items-center gap-2 border-l border-white/10 px-6 py-2 group relative h-full"
+              href={siteContact.whatsappHref}
+              target="_blank"
+              rel="noopener noreferrer"
+              whileHover={{ x: 4, scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              transition={{ duration: 0.15 }}>
+              <MessageCircle className="text-green-500 group-hover:scale-110 transition-transform duration-300" size={22} />
+              <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 ease-out whitespace-nowrap pointer-events-none bg-ink/95 backdrop-blur-sm border border-white/10 rounded-lg px-3 py-2 shadow-xl z-10">
+                <small className="block text-xs text-slate-400">Chat on WhatsApp</small>
+                <b className="block text-[13px] text-green-500 font-medium">WhatsApp</b>
+              </span>
+            </motion.a>
+          </div>
 
           <motion.button
             className="hidden h-[42px] border-0 bg-safety p-2.5 text-ink max-md:block"
@@ -235,6 +254,30 @@ export function SiteHeader() {
                   {item.label}
                 </motion.a>
               ))}
+
+              <motion.a
+                href={siteContact.phoneHref}
+                onClick={() => setMenuOpen(false)}
+                className="flex items-center gap-3 border-b border-white/10 py-3 text-sm font-bold uppercase tracking-industrial"
+                whileHover={{ x: 8, color: "#F6C515" }}
+                whileTap={{ scale: 0.98 }}
+                transition={{ delay: 0.15 + primaryItems.length * 0.05, duration: 0.2 }}>
+                <Phone className="text-safety" size={20} />
+                <span>Call: {siteContact.phone}</span>
+              </motion.a>
+
+              <motion.a
+                href={siteContact.whatsappHref}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => setMenuOpen(false)}
+                className="flex items-center gap-3 py-3 text-sm font-bold uppercase tracking-industrial"
+                whileHover={{ x: 8, color: "#25D366" }}
+                whileTap={{ scale: 0.98 }}
+                transition={{ delay: 0.15 + (primaryItems.length + 1) * 0.05, duration: 0.2 }}>
+                <MessageCircle className="text-green-500" size={20} />
+                <span>WhatsApp</span>
+              </motion.a>
 
               <motion.details
                 className="border-b border-white/10 py-3"

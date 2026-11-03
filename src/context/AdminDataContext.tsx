@@ -54,6 +54,23 @@ export interface Enquiry {
   priority: "high" | "medium" | "low";
 }
 
+export interface GalleryImage {
+  id: string;
+  title: string;
+  description: string;
+  url: string;
+  thumbnailUrl: string;
+  category: "products" | "projects" | "factory" | "team" | "events" | "other";
+  status: "active" | "draft" | "archived";
+  tags: string[];
+  altText: string;
+  isFeatured: boolean;
+  date: string;
+  size: number;
+  width: number;
+  height: number;
+}
+
 export interface AnalyticsData {
   kpis: {
     totalRevenue: string;
@@ -117,6 +134,13 @@ interface AdminDataContextType {
   addEnquiry: (enquiry: Omit<Enquiry, "id">) => void;
   updateEnquiry: (id: string, updates: Partial<Enquiry>) => void;
   deleteEnquiry: (id: string) => void;
+  
+  // Gallery Images
+  galleryImages: GalleryImage[];
+  addGalleryImage: (image: Omit<GalleryImage, "id">) => void;
+  updateGalleryImage: (id: string, updates: Partial<GalleryImage>) => void;
+  deleteGalleryImage: (id: string) => void;
+  uploadImage: (file: File, metadata: Partial<GalleryImage>) => Promise<GalleryImage>;
   
   // Analytics
   analytics: AnalyticsData;
@@ -256,6 +280,105 @@ const initialSettings: Record<string, string> = {
   loginAlerts: "true",
 };
 
+const initialGalleryImages: GalleryImage[] = [
+  {
+    id: "GAL-001",
+    title: "Single Girder EOT Crane - Manufacturing",
+    description: "Heavy-duty single girder overhead crane in production",
+    url: "/media/products/single-girder-eot-crane.jpg",
+    thumbnailUrl: "/media/products/single-girder-eot-crane-thumb.jpg",
+    category: "products",
+    status: "active",
+    tags: ["crane", "eot", "single-girder", "manufacturing"],
+    altText: "Single Girder EOT Crane in factory",
+    isFeatured: true,
+    date: "2024-01-15",
+    size: 2450000,
+    width: 1920,
+    height: 1080,
+  },
+  {
+    id: "GAL-002",
+    title: "Double Girder EOT Crane - Installation",
+    description: "Double girder crane being installed at client site",
+    url: "/media/products/double-girder-eot-crane.jpg",
+    thumbnailUrl: "/media/products/double-girder-eot-crane-thumb.jpg",
+    category: "projects",
+    status: "active",
+    tags: ["crane", "eot", "double-girder", "installation"],
+    altText: "Double Girder EOT Crane installation",
+    isFeatured: true,
+    date: "2024-01-14",
+    size: 3120000,
+    width: 1920,
+    height: 1080,
+  },
+  {
+    id: "GAL-003",
+    title: "Electric Wire Rope Hoist - Testing",
+    description: "Wire rope hoist undergoing quality testing",
+    url: "/media/products/electric-wire-rope-hoist.jpg",
+    thumbnailUrl: "/media/products/electric-wire-rope-hoist-thumb.jpg",
+    category: "products",
+    status: "active",
+    tags: ["hoist", "wire-rope", "testing", "quality"],
+    altText: "Electric Wire Rope Hoist testing",
+    isFeatured: false,
+    date: "2024-01-13",
+    size: 1850000,
+    width: 1920,
+    height: 1080,
+  },
+  {
+    id: "GAL-004",
+    title: "Factory Floor - Heavy Fabrication",
+    description: "Main manufacturing facility with heavy fabrication bay",
+    url: "/media/factory/factory-floor.jpg",
+    thumbnailUrl: "/media/factory/factory-floor-thumb.jpg",
+    category: "factory",
+    status: "active",
+    tags: ["factory", "fabrication", "manufacturing", "facility"],
+    altText: "Sahil Industries factory floor",
+    isFeatured: true,
+    date: "2024-01-12",
+    size: 4200000,
+    width: 1920,
+    height: 1080,
+  },
+  {
+    id: "GAL-005",
+    title: "Team - Engineering Excellence",
+    description: "Our engineering team working on crane design",
+    url: "/media/team/engineering-team.jpg",
+    thumbnailUrl: "/media/team/engineering-team-thumb.jpg",
+    category: "team",
+    status: "active",
+    tags: ["team", "engineering", "design", "staff"],
+    altText: "Engineering team at work",
+    isFeatured: false,
+    date: "2024-01-11",
+    size: 2100000,
+    width: 1920,
+    height: 1080,
+  },
+  {
+    id: "GAL-006",
+    title: "Goliath Crane - Project Delivery",
+    description: "Goliath gantry crane delivered to shipyard project",
+    url: "/media/projects/goliath-crane-project.jpg",
+    thumbnailUrl: "/media/projects/goliath-crane-project-thumb.jpg",
+    category: "projects",
+    status: "active",
+    tags: ["goliath", "gantry", "shipyard", "delivery"],
+    altText: "Goliath crane project delivery",
+    isFeatured: true,
+    date: "2024-01-10",
+    size: 3800000,
+    width: 1920,
+    height: 1080,
+  },
+];
+
 const AdminDataContext = createContext<AdminDataContextType | undefined>(undefined);
 
 export function AdminDataProvider({ children }: { children: ReactNode }) {
@@ -300,7 +423,15 @@ export function AdminDataProvider({ children }: { children: ReactNode }) {
     return initialSettings;
   });
   
-  const [loading, setLoading] = useState(false);
+    const [galleryImages, setGalleryImages] = useState<GalleryImage[]>(() => {
+      if (typeof window !== "undefined") {
+        const stored = localStorage.getItem("admin_gallery_images");
+        if (stored) return JSON.parse(stored);
+      }
+      return initialGalleryImages;
+    });
+  
+    const [loading, setLoading] = useState(false);
 
   // Auth state (simulated login — persisted in localStorage)
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
@@ -352,6 +483,7 @@ export function AdminDataProvider({ children }: { children: ReactNode }) {
   useEffect(() => { localStorage.setItem("admin_orders", JSON.stringify(orders)); }, [orders]);
   useEffect(() => { localStorage.setItem("admin_enquiries", JSON.stringify(enquiries)); }, [enquiries]);
   useEffect(() => { localStorage.setItem("admin_settings", JSON.stringify(settings)); }, [settings]);
+    useEffect(() => { localStorage.setItem("admin_gallery_images", JSON.stringify(galleryImages)); }, [galleryImages]);
 
   // Customer CRUD
   const addCustomer = useCallback((customer: Omit<Customer, "id">) => {
@@ -425,7 +557,52 @@ export function AdminDataProvider({ children }: { children: ReactNode }) {
     setSettings(prev => ({ ...prev, ...newSettings }));
   }, []);
 
-  return (
+    // Gallery Image CRUD
+    const addGalleryImage = useCallback((image: Omit<GalleryImage, "id">) => {
+      const newImage: GalleryImage = {
+        ...image,
+        id: `GAL-${String(galleryImages.length + 1).padStart(3, "0")}`,
+      };
+      setGalleryImages(prev => [newImage, ...prev]);
+    }, [galleryImages.length]);
+
+    const updateGalleryImage = useCallback((id: string, updates: Partial<GalleryImage>) => {
+      setGalleryImages(prev => prev.map(img => img.id === id ? { ...img, ...updates } : img));
+    }, []);
+
+    const deleteGalleryImage = useCallback((id: string) => {
+      setGalleryImages(prev => prev.filter(img => img.id !== id));
+    }, []);
+
+    const uploadImage = useCallback(async (file: File, metadata: Partial<GalleryImage>) => {
+      // Simulate upload delay
+      await new Promise(resolve => setTimeout(resolve, 1000));
+    
+      // Create object URL for preview
+      const url = URL.createObjectURL(file);
+    
+      const newImage: GalleryImage = {
+        id: `GAL-${String(galleryImages.length + 1).padStart(3, "0")}`,
+        title: metadata.title || file.name.replace(/\.[^/.]+$/, ""),
+        description: metadata.description || "",
+        url: url,
+        thumbnailUrl: url,
+        category: metadata.category || "products",
+        status: metadata.status || "draft",
+        tags: metadata.tags || [],
+        altText: metadata.altText || "",
+        isFeatured: metadata.isFeatured || false,
+        date: new Date().toISOString().split("T")[0],
+        size: file.size,
+        width: 1920,
+        height: 1080,
+      };
+    
+      setGalleryImages(prev => [newImage, ...prev]);
+      return newImage;
+    }, [galleryImages.length]);
+
+    return (
     <AdminDataContext.Provider value={{
       customers,
       addCustomer,
@@ -443,18 +620,23 @@ export function AdminDataProvider({ children }: { children: ReactNode }) {
       addEnquiry,
       updateEnquiry,
       deleteEnquiry,
-      analytics,
-      settings,
-      updateSettings,
-      isAuthenticated,
-      user,
-      login,
-      logout,
-      loading,
-    }}>
-      {children}
-    </AdminDataContext.Provider>
-  );
+          galleryImages,
+          addGalleryImage,
+          updateGalleryImage,
+          deleteGalleryImage,
+          uploadImage,
+          analytics,
+          settings,
+          updateSettings,
+          isAuthenticated,
+          user,
+          login,
+          logout,
+          loading,
+        }}>
+          {children}
+        </AdminDataContext.Provider>
+      );
 }
 
 export function useAdminData() {

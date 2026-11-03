@@ -8,7 +8,6 @@ import {
   Package,
   Truck,
   BarChart3,
-  Settings,
   LogOut,
   Mail,
   ChevronRight,
@@ -24,10 +23,10 @@ import {
   DollarSign,
   UserPlus,
   MessageSquare,
-  Box,
   Activity,
   Eye,
   Edit,
+  Image,
   Trash2,
   Filter,
   Search,
@@ -50,12 +49,10 @@ const asset = (path: string) => `/sahilcrane/${path}`;
 
 const navItems = [
   { label: "Dashboard", href: "/admin", icon: LayoutDashboard },
-  { label: "Orders", href: "/admin/orders", icon: Package, badge: 12 },
   { label: "Enquiries", href: "/admin/enquiries", icon: Mail, badge: 8 },
   { label: "Customers", href: "/admin/customers", icon: Users },
-  { label: "Products", href: "/admin/products", icon: Truck },
+  { label: "Gallery", href: "/admin/gallery", icon: Image },
   { label: "Analytics", href: "/admin/analytics", icon: BarChart3 },
-  { label: "Settings", href: "/admin/settings", icon: Settings },
 ];
 
 const statCards = [
@@ -165,15 +162,6 @@ const recentOrders = [
 
 const quickActions = [
   {
-    label: "Create New Order",
-    icon: Plus,
-    href: "/admin/orders/new",
-    color: "text-safety",
-    bgColor: "bg-safety/10",
-    borderColor: "hover:border-safety/40",
-    description: "Start a new order process",
-  },
-  {
     label: "Reply to Enquiry",
     icon: MessageSquare,
     href: "/admin/enquiries",
@@ -181,15 +169,6 @@ const quickActions = [
     bgColor: "bg-blue-500/10",
     borderColor: "hover:border-blue-500/40",
     description: "Respond to pending enquiries",
-  },
-  {
-    label: "Add Product",
-    icon: Box,
-    href: "/admin/products/new",
-    color: "text-green-400",
-    bgColor: "bg-green-500/10",
-    borderColor: "hover:border-green-500/40",
-    description: "Add new crane product",
   },
   {
     label: "Manage Customers",
@@ -667,9 +646,6 @@ export default function AdminDashboard() {
                       <option value="Shipped" className="bg-surface">Shipped</option>
                     </select>
                   </div>
-                  <Link href="/admin/orders" className="text-xs font-semibold text-safety hover:underline flex items-center gap-0.5">
-                    View all <ChevronRight size={13} />
-                  </Link>
                 </div>
               </div>
 

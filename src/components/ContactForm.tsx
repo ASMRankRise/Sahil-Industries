@@ -382,7 +382,7 @@ export function ContactForm({ formType = "contact", onSuccess }: ContactFormProp
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-5" noValidate>
+    <form onSubmit={handleSubmit} className="space-y-3" noValidate>
       <AnimatePresence mode="wait">
         {submitStatus === "success" && (
           <motion.div

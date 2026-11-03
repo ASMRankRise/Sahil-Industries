@@ -30,6 +30,8 @@ export const primaryNavigation: NavigationItem[] = [
 export const siteContact = {
   phone: '+91 96 2324 2324',
   phoneHref: 'tel:+919623242324',
+  whatsapp: '+91 96 2324 2324',
+  whatsappHref: 'https://wa.me/919623242324',
   email: 'sahilcranes@gmail.com',
   address: 'Plot No. B 88, 89, 90 Kagal Hatkanagale Five Star MIDC, Village – Halsawade, Tal.- Karveer, Dist.- Kolhapur - 416 236.',
   hours: ['Tuesday - Sunday : 09:00 AM - 05:30 PM', 'Monday - Closed'],

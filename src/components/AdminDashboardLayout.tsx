@@ -5,10 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   LayoutDashboard,
   Users,
-  Package,
-  Truck,
   BarChart3,
-  Settings,
   LogOut,
   Mail,
   ChevronRight,
@@ -24,7 +21,6 @@ import {
   DollarSign,
   UserPlus,
   MessageSquare,
-  Box,
   Activity,
   Eye,
   Edit,
@@ -42,6 +38,7 @@ import {
   Target,
   RefreshCw,
   Image as LucideImage,
+  Image,
 } from "lucide-react";
 import Link from "next/link";
 import { ReactNode } from "react";
@@ -51,12 +48,10 @@ const asset = (path: string) => `/sahilcrane/${path}`;
 
 const navItems = [
   { label: "Dashboard", href: "/admin", icon: LayoutDashboard },
-  { label: "Orders", href: "/admin/orders", icon: Package, badge: 12 },
   { label: "Enquiries", href: "/admin/enquiries", icon: Mail, badge: 8 },
   { label: "Customers", href: "/admin/customers", icon: Users },
-  { label: "Products", href: "/admin/products", icon: Truck },
+  { label: "Gallery", href: "/admin/gallery", icon: Image },
   { label: "Analytics", href: "/admin/analytics", icon: BarChart3 },
-  { label: "Settings", href: "/admin/settings", icon: Settings },
 ];
 
 interface AdminDashboardLayoutProps {
