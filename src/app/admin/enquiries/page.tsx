@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Mail,
@@ -20,10 +20,13 @@ import {
   AlertCircle,
   Reply,
   Flag,
+  MessageSquare,
+  ChevronDown,
 } from "lucide-react";
 import Link from "next/link";
 import { AdminDashboardLayoutWrapper } from "@/components/AdminDashboardLayout";
 import { useAdminData, Enquiry } from "@/context/AdminDataContext";
+import { BulkActionsBar, Modal, ConfirmModal, TagInput } from "@/components/admin";
 
 const statusConfig = {
   New: { label: "New", color: "bg-blue-500/10 text-blue-400 border border-blue-500/20", icon: Mail },
@@ -31,6 +34,15 @@ const statusConfig = {
   Replied: { label: "Replied", color: "bg-green-500/10 text-green-400 border border-green-500/20", icon: CheckCircle },
   Closed: { label: "Closed", color: "bg-slate-500/10 text-slate-400 border border-slate-500/20", icon: AlertCircle },
 };
+
+const statusOptions = [
+  { value: "New", label: "New" },
+  { value: "In Progress", label: "In Progress" },
+  { value: "Replied", label: "Replied" },
+  { value: "Closed", label: "Closed" },
+];
+
+const allTags = ["crane", "eot", "hoist", "gantry", "jib", "installation", "manufacturing", "factory", "project", "enquiry", "quotation", "urgent", "follow-up"];
 
 export default function EnquiriesPage() {
   const { enquiries, updateEnquiry, deleteEnquiry } = useAdminData();
@@ -40,6 +52,11 @@ export default function EnquiriesPage() {
   const [selectedEnquiries, setSelectedEnquiries] = useState<string[]>([]);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deletingEnquiry, setDeletingEnquiry] = useState<string | null>(null);
+  const [showReplyModal, setShowReplyModal] = useState<string | null>(null);
+  const [replyMessage, setReplyMessage] = useState("");
+  const [showBulkEditModal, setShowBulkEditModal] = useState(false);
+  const [bulkEditStatus, setBulkEditStatus] = useState("");
+  const [isReplying, setIsReplying] = useState(false);
 
   const getStatusConfig = (status: string) => statusConfig[status as keyof typeof statusConfig] || statusConfig.New;
 
@@ -98,8 +115,63 @@ export default function EnquiriesPage() {
   const handleStatusChange = (id: string, newStatus: Enquiry["status"]) => {
     updateEnquiry(id, { status: newStatus });
   };
-    return (
-      <AdminDashboardLayoutWrapper activeNav="/admin/enquiries" pageTitle="Enquiries" pageDescription="Manage and respond to customer enquiries and quotation requests">
+
+  const handleReply = (id: string) => {
+    setShowReplyModal(id);
+    setReplyMessage("");
+  };
+
+  const confirmReply = async () => {
+    if (!showReplyModal || !replyMessage.trim()) return;
+    setIsReplying(true);
+    // Simulate API call
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    updateEnquiry(showReplyModal, { status: "Replied" });
+    setShowReplyModal(null);
+    setIsReplying(false);
+  };
+
+  const openBulkEditModal = () => {
+    if (selectedEnquiries.length > 0) {
+      setShowBulkEditModal(true);
+    }
+  };
+
+  const handleBulkStatusChange = (status: string) => {
+    selectedEnquiries.forEach(id => {
+      updateEnquiry(id, { status: status as Enquiry["status"] });
+    });
+    setSelectedEnquiries([]);
+  };
+
+  const handleBulkEditSave = () => {
+    if (bulkEditStatus) {
+      selectedEnquiries.forEach(id => {
+        updateEnquiry(id, { status: bulkEditStatus as Enquiry["status"] });
+      });
+    }
+    setShowBulkEditModal(false);
+    setBulkEditStatus("");
+    setSelectedEnquiries([]);
+  };
+
+  const bulkActions = [
+    {
+      label: "Reply",
+      icon: <Reply size={14} />,
+      onClick: () => handleReply(selectedEnquiries[0]),
+      disabled: selectedEnquiries.length !== 1,
+    },
+    {
+      label: "Delete",
+      icon: <Trash2 size={14} />,
+      onClick: () => { setDeletingEnquiry(selectedEnquiries[0]); setShowDeleteModal(true); },
+      variant: "danger" as const,
+    },
+  ];
+
+  return (
+    <AdminDashboardLayoutWrapper activeNav="/admin/enquiries" pageTitle="Enquiries" pageDescription="Manage and respond to customer enquiries and quotation requests">
       <div className="space-y-6">
         {/* Header Actions */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -118,6 +190,17 @@ export default function EnquiriesPage() {
             </button>
           </div>
         </div>
+
+        {/* Bulk Actions Bar */}
+        <BulkActionsBar
+          count={selectedEnquiries.length}
+          label="enquiry"
+          onClear={() => setSelectedEnquiries([])}
+          actions={bulkActions}
+          statusOptions={statusOptions}
+          onStatusChange={handleBulkStatusChange}
+          showStatusFilter={true}
+        />
 
         {/* Search & Filters */}
         <div className="bg-surface border border-white/10 rounded-2xl p-5">
@@ -236,13 +319,18 @@ export default function EnquiriesPage() {
                       <td className="px-4 py-3.5 hidden lg:table-cell text-slate-400">{enquiry.date}</td>
                       <td className="px-4 py-3.5 text-center">
                         <div className="flex items-center justify-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                          <button className="p-1.5 text-slate-400 hover:text-white rounded hover:bg-white/10 transition-colors" title="View details">
-                            <Eye size={13} />
-                          </button>
-                          <button className="p-1.5 text-slate-400 hover:text-blue-400 rounded hover:bg-blue-500/10 transition-colors" title="Reply">
+                          <button
+                            onClick={() => handleReply(enquiry.id)}
+                            className="p-1.5 text-slate-400 hover:text-blue-400 rounded hover:bg-blue-500/10 transition-colors"
+                            title="Reply"
+                          >
                             <Reply size={13} />
                           </button>
-                          <button className="p-1.5 text-slate-400 hover:text-red-400 rounded hover:bg-red-500/10 transition-colors" title="Delete enquiry" onClick={() => handleDelete(enquiry.id)}>
+                          <button
+                            onClick={() => handleDelete(enquiry.id)}
+                            className="p-1.5 text-slate-400 hover:text-red-400 rounded hover:bg-red-500/10 transition-colors"
+                            title="Delete enquiry"
+                          >
                             <Trash2 size={13} />
                           </button>
                         </div>
@@ -259,30 +347,6 @@ export default function EnquiriesPage() {
               </div>
             )}
           </div>
-
-          {/* Bulk Actions Bar */}
-          <AnimatePresence>
-            {selectedEnquiries.length > 0 && (
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 10 }}
-                className="px-4 py-3 border-t border-white/10 flex items-center justify-between bg-white/[0.02]"
-              >
-                <span className="text-sm text-slate-300">{selectedEnquiries.length} enquir{selectedEnquiries.length !== 1 ? "ies" : "y"} selected</span>
-                <div className="flex items-center gap-2">
-                  <button className="px-3 py-1.5 border border-white/10 rounded-lg text-xs font-medium hover:bg-white/5 transition-colors flex items-center gap-1.5">
-                    <Flag size={12} />
-                    Mark Read
-                  </button>
-                  <button className="px-3 py-1.5 bg-red-500/10 border border-red-500/30 rounded-lg text-xs font-medium text-red-400 hover:bg-red-500/20 transition-colors flex items-center gap-1.5" onClick={() => handleDelete(selectedEnquiries[0])}>
-                    <Trash2 size={12} />
-                    Delete
-                  </button>
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
         </div>
 
         {/* Pagination */}
@@ -303,6 +367,101 @@ export default function EnquiriesPage() {
           </div>
         </div>
       </div>
-                </AdminDashboardLayoutWrapper>
+
+      {/* Delete Confirmation Modal */}
+      <ConfirmModal
+        isOpen={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        onConfirm={confirmDelete}
+        title="Delete Enquiry"
+        message="Are you sure you want to delete this enquiry? This action cannot be undone."
+        confirmLabel="Delete"
+        variant="danger"
+      />
+
+      {/* Reply Modal */}
+      <Modal
+        isOpen={!!showReplyModal}
+        onClose={() => setShowReplyModal(null)}
+        title="Reply to Enquiry"
+        size="md"
+      >
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-slate-300 mb-1">Enquiry ID</label>
+            <p className="text-sm font-mono text-slate-300">{showReplyModal}</p>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-slate-300 mb-1">Reply Message</label>
+            <textarea
+              value={replyMessage}
+              onChange={(e) => setReplyMessage(e.target.value)}
+              rows={5}
+              className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder:text-slate-400 focus:outline-none focus:border-safety/50 focus:bg-white/10 transition-all resize-none"
+              placeholder="Type your reply here..."
+            />
+          </div>
+          <div className="flex items-center justify-end gap-3 pt-4 border-t border-white/10">
+            <button
+              onClick={() => setShowReplyModal(null)}
+              className="px-4 py-2 border border-white/10 rounded-lg text-sm font-medium hover:bg-white/5 transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={confirmReply}
+              disabled={isReplying || !replyMessage.trim()}
+              className="px-4 py-2 bg-gradient-to-r from-safety to-yellow-400 text-ink rounded-lg text-sm font-semibold hover:brightness-105 transition-all shadow-sm shadow-safety/20 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isReplying ? "Sending..." : "Send Reply"}
+            </button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Bulk Edit Modal */}
+      <Modal
+        isOpen={showBulkEditModal}
+        onClose={() => setShowBulkEditModal(false)}
+        title={`Bulk Edit ${selectedEnquiries.length} Enquiries`}
+        size="md"
+      >
+        <div className="space-y-4">
+          <div className="mb-4 p-3 bg-safety/10 border border-safety/20 rounded-lg">
+            <p className="text-sm text-safety">
+              <strong>Editing {selectedEnquiries.length} enquir{selectedEnquiries.length > 1 ? "ies" : "y"}</strong> - Only filled fields will be updated.
+            </p>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-slate-300 mb-1">Status</label>
+            <select
+              value={bulkEditStatus}
+              onChange={(e) => setBulkEditStatus(e.target.value as Enquiry["status"])}
+              className="w-full h-10 px-4 bg-white/5 border border-white/10 rounded-lg text-white focus:outline-none focus:border-safety/50 appearance-none cursor-pointer"
+            >
+              <option value="">Keep current</option>
+              <option value="New">New</option>
+              <option value="In Progress">In Progress</option>
+              <option value="Replied">Replied</option>
+              <option value="Closed">Closed</option>
+            </select>
+          </div>
+          <div className="flex items-center justify-end gap-3 pt-4 border-t border-white/10">
+            <button
+              onClick={() => setShowBulkEditModal(false)}
+              className="px-4 py-2 border border-white/10 rounded-lg text-sm font-medium hover:bg-white/5 transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleBulkEditSave}
+              className="px-4 py-2 bg-gradient-to-r from-safety to-yellow-400 text-ink rounded-lg text-sm font-semibold hover:brightness-105 transition-all shadow-sm shadow-safety/20"
+            >
+              Apply to {selectedEnquiries.length} Enquir{selectedEnquiries.length > 1 ? "ies" : "y"}
+            </button>
+          </div>
+        </div>
+      </Modal>
+    </AdminDashboardLayoutWrapper>
   );
 }
