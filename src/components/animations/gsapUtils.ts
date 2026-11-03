@@ -275,13 +275,16 @@ export function animateSplitText(
   const targets = split[options.target || "lines"];
   if (!targets || targets.length === 0) return null;
 
-  return gsap.fromTo(targets, options.from || { opacity: 0, y: 20 }, {
-    ...(options.to || { opacity: 1, y: 0 }),
-    stagger: options.stagger || 0.05,
-    delay: options.delay || 0,
-    ease: options.ease || "power3.out",
-    duration: options.duration || 0.6,
-  });
+    // Wrap in a timeline to match return type
+    const tl = gsap.timeline();
+    tl.fromTo(targets, options.from || { opacity: 0, y: 20 }, {
+      ...(options.to || { opacity: 1, y: 0 }),
+      stagger: options.stagger || 0.05,
+      delay: options.delay || 0,
+      ease: options.ease || "power3.out",
+      duration: options.duration || 0.6,
+    });
+    return tl;
 }
 
 /**
@@ -419,55 +422,63 @@ export function batchAnimate(
     onEnterBack?: (elements: Element[], triggers: ScrollTrigger[]) => void;
     onLeaveBack?: (elements: Element[], triggers: ScrollTrigger[]) => void;
   } = {},
-): ScrollTrigger | null {
+): ScrollTrigger[] | null {
   if (prefersReducedMotion()) {
     // Set all to final state
     gsap.set(targets, { opacity: 1, y: 0 });
     return null;
   }
 
-  return ScrollTrigger.batch(targets, {
-    trigger: options.trigger,
-    start: options.start || "top 85%",
-    end: options.end || "bottom 15%",
+  // Convert TweenTarget to DOMTarget for ScrollTrigger.batch
+  const domTargets = Array.isArray(targets) ? targets : [targets];
+  
+  return ScrollTrigger.batch(domTargets, {
     interval: options.interval || 0.1,
     batchMax: options.batchMax || 10,
-    onEnter: (elements) =>
-      gsap.to(elements, {
-        opacity: 1,
-        y: 0,
-        duration: 0.6,
-        ease: "power3.out",
-        stagger: 0.08,
-        ...options.onEnter?.(elements, []),
-      }),
-    onLeave: (elements) =>
-      gsap.to(elements, {
-        opacity: 0,
-        y: -20,
-        duration: 0.4,
-        ease: "power3.in",
-        ...options.onLeave?.(elements, []),
-      }),
-    onEnterBack: (elements) =>
-      gsap.to(elements, {
-        opacity: 1,
-        y: 0,
-        duration: 0.6,
-        ease: "power3.out",
-        stagger: 0.08,
-        ...options.onEnterBack?.(elements, []),
-      }),
-    onLeaveBack: (elements) =>
-      gsap.to(elements, {
-        opacity: 0,
-        y: 20,
-        duration: 0.4,
-        ease: "power3.in",
-        ...options.onLeaveBack?.(elements, []),
-      }),
-  });
-}
+      onEnter: (elements) => {
+        const extraProps = options.onEnter?.(elements, []);
+        return gsap.to(elements, {
+          opacity: 1,
+          y: 0,
+          duration: 0.6,
+          ease: "power3.out",
+          stagger: 0.08,
+          ...(extraProps || {}),
+        });
+      },
+      onLeave: (elements) => {
+        const extraProps = options.onLeave?.(elements, []);
+        return gsap.to(elements, {
+          opacity: 0,
+          y: -20,
+          duration: 0.4,
+          ease: "power3.in",
+          ...(extraProps || {}),
+        });
+      },
+      onEnterBack: (elements) => {
+        const extraProps = options.onEnterBack?.(elements, []);
+        return gsap.to(elements, {
+          opacity: 1,
+          y: 0,
+          duration: 0.6,
+          ease: "power3.out",
+          stagger: 0.08,
+          ...(extraProps || {}),
+        });
+      },
+      onLeaveBack: (elements) => {
+        const extraProps = options.onLeaveBack?.(elements, []);
+        return gsap.to(elements, {
+          opacity: 0,
+          y: 20,
+          duration: 0.4,
+          ease: "power3.in",
+          ...(extraProps || {}),
+        });
+      },
+    });
+  }
 
 /**
  * Kill all ScrollTriggers in a context (cleanup).

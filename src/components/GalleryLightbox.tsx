@@ -23,7 +23,7 @@ interface GalleryLightboxProps {
   images: GalleryImage[];
 }
 
-export function GalleryLightbox({ image, onClose, onNext, onPrev, images }: GalleryLightboxProps) {
+export function GalleryLightbox({ image, onClose, onNext, onPrev, images = [] }: GalleryLightboxProps) {
   const [isLoading, setIsLoading] = useState(true);
   const [showInfo, setShowInfo] = useState(true);
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -31,6 +31,17 @@ export function GalleryLightbox({ image, onClose, onNext, onPrev, images }: Gall
   const [pan, setPan] = useState({ x: 0, y: 0 });
   const imgRef = useRef<HTMLImageElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+
+  // Normalize incoming image prop to handle both object and string inputs safely
+  const isObj = Boolean(image && typeof image === "object");
+  const rawSrc = isObj ? image.src : typeof image === "string" ? image : "";
+  const imageSrc = (typeof rawSrc === "string" && rawSrc.trim() !== "") ? rawSrc.trim() : null;
+  const imageAlt = (isObj ? (image.alt || image.title) : "") || "Gallery Image";
+  const imageTitle = (isObj ? image.title : "") || "Image Preview";
+  const imageCategory = (isObj ? image.category : "") || "products";
+  const imageDescription = isObj ? image.description : "";
+  const imageTags = (isObj && Array.isArray(image.tags)) ? image.tags : [];
+  const imageId = isObj ? image.id : (imageSrc || "current");
 
   // Handle keyboard navigation
   useEffect(() => {
@@ -126,9 +137,10 @@ export function GalleryLightbox({ image, onClose, onNext, onPrev, images }: Gall
 
   // Download image
   const handleDownload = () => {
+    if (!imageSrc) return;
     const link = document.createElement("a");
-    link.href = image.src;
-    link.download = `${image.title.replace(/\s+/g, "-").toLowerCase()}.jpg`;
+    link.href = imageSrc;
+    link.download = `${imageTitle.replace(/\s+/g, "-").toLowerCase()}.jpg`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -136,26 +148,32 @@ export function GalleryLightbox({ image, onClose, onNext, onPrev, images }: Gall
 
   // Share image
   const handleShare = async () => {
+    if (!imageSrc) return;
     if (navigator.share) {
       try {
         await navigator.share({
-          title: image.title,
-          text: image.description,
-          url: window.location.origin + image.src,
+          title: imageTitle,
+          text: imageDescription,
+          url: window.location.origin + imageSrc,
         });
       } catch (err) {
         console.log("Share cancelled");
       }
     } else {
-      // Fallback: copy to clipboard
-      navigator.clipboard.writeText(window.location.origin + image.src);
+      navigator.clipboard.writeText(window.location.origin + imageSrc);
       alert("Image link copied to clipboard!");
     }
   };
 
-  const currentIndex = images.findIndex((img) => img.id === image.id);
+  const currentIndex = Math.max(
+    0,
+    images.findIndex(
+      (img) => (isObj && img.id === image.id) || (imageSrc && img.src === imageSrc)
+    )
+  );
+  const totalCount = Math.max(images.length, 1);
   const isFirst = currentIndex === 0;
-  const isLast = currentIndex === images.length - 1;
+  const isLast = images.length <= 1 || currentIndex === images.length - 1;
 
   return (
     <motion.div
@@ -166,7 +184,7 @@ export function GalleryLightbox({ image, onClose, onNext, onPrev, images }: Gall
       className="fixed inset-0 z-50 bg-black/98 backdrop-blur-sm flex items-center justify-center"
       role="dialog"
       aria-modal="true"
-      aria-label={`Image ${currentIndex + 1} of ${images.length}: ${image.title}`}
+      aria-label={`Image ${currentIndex + 1} of ${totalCount}: ${imageTitle}`}
       ref={containerRef}
       onMouseDown={handleMouseDown}
       onMouseMove={handleMouseMove}
@@ -182,7 +200,7 @@ export function GalleryLightbox({ image, onClose, onNext, onPrev, images }: Gall
       />
 
       {/* Loading State */}
-      {isLoading && (
+      {isLoading && imageSrc && (
         <div className="absolute inset-0 flex items-center justify-center z-10">
           <Loader2 className="w-12 h-12 text-safety animate-spin" />
         </div>
@@ -227,13 +245,13 @@ export function GalleryLightbox({ image, onClose, onNext, onPrev, images }: Gall
 
       {/* Image Counter */}
       <div className="absolute top-6 left-6 z-20 px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full text-white/80 text-sm font-medium">
-        {currentIndex + 1} / {images.length}
+        {currentIndex + 1} / {totalCount}
       </div>
 
       {/* Image Container */}
       <AnimatePresence mode="wait">
         <motion.div
-          key={image.id}
+          key={String(imageId)}
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 1.05 }}
@@ -244,15 +262,25 @@ export function GalleryLightbox({ image, onClose, onNext, onPrev, images }: Gall
             cursor: zoom > 1 ? "grabbing" : isDragging ? "grabbing" : "default",
           }}
         >
-          <Image
-            ref={imgRef}
-            src={image.src}
-            alt={image.alt}
-            onLoad={handleLoad}
-            className="max-w-[90vw] max-h-[85vh] object-contain"
-            priority
-            sizes="90vw"
-          />
+          {imageSrc ? (
+            <Image
+              ref={imgRef}
+              src={imageSrc}
+              alt={imageAlt}
+              width={1920}
+              height={1080}
+              onLoad={handleLoad}
+              className="max-w-[90vw] max-h-[85vh] w-auto h-auto object-contain select-none"
+              priority
+              sizes="90vw"
+            />
+          ) : (
+            <div className="flex flex-col items-center justify-center p-8 text-center text-slate-400 bg-white/5 rounded-2xl border border-white/10">
+              <Info size={40} className="mb-3 text-safety" />
+              <p className="text-base font-semibold text-white">No Image Available</p>
+              <p className="text-xs text-slate-400 mt-1">Image source is empty or could not be loaded.</p>
+            </div>
+          )}
         </motion.div>
       </AnimatePresence>
 
@@ -339,10 +367,10 @@ export function GalleryLightbox({ image, onClose, onNext, onPrev, images }: Gall
             <div className="flex items-start justify-between gap-4 mb-4">
               <div className="flex-1">
                 <span className="px-3 py-1 text-[10px] font-bold uppercase tracking-wider rounded-full bg-safety/20 text-safety mb-3 inline-block">
-                  {image.category.charAt(0).toUpperCase() + image.category.slice(1)}
+                  {imageCategory ? imageCategory.charAt(0).toUpperCase() + imageCategory.slice(1) : 'Product'}
                 </span>
-                <h3 className="text-xl font-bold mb-2">{image.title}</h3>
-                <p className="text-slate-300 text-sm leading-relaxed">{image.description}</p>
+                <h3 className="text-xl font-bold mb-2">{imageTitle}</h3>
+                {imageDescription && <p className="text-slate-300 text-sm leading-relaxed">{imageDescription}</p>}
               </div>
               <motion.button
                 onClick={(e) => { e.stopPropagation(); setShowInfo(false); }}
@@ -355,16 +383,18 @@ export function GalleryLightbox({ image, onClose, onNext, onPrev, images }: Gall
             </div>
 
             {/* Tags */}
-            <div className="flex flex-wrap gap-2 mb-4">
-              {image.tags.map((tag, i) => (
-                <span
-                  key={i}
-                  className="px-3 py-1 text-[11px] font-medium uppercase tracking-wider rounded-full bg-white/10 text-slate-300 hover:bg-safety/20 hover:text-safety transition-colors"
-                >
-                  {tag}
-                </span>
-              ))}
-            </div>
+            {imageTags && imageTags.length > 0 && (
+              <div className="flex flex-wrap gap-2 mb-4">
+                {imageTags.map((tag, i) => (
+                  <span
+                    key={i}
+                    className="px-3 py-1 text-[11px] font-medium uppercase tracking-wider rounded-full bg-white/10 text-slate-300 hover:bg-safety/20 hover:text-safety transition-colors"
+                  >
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            )}
 
             {/* Action Buttons */}
             <div className="flex flex-wrap gap-2">
@@ -388,8 +418,8 @@ export function GalleryLightbox({ image, onClose, onNext, onPrev, images }: Gall
             <div className="mt-6 pt-4 border-t border-white/10">
               <p className="text-[11px] text-slate-500 mb-2 font-medium uppercase tracking-wider">Keyboard Shortcuts</p>
               <div className="grid grid-cols-2 gap-2 text-[11px] text-slate-400">
-                <div className="flex justify-between"><kbd className="px-2 py-0.5 bg-white/5 rounded">←</kbd><span>Previous</span></div>
-                <div className="flex justify-between"><kbd className="px-2 py-0.5 bg-white/5 rounded">→</kbd><span>Next</span></div>
+                <div className="flex justify-between"><kbd className="px-2 py-0.5 bg-white/5 rounded">?</kbd><span>Previous</span></div>
+                <div className="flex justify-between"><kbd className="px-2 py-0.5 bg-white/5 rounded">?</kbd><span>Next</span></div>
                 <div className="flex justify-between"><kbd className="px-2 py-0.5 bg-white/5 rounded">Esc</kbd><span>Close</span></div>
                 <div className="flex justify-between"><kbd className="px-2 py-0.5 bg-white/5 rounded">I</kbd><span>Toggle Info</span></div>
                 <div className="flex justify-between"><kbd className="px-2 py-0.5 bg-white/5 rounded">F</kbd><span>Fullscreen</span></div>

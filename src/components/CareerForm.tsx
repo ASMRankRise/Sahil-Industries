@@ -151,8 +151,23 @@ export function CareerForm({ onSuccess }: CareerFormProps) {
   const [errorMessage, setErrorMessage] = useState("");
   const [touchedFields, setTouchedFields] = useState<Set<keyof CareerFormData>>(new Set());
   
-  // Captcha state
-  const [captcha, setCaptcha] = useState<CaptchaState>(generateCaptcha);
+  // Captcha state - generate on client side only to avoid hydration mismatch
+  const [captcha, setCaptcha] = useState<CaptchaState>(() => {
+    if (typeof window !== 'undefined') {
+      return generateCaptcha();
+    }
+    // Return a placeholder that will be replaced on client
+    return { question: "? + ?", answer: 0, userAnswer: "" };
+  });
+  
+  // Track if we're on client side
+  const [isClient, setIsClient] = useState(false);
+  
+  useEffect(() => {
+    setIsClient(true);
+    // Generate captcha on client mount
+    setCaptcha(generateCaptcha());
+  }, []);
   
   const validationTimeouts = useRef<Record<string, NodeJS.Timeout>>({});
   const asyncValidationCache = useRef<Record<string, boolean>>({});
@@ -480,22 +495,25 @@ export function CareerForm({ onSuccess }: CareerFormProps) {
 
   // Check if form is valid for submit button
   const isFormValid = useCallback(() => {
-    const captchaValid = formData.captcha.trim().length > 0 && 
-      !isNaN(parseInt(formData.captcha.trim(), 10)) && 
-      parseInt(formData.captcha.trim(), 10) === captcha.answer;
+      // Don't validate captcha until client-side hydration
+      if (!isClient) return false;
     
-    return (
-      formData.fullname.trim().length >= (validationRules.fullname.minLength ?? 2) &&
-      validationRules.fullname.pattern?.test(formData.fullname.trim()) &&
-      formData.email.trim().length > 0 &&
-      validationRules.email.pattern?.test(formData.email) &&
-      formData.mobile.trim().length > 0 &&
-      validationRules.mobile.pattern?.test(formData.mobile) &&
-      formData.message.trim().length >= (validationRules.message.minLength ?? 10) &&
-      formData.resume !== null &&
-      captchaValid
-    );
-  }, [formData, captcha.answer]);
+      const captchaValid = formData.captcha.trim().length > 0 && 
+        !isNaN(parseInt(formData.captcha.trim(), 10)) && 
+        parseInt(formData.captcha.trim(), 10) === captcha.answer;
+    
+      return (
+        formData.fullname.trim().length >= (validationRules.fullname.minLength ?? 2) &&
+        validationRules.fullname.pattern?.test(formData.fullname.trim()) &&
+        formData.email.trim().length > 0 &&
+        validationRules.email.pattern?.test(formData.email) &&
+        formData.mobile.trim().length > 0 &&
+        validationRules.mobile.pattern?.test(formData.mobile) &&
+        formData.message.trim().length >= (validationRules.message.minLength ?? 10) &&
+        formData.resume !== null &&
+        captchaValid
+      );
+    }, [formData, captcha.answer, isClient]);
 
   // Cleanup timeouts on unmount
   useEffect(() => {
@@ -685,36 +703,38 @@ export function CareerForm({ onSuccess }: CareerFormProps) {
         <div className="space-y-1.5">
           <div className="flex items-center gap-2 p-3 bg-slate-50 border border-ink/20 rounded-lg">
             <Shield className="w-5 h-5 text-safety flex-shrink-0" />
-            <span className="text-base font-mono font-bold text-ink">{captcha.question} =</span>
-            <input
-              type="text"
-              name="captcha"
-              id="captcha"
-              value={formData.captcha}
-              onChange={handleChange}
-              onBlur={handleBlur}
-              className={`form-control w-auto min-w-[80px] pl-3 pr-3 py-1.5 border border-ink/20 bg-white text-ink outline-none transition-all duration-200 text-center font-mono text-base ${
-                getFieldState("captcha").isInvalid ? "border-red-500/50 focus:border-red-500 bg-red-500/5" :
-                getFieldState("captcha").isValid ? "border-green-500/50 focus:border-green-500 bg-green-500/5" :
-                "focus:border-safety/50 focus:bg-white focus:ring-2 focus:ring-safety/20"
-              } ${isSubmitting ? "opacity-50 cursor-not-allowed" : ""}`}
-              placeholder="Answer"
-              required
-              disabled={isSubmitting}
-              autoComplete="off"
-              aria-invalid={getFieldState("captcha").isInvalid}
-              aria-describedby="captcha-message"
-            />
-            <button
-              type="button"
-              onClick={refreshCaptcha}
-              disabled={isSubmitting}
-              className="p-1.5 text-slate-400 hover:text-safety transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              aria-label="Refresh captcha"
-            >
-              <RefreshCw className="w-4 h-4" />
-            </button>
-          </div>
+                    <span className="text-base font-mono font-bold text-ink">
+                      {isClient ? captcha.question : "Loading..."} =
+                    </span>
+                    <input
+                      type="text"
+                      name="captcha"
+                      id="captcha"
+                      value={formData.captcha}
+                      onChange={handleChange}
+                      onBlur={handleBlur}
+                      className={`form-control w-auto min-w-[80px] pl-3 pr-3 py-1.5 border border-ink/20 bg-white text-ink outline-none transition-all duration-200 text-center font-mono text-base ${
+                        getFieldState("captcha").isInvalid ? "border-red-500/50 focus:border-red-500 bg-red-500/5" :
+                        getFieldState("captcha").isValid ? "border-green-500/50 focus:border-green-500 bg-green-500/5" :
+                        "focus:border-safety/50 focus:bg-white focus:ring-2 focus:ring-safety/20"
+                      } ${isSubmitting || !isClient ? "opacity-50 cursor-not-allowed" : ""}`}
+                      placeholder="Answer"
+                      required
+                      disabled={isSubmitting || !isClient}
+                      autoComplete="off"
+                      aria-invalid={getFieldState("captcha").isInvalid}
+                      aria-describedby="captcha-message"
+                    />
+                    <button
+                      type="button"
+                      onClick={refreshCaptcha}
+                      disabled={isSubmitting || !isClient}
+                      className="p-1.5 text-slate-400 hover:text-safety transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      aria-label="Refresh captcha"
+                    >
+                      <RefreshCw className="w-4 h-4" />
+                    </button>
+                  </div>
           <AnimatePresence>
             {getFieldState("captcha").isInvalid && getFieldState("captcha").showValidation && (
               <motion.p

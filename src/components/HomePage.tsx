@@ -3,11 +3,51 @@ import { LegacyStyles } from '@/components/LegacyStyles';
 import { clientLogos, homeProducts, industries } from '@/data/home';
 import { reasonsToChoose } from '@/data/about';
 import { primaryNavigation } from '@/data/site';
+import { useState } from 'react';
+import { GalleryLightbox } from '@/components/GalleryLightbox';
 
 const asset = (path: string) => `/sahilcrane/${path}`;
 const productLinks = homeProducts.map((product) => ({ ...product, href: product.href ?? '/' }));
 
+// Gallery images for the lightbox
+const productGalleryImages = homeProducts.map((product, index) => ({
+  id: index + 1,
+  src: asset(`products/${product.image}`),
+  alt: product.title,
+  title: product.title,
+  category: 'products',
+  description: product.title,
+  tags: ['Product'],
+}));
+
 export default function HomePage() {
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [selectedImage, setSelectedImage] = useState<typeof productGalleryImages[0] | null>(null);
+
+  const handleImageClick = (image: typeof productGalleryImages[0]) => {
+    setSelectedImage(image);
+    setLightboxOpen(true);
+  };
+
+  const handleCloseLightbox = () => {
+    setLightboxOpen(false);
+    setSelectedImage(null);
+  };
+
+  const handleNextImage = () => {
+    if (!selectedImage) return;
+    const currentIndex = productGalleryImages.findIndex((img) => img.id === selectedImage.id);
+    const nextIndex = (currentIndex + 1) % productGalleryImages.length;
+    setSelectedImage(productGalleryImages[nextIndex]);
+  };
+
+  const handlePrevImage = () => {
+    if (!selectedImage) return;
+    const currentIndex = productGalleryImages.findIndex((img) => img.id === selectedImage.id);
+    const prevIndex = (currentIndex - 1 + productGalleryImages.length) % productGalleryImages.length;
+    setSelectedImage(productGalleryImages[prevIndex]);
+  };
+
   return <>
     <LegacyStyles />
     <div className="boxed_wrapper ltr">
@@ -16,7 +56,7 @@ export default function HomePage() {
       <HeroSlider />
       <Highlights />
       <AboutSection />
-      <ProductsSection />
+      <ProductsSection onImageClick={handleImageClick} />
       <WhyChooseSection />
       <IndustriesSection />
       <ClientsSection />
@@ -25,6 +65,16 @@ export default function HomePage() {
       <button className="scroll-top scroll-to-target" data-target="html"><span className="flaticon-up-arrow" /></button>
     </div>
     <LegacyRuntime />
+    {/* Lightbox */}
+    {lightboxOpen && selectedImage && (
+      <GalleryLightbox
+        image={selectedImage}
+        onClose={handleCloseLightbox}
+        onNext={handleNextImage}
+        onPrev={handlePrevImage}
+        images={productGalleryImages}
+      />
+    )}
   </>;
 }
 
@@ -63,8 +113,12 @@ function AboutSection() {
   return <section className="about-style2-area"><div className="container"><div className="row"><div className="col-xl-6"><div className="about-style2__content"><div className="sec-title"><div className="sub-title"><h1 className="heading"><span className="border-left" />EOT Cranes &amp; Hoists Manufacturers in Kolhapur, India</h1></div><h2>Welcome to Sahil Industries</h2></div><div className="inner-content"><div className="text"><p className="mb-3 text-justify">We are Manufacturer &amp; Solution Partner of EOT cranes and Hoists for industrial use as an ISO 9001-2008 certified company at Five Star MIDC , Kagal, Dist. Kolhapur since last 22 years and already having more than 100 satisfied customers using our products and an additional 100 customers to whom we are providing repairing, maintenance and servicing support of their &apos;any make&apos; material handling equipments. </p><p className="text-justify mb-5">Our pre-engineered industrial cranes are designed as per IS guidelines for all classes of cranes. </p><a className="btn-one two" href="/about"><span className="txt">Read More</span></a></div></div></div></div><div className="col-xl-6"><div className="about-style2__image-box"><div className="big-title paroller">SAHIL</div><div className="img-box1 js-tilt"><img src={asset('home/about-01.jpg')} alt="Image" /></div><div className="img-box2"><div className="inner"><img src={asset('home/about.jpg')} alt="Image" /></div></div><div className="overlay-box"><h2>22<span className="flaticon-plus-1" /></h2><h3>Years of<br /> Experienced</h3></div><div className="icon-box"><img src={asset('home/about-logo.png')} alt="Logo" /></div></div></div></div></div></section>;
 }
 
-function ProductsSection() {
-  return <section className="service-style2-area"><div className="container-fluid"><SectionTitle eyebrow="Our Products" title="Manufacturer of EOT Cranes & Hoists" /> <div className="row text-right-rtl justify-content-center">{productLinks.map((product, index) => <div className="col-xl-3 col-lg-4 col-md-12" key={product.title}><div className={`single-project-item-style2${index > 2 ? ' mb-lg-0' : ''}`}><div className="img-holder"><div className="inner"><img src={asset(`products/${product.image}`)} alt={product.title} /></div><div className="overlay-content text-center"><a className="lightbox-image" data-fancybox="gallery" href={asset(`products/${product.image}`)}><i className="flaticon-zoom" /></a></div></div><div className="text-holder"><div className="pattern-bg" style={{ backgroundImage: 'url(/assets/images/pattern/thm-pattern-7.png)' }} /><div className="left"><h3><a href={product.href}>{product.title}</a></h3></div></div></div></div>)}</div></div></section>;
+interface ProductsSectionProps {
+  onImageClick: (image: { id: number; src: string; alt: string; title: string; category: string; description: string; tags: string[] }) => void;
+}
+
+function ProductsSection({ onImageClick }: ProductsSectionProps) {
+  return <section className="service-style2-area"><div className="container-fluid"><SectionTitle eyebrow="Our Products" title="Manufacturer of EOT Cranes & Hoists" /> <div className="row text-right-rtl justify-content-center">{productLinks.map((product, index) => <div className="col-xl-3 col-lg-4 col-md-12" key={product.title}><div className={`single-project-item-style2${index > 2 ? ' mb-lg-0' : ''}`}><div className="img-holder"><div className="inner"><img src={asset(`products/${product.image}`)} alt={product.title} /></div><div className="overlay-content text-center"><button className="lightbox-image" onClick={() => onImageClick({ id: index + 1, src: asset(`products/${product.image}`), alt: product.title, title: product.title, category: 'products', description: product.title, tags: ['Product'] })}><i className="flaticon-zoom" /></button></div></div><div className="text-holder"><div className="pattern-bg" style={{ backgroundImage: 'url(/assets/images/pattern/thm-pattern-7.png)' }} /><div className="left"><h3><a href={product.href}>{product.title}</a></h3></div></div></div></div>)}</div></div></section>;
 }
 
 function WhyChooseSection() {

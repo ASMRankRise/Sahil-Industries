@@ -1358,7 +1358,7 @@ function ReplaceImageForm({
         </label>
         <div className="aspect-[4/3] rounded-lg overflow-hidden border border-white/10">
           <img
-            src={image.url}
+            src={image.url || "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='300' viewBox='0 0 400 300'%3E%3Crect width='400' height='300' fill='%231e293b'/%3E%3Ctext x='200' y='140' font-family='system-ui, sans-serif' font-size='16' fill='%2364748b' text-anchor='middle' dominant-baseline='middle'%3ENo Image%3C/text%3E%3C/svg%3E"}
             alt={image.title}
             className="w-full h-full object-cover"
           />
@@ -1558,7 +1558,7 @@ function SortableGalleryItem({
       {/* Image */}
       <div className="aspect-[4/3] relative overflow-hidden">
         <img
-          src={image.url}
+          src={image.url || "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='300' viewBox='0 0 400 300'%3E%3Crect width='400' height='300' fill='%231e293b'/%3E%3Ctext x='200' y='140' font-family='system-ui, sans-serif' font-size='16' fill='%2364748b' text-anchor='middle' dominant-baseline='middle'%3ENo Image%3C/text%3E%3C/svg%3E"}
           alt={image.title}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
           loading="lazy"
@@ -1980,7 +1980,7 @@ function EditImageForm({
           </label>
           <div className="aspect-[4/3] max-w-xs rounded-lg overflow-hidden border border-white/10">
             <img
-              src={image.url}
+              src={image.url || "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='300' viewBox='0 0 400 300'%3E%3Crect width='400' height='300' fill='%231e293b'/%3E%3Ctext x='200' y='140' font-family='system-ui, sans-serif' font-size='16' fill='%2364748b' text-anchor='middle' dominant-baseline='middle'%3ENo Image%3C/text%3E%3C/svg%3E"}
               alt={image.title}
               className="w-full h-full object-cover"
             />

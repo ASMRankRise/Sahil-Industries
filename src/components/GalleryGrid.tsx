@@ -69,15 +69,21 @@ export function GalleryGrid({ images, onImageClick, activeCategory }: GalleryGri
             >
               {/* Image Container */}
               <div className="relative aspect-[4/3] overflow-hidden">
-                <Image
-                  src={image.src}
-                  alt={image.alt}
-                  fill
-                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 25vw"
-                  className="object-cover transition-all duration-700 group-hover:scale-110"
-                  placeholder="blur"
-                  blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=="
-                />
+                {image.src && image.src.trim() !== "" ? (
+                  <Image
+                    src={image.src}
+                    alt={image.alt || image.title || "Gallery image"}
+                    fill
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 25vw"
+                    className="object-cover transition-all duration-700 group-hover:scale-110"
+                    placeholder="blur"
+                    blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=="
+                  />
+                ) : (
+                  <div className="w-full h-full bg-surface flex items-center justify-center text-slate-500">
+                    <span className="text-xs">No image</span>
+                  </div>
+                )}
                 
                 {/* Category Badge */}
                 <div className="absolute top-3 left-3">
