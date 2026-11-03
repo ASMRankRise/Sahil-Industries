@@ -6,6 +6,16 @@ import {
   prefersReducedMotion,
 } from "@/components/animations/gsapUtils";
 
+// Standardized constants for Counter
+const COUNTER_DEFAULT_START = 0;
+const COUNTER_DEFAULT_DURATION = 2;
+const COUNTER_DEFAULT_EASE = "power2.out";
+const COUNTER_DEFAULT_DECIMALS = 0;
+const COUNTER_DEFAULT_SEPARATOR = ",";
+const COUNTER_DEFAULT_TAG = "span";
+const COUNTER_OBSERVER_THRESHOLD = 0.1;
+const COUNTER_OBSERVER_ROOT_MARGIN = "0px";
+
 interface CounterProps {
   /** Target number to count to */
   end: number;
@@ -45,16 +55,16 @@ interface CounterProps {
  */
 export function Counter({
   end,
-  start = 0,
-  duration = 2,
-  ease = "power2.out",
-  decimals = 0,
-  separator = ",",
+  start = COUNTER_DEFAULT_START,
+  duration = COUNTER_DEFAULT_DURATION,
+  ease = COUNTER_DEFAULT_EASE,
+  decimals = COUNTER_DEFAULT_DECIMALS,
+  separator = COUNTER_DEFAULT_SEPARATOR,
   prefix = "",
   suffix = "",
   onComplete,
   className = "",
-  tag: Tag = "span",
+  tag: Tag = COUNTER_DEFAULT_TAG,
   scrollTrigger = false,
   scrollTriggerOptions = {},
 }: CounterProps) {
@@ -79,8 +89,8 @@ export function Counter({
         });
       },
       {
-        rootMargin: "0px",
-        threshold: 0.1,
+        rootMargin: COUNTER_OBSERVER_ROOT_MARGIN,
+        threshold: COUNTER_OBSERVER_THRESHOLD,
         ...scrollTriggerOptions,
       },
     );
@@ -189,9 +199,16 @@ interface CounterGroupProps {
   scrollTrigger?: boolean;
 }
 
+const COUNTER_GROUP_DEFAULT_STAGGER = 0.1;
+const COUNTER_GROUP_OBSERVER_THRESHOLD = 0.1;
+const COUNTER_GROUP_OBSERVER_ROOT_MARGIN = "0px";
+const COUNTER_GROUP_DEFAULT_DURATION = 2;
+const COUNTER_GROUP_DEFAULT_DECIMALS = 0;
+const COUNTER_GROUP_DEFAULT_SEPARATOR = ",";
+
 export function CounterGroup({
   counters,
-  stagger = 0.1,
+  stagger = COUNTER_GROUP_DEFAULT_STAGGER,
   className = "",
   scrollTrigger = false,
 }: CounterGroupProps) {
@@ -211,7 +228,7 @@ export function CounterGroup({
           }
         });
       },
-      { rootMargin: "0px", threshold: 0.1 },
+      { rootMargin: COUNTER_GROUP_OBSERVER_ROOT_MARGIN, threshold: COUNTER_GROUP_OBSERVER_THRESHOLD },
     );
 
     if (containerRef.current) {
@@ -236,11 +253,11 @@ export function CounterGroup({
         ) as HTMLElement;
         if (element) {
           animateCounter(element, counter.end, {
-            duration: counter.duration || 2,
-            decimals: counter.decimals || 0,
+            duration: counter.duration || COUNTER_GROUP_DEFAULT_DURATION,
+            decimals: counter.decimals || COUNTER_GROUP_DEFAULT_DECIMALS,
             prefix: counter.prefix || "",
             suffix: counter.suffix || "",
-            separator: ",",
+            separator: COUNTER_GROUP_DEFAULT_SEPARATOR,
             delay: index * stagger,
           });
         }

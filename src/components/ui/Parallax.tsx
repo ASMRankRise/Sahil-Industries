@@ -23,14 +23,19 @@ interface ParallaxProps {
   style?: React.CSSProperties;
 }
 
+// Standardized constants for Parallax
+const PARALLAX_DEFAULT_SPEED = 0.5;
+const PARALLAX_DEFAULT_MAX_OFFSET = 100;
+const PARALLAX_DEFAULT_DIRECTION = "vertical";
+
 /**
  * Parallax - Creates a parallax scrolling effect using GSAP ScrollTrigger.
  * The child element moves at a different speed than the scroll.
  */
 export function Parallax({
-  speed = 0.5,
-  maxOffset = 100,
-  direction = "vertical",
+  speed = PARALLAX_DEFAULT_SPEED,
+  maxOffset = PARALLAX_DEFAULT_MAX_OFFSET,
+  direction = PARALLAX_DEFAULT_DIRECTION,
   triggerRef,
   children,
   className = "",
@@ -93,14 +98,22 @@ interface ParallaxLayerProps {
   children: React.ReactNode;
 }
 
+// Standardized constants for ParallaxLayer
+const PARALLAX_LAYER_DEFAULT_Y_PERCENT = 0;
+const PARALLAX_LAYER_DEFAULT_X_PERCENT = 0;
+const PARALLAX_LAYER_DEFAULT_SCALE = 1;
+const PARALLAX_LAYER_DEFAULT_ROTATE = 0;
+const PARALLAX_LAYER_DEFAULT_OPACITY = 1;
+const PARALLAX_LAYER_DEFAULT_Z_INDEX = 0;
+
 export function ParallaxLayer({
   speed,
-  yPercent = 0,
-  xPercent = 0,
-  scale = 1,
-  rotate = 0,
-  opacity = 1,
-  zIndex = 0,
+  yPercent = PARALLAX_LAYER_DEFAULT_Y_PERCENT,
+  xPercent = PARALLAX_LAYER_DEFAULT_X_PERCENT,
+  scale = PARALLAX_LAYER_DEFAULT_SCALE,
+  rotate = PARALLAX_LAYER_DEFAULT_ROTATE,
+  opacity = PARALLAX_LAYER_DEFAULT_OPACITY,
+  zIndex = PARALLAX_LAYER_DEFAULT_Z_INDEX,
   children,
   className = "",
 }: ParallaxLayerProps) {
@@ -152,8 +165,11 @@ interface ParallaxContainerProps {
   style?: React.CSSProperties;
 }
 
+// Standardized constants for ParallaxContainer
+const PARALLAX_CONTAINER_DEFAULT_HEIGHT = "100vh";
+
 export function ParallaxContainer({
-  height = "100vh",
+  height = PARALLAX_CONTAINER_DEFAULT_HEIGHT,
   className = "",
   children,
   style = {},
@@ -185,9 +201,17 @@ interface MouseParallaxProps {
   children: React.ReactNode;
 }
 
+// Standardized constants for MouseParallax
+const MOUSE_PARALLAX_DEFAULT_STRENGTH = 0.1;
+const MOUSE_PARALLAX_DEFAULT_RESET = true;
+const MOUSE_PARALLAX_ANIMATION_DURATION = 0.3;
+const MOUSE_PARALLAX_ANIMATION_EASE = "power3.out";
+const MOUSE_PARALLAX_LEAVE_DURATION = 0.5;
+const MOUSE_PARALLAX_LEAVE_EASE = "elastic.out(1, 0.5)";
+
 export function MouseParallax({
-  strength = 0.1,
-  resetOnLeave = true,
+  strength = MOUSE_PARALLAX_DEFAULT_STRENGTH,
+  resetOnLeave = MOUSE_PARALLAX_DEFAULT_RESET,
   children,
   className = "",
 }: MouseParallaxProps) {
@@ -210,8 +234,8 @@ export function MouseParallax({
       animationRef.current = gsap.to(elementRef.current, {
         x: deltaX,
         y: deltaY,
-        duration: 0.3,
-        ease: "power3.out",
+        duration: MOUSE_PARALLAX_ANIMATION_DURATION,
+        ease: MOUSE_PARALLAX_ANIMATION_EASE,
         overwrite: "auto",
       });
     };
@@ -221,8 +245,8 @@ export function MouseParallax({
         animationRef.current = gsap.to(elementRef.current, {
           x: 0,
           y: 0,
-          duration: 0.5,
-          ease: "elastic.out(1, 0.5)",
+          duration: MOUSE_PARALLAX_LEAVE_DURATION,
+          ease: MOUSE_PARALLAX_LEAVE_EASE,
           overwrite: "auto",
         });
       }

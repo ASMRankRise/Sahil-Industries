@@ -18,6 +18,23 @@ import { primaryNavigation, siteContact } from "@/data/site";
 import { MagneticElement } from "@/components/ui/MagneticButton";
 import { useReducedMotion } from "@/components/animations/hooks/useReducedMotion";
 
+// Standardized spacing constants for header
+const HEADER_HEIGHT_DESKTOP = "min-h-[88px]";
+const HEADER_HEIGHT_MOBILE = "min-h-[74px]";
+const LOGO_PADDING_X = "px-[34px]";
+const TOP_BAR_HEIGHT = "h-[31px]";
+const NAV_HEIGHT = "h-[57px]";
+const NAV_GAP_DESKTOP = "gap-7";
+const NAV_GAP_LG = "max-lg:gap-4";
+const NAV_PR_DESKTOP = "pr-[38px]";
+const NAV_PR_LG = "max-lg:pr-5";
+const CONTACT_ICON_SIZE = 20;
+const CONTACT_ICON_SIZE_MOBILE = 22;
+const TOOLTIP_OFFSET = "mb-2";
+const TOOLTIP_PADDING = "px-3 py-2";
+const MOBILE_MENU_BUTTON_SIZE = "h-[42px]";
+const DIVIDER_WIDTH = "w-px";
+
 export function SiteHeader() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [productsOpen, setProductsOpen] = useState(false);
@@ -47,7 +64,7 @@ export function SiteHeader() {
         className={`relative z-30 border-b border-white/10 bg-ink text-white transition-all duration-300 ${
           scrolled ? "shadow-xl bg-ink/95 backdrop-blur-sm" : ""
         }`}>
-        <div className="mx-auto grid min-h-[88px] max-w-[1440px] grid-cols-[252px_1fr_auto] max-lg:grid-cols-[220px_1fr] max-md:flex max-md:min-h-[74px] max-md:items-center max-md:justify-between max-md:px-[18px]">
+        <div className={`mx-auto grid max-w-[1440px] grid-cols-[252px_1fr_auto] ${HEADER_HEIGHT_DESKTOP} max-lg:grid-cols-[220px_1fr] max-md:flex ${HEADER_HEIGHT_MOBILE} max-md:items-center max-md:justify-between max-md:px-[18px]`}>
           {/* Logo with magnetic effect */}
           <MagneticElement strength={0.15} area={120}>
             <Link
@@ -66,7 +83,7 @@ export function SiteHeader() {
           </MagneticElement>
 
           <div className="min-w-0 max-md:hidden">
-            <div className="flex h-[31px] items-center justify-between border-b border-white/10 px-[34px] text-[10px] uppercase tracking-industrial text-slate-400">
+            <div className={`flex items-center justify-between border-b border-white/10 ${TOP_BAR_HEIGHT} ${LOGO_PADDING_X} text-[10px] uppercase tracking-industrial text-slate-400`}>
               <span>An ISO 9001:2008 Certified Company</span>
               <div className="flex items-center gap-3">
                 <motion.a
@@ -75,16 +92,16 @@ export function SiteHeader() {
                   whileHover={{ x: 4 }}
                   whileTap={{ scale: 0.95 }}
                   transition={{ duration: 0.15 }}>
-                  <Mail size={14} />
+                  <Mail size={14} aria-hidden="true" />
                   {siteContact.email}
                 </motion.a>
-                <Globe2 size={15} />
+                <Globe2 size={15} aria-hidden="true" />
                 <span className="font-extrabold text-safety">G+</span>
-                <Share2 size={15} />
+                <Share2 size={15} aria-hidden="true" />
               </div>
             </div>
             <nav
-              className="flex h-[57px] items-center justify-end gap-7 pr-[38px] max-lg:gap-4 max-lg:pr-5"
+              className={`flex items-center justify-end ${NAV_GAP_DESKTOP} ${NAV_PR_DESKTOP} ${NAV_GAP_LG} ${NAV_PR_LG} ${NAV_HEIGHT}`}
               aria-label="Primary navigation">
               {primaryItems.slice(0, 2).map((item) => (
                 <motion.a
@@ -110,7 +127,7 @@ export function SiteHeader() {
                   <motion.span
                     animate={{ rotate: productsOpen ? 180 : 0 }}
                     transition={{ duration: 0.2 }}>
-                    <ChevronDown size={14} />
+                    <ChevronDown size={14} aria-hidden="true" />
                   </motion.span>
                 </motion.button>
                 <AnimatePresence>
@@ -158,30 +175,30 @@ export function SiteHeader() {
           {/* Contact section - Phone & WhatsApp */}
           <div className="flex items-center h-[57px] max-lg:hidden">
             <motion.a
-              className="flex items-center gap-3 border-l border-white/10 px-6 py-2 group relative h-full"
+              className={`flex items-center gap-3 border-l border-white/10 ${LOGO_PADDING_X} py-2 group relative h-full`}
               href={siteContact.phoneHref}
               whileHover={{ x: 4 }}
               whileTap={{ scale: 0.98 }}
               transition={{ duration: 0.15 }}>
-              <Phone className="text-safety group-hover:scale-110 transition-transform duration-300" size={20} />
-              <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 ease-out whitespace-nowrap pointer-events-none bg-ink/95 backdrop-blur-sm border border-white/10 rounded-lg px-3 py-2 shadow-xl z-10">
+              <Phone className="text-safety group-hover:scale-110 transition-transform duration-300" size={CONTACT_ICON_SIZE} aria-hidden="true" />
+              <span className={`absolute bottom-full left-1/2 -translate-x-1/2 ${TOOLTIP_OFFSET} opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 ease-out whitespace-nowrap pointer-events-none bg-ink/95 backdrop-blur-sm border border-white/10 rounded-lg ${TOOLTIP_PADDING} shadow-xl z-10`}>
                 <small className="block text-xs text-slate-400">Make a Call</small>
                 <b className="block text-[15px] text-safety">{siteContact.phone}</b>
               </span>
             </motion.a>
 
-            <div className="h-[42px] w-px bg-white/10" aria-hidden="true" />
+            <div className={`h-[42px] ${DIVIDER_WIDTH} bg-white/10`} aria-hidden="true" />
 
             <motion.a
-              className="flex items-center gap-2 border-l border-white/10 px-6 py-2 group relative h-full"
+              className={`flex items-center gap-2 border-l border-white/10 ${LOGO_PADDING_X} py-2 group relative h-full`}
               href={siteContact.whatsappHref}
               target="_blank"
               rel="noopener noreferrer"
               whileHover={{ x: 4, scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               transition={{ duration: 0.15 }}>
-              <MessageCircle className="text-green-500 group-hover:scale-110 transition-transform duration-300" size={22} />
-              <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 ease-out whitespace-nowrap pointer-events-none bg-ink/95 backdrop-blur-sm border border-white/10 rounded-lg px-3 py-2 shadow-xl z-10">
+              <MessageCircle className="text-green-500 group-hover:scale-110 transition-transform duration-300" size={CONTACT_ICON_SIZE_MOBILE} aria-hidden="true" />
+              <span className={`absolute bottom-full left-1/2 -translate-x-1/2 ${TOOLTIP_OFFSET} opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 ease-out whitespace-nowrap pointer-events-none bg-ink/95 backdrop-blur-sm border border-white/10 rounded-lg ${TOOLTIP_PADDING} shadow-xl z-10`}>
                 <small className="block text-xs text-slate-400">Chat on WhatsApp</small>
                 <b className="block text-[13px] text-green-500 font-medium">WhatsApp</b>
               </span>
@@ -189,13 +206,13 @@ export function SiteHeader() {
           </div>
 
           <motion.button
-            className="hidden h-[42px] border-0 bg-safety p-2.5 text-ink max-md:block"
+            className={`hidden ${MOBILE_MENU_BUTTON_SIZE} border-0 bg-safety p-2.5 text-ink max-md:block`}
             aria-label="Open navigation"
             onClick={() => setMenuOpen(true)}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             transition={{ duration: 0.1 }}>
-            <Menu />
+            <Menu aria-hidden="true" />
           </motion.button>
         </div>
       </header>

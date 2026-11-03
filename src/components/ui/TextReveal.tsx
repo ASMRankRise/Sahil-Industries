@@ -63,28 +63,44 @@ interface TextRevealProps {
   charsClass?: string;
 }
 
+// Standardized constants for TextReveal
+const TEXT_REVEAL_DEFAULT_SPLIT = "lines,words,chars";
+const TEXT_REVEAL_DEFAULT_ANIMATE = "lines";
+const TEXT_REVEAL_DEFAULT_STAGGER = 0.05;
+const TEXT_REVEAL_DEFAULT_DELAY = 0;
+const TEXT_REVEAL_DEFAULT_DURATION = 0.6;
+const TEXT_REVEAL_DEFAULT_EASE = "power3.out";
+const TEXT_REVEAL_DEFAULT_FROM = { opacity: 0, y: 20 };
+const TEXT_REVEAL_DEFAULT_TO = { opacity: 1, y: 0 };
+const TEXT_REVEAL_DEFAULT_TAG = "p";
+const TEXT_REVEAL_DEFAULT_LINES_CLASS = "split-line";
+const TEXT_REVEAL_DEFAULT_WORDS_CLASS = "split-word";
+const TEXT_REVEAL_DEFAULT_CHARS_CLASS = "split-char";
+const TEXT_REVEAL_OBSERVER_THRESHOLD = 0.1;
+const TEXT_REVEAL_OBSERVER_ROOT_MARGIN = "0px";
+
 /**
  * TextReveal - GSAP SplitText powered text animations.
  * Splits text into lines/words/chars and animates them with stagger.
  */
 export function TextReveal({
   children,
-  split = "lines,words,chars",
-  animate = "lines",
-  stagger = 0.05,
-  delay = 0,
-  duration = 0.6,
-  ease = "power3.out",
-  from = { opacity: 0, y: 20 },
-  to = { opacity: 1, y: 0 },
+  split = TEXT_REVEAL_DEFAULT_SPLIT,
+  animate = TEXT_REVEAL_DEFAULT_ANIMATE,
+  stagger = TEXT_REVEAL_DEFAULT_STAGGER,
+  delay = TEXT_REVEAL_DEFAULT_DELAY,
+  duration = TEXT_REVEAL_DEFAULT_DURATION,
+  ease = TEXT_REVEAL_DEFAULT_EASE,
+  from = TEXT_REVEAL_DEFAULT_FROM,
+  to = TEXT_REVEAL_DEFAULT_TO,
   scrollTrigger = false,
   scrollTriggerOptions = {},
   onComplete,
   className = "",
-  tag: Tag = "p",
-  linesClass = "split-line",
-  wordsClass = "split-word",
-  charsClass = "split-char",
+  tag: Tag = TEXT_REVEAL_DEFAULT_TAG,
+  linesClass = TEXT_REVEAL_DEFAULT_LINES_CLASS,
+  wordsClass = TEXT_REVEAL_DEFAULT_WORDS_CLASS,
+  charsClass = TEXT_REVEAL_DEFAULT_CHARS_CLASS,
 }: TextRevealProps) {
   const elementRef = useRef<HTMLElement>(null);
   const splitRef = useRef<{ split: SplitText; revert: () => void } | null>(
@@ -107,8 +123,8 @@ export function TextReveal({
         });
       },
       {
-        rootMargin: "0px",
-        threshold: 0.1,
+        rootMargin: TEXT_REVEAL_OBSERVER_ROOT_MARGIN,
+        threshold: TEXT_REVEAL_OBSERVER_THRESHOLD,
         ...scrollTriggerOptions,
       },
     );
@@ -221,8 +237,11 @@ interface TextRevealLineProps extends Omit<
   stagger?: number;
 }
 
+// Standardized constants for TextRevealLine
+const TEXT_REVEAL_LINE_DEFAULT_STAGGER = 0.08;
+
 export function TextRevealLine({
-  stagger = 0.08,
+  stagger = TEXT_REVEAL_LINE_DEFAULT_STAGGER,
   ...props
 }: TextRevealLineProps) {
   return (
@@ -241,8 +260,11 @@ interface TextRevealWordProps extends Omit<
   stagger?: number;
 }
 
+// Standardized constants for TextRevealWord
+const TEXT_REVEAL_WORD_DEFAULT_STAGGER = 0.03;
+
 export function TextRevealWord({
-  stagger = 0.03,
+  stagger = TEXT_REVEAL_WORD_DEFAULT_STAGGER,
   ...props
 }: TextRevealWordProps) {
   return (
@@ -261,8 +283,11 @@ interface TextRevealCharProps extends Omit<
   stagger?: number;
 }
 
+// Standardized constants for TextRevealChar
+const TEXT_REVEAL_CHAR_DEFAULT_STAGGER = 0.01;
+
 export function TextRevealChar({
-  stagger = 0.01,
+  stagger = TEXT_REVEAL_CHAR_DEFAULT_STAGGER,
   ...props
 }: TextRevealCharProps) {
   return (
@@ -283,9 +308,13 @@ interface HeadingRevealProps extends Omit<
   stagger?: number;
 }
 
+// Standardized constants for HeadingReveal
+const HEADING_REVEAL_DEFAULT_LEVEL = 2;
+const HEADING_REVEAL_DEFAULT_STAGGER = 0.1;
+
 export function HeadingReveal({
-  level = 2,
-  stagger = 0.1,
+  level = HEADING_REVEAL_DEFAULT_LEVEL,
+  stagger = HEADING_REVEAL_DEFAULT_STAGGER,
   ...props
 }: HeadingRevealProps) {
   const Tag = `h${level}` as keyof JSX.IntrinsicElements;
@@ -313,12 +342,18 @@ interface SplitTextOnlyProps {
   render: (split: SplitText | null, revert: () => void) => React.ReactNode;
 }
 
+// Standardized constants for SplitTextOnly
+const SPLIT_TEXT_ONLY_DEFAULT_SPLIT = "lines,words,chars";
+const SPLIT_TEXT_ONLY_DEFAULT_LINES_CLASS = "split-line";
+const SPLIT_TEXT_ONLY_DEFAULT_WORDS_CLASS = "split-word";
+const SPLIT_TEXT_ONLY_DEFAULT_CHARS_CLASS = "split-char";
+
 export function SplitTextOnly({
   children,
-  split = "lines,words,chars",
-  linesClass = "split-line",
-  wordsClass = "split-word",
-  charsClass = "split-char",
+  split = SPLIT_TEXT_ONLY_DEFAULT_SPLIT,
+  linesClass = SPLIT_TEXT_ONLY_DEFAULT_LINES_CLASS,
+  wordsClass = SPLIT_TEXT_ONLY_DEFAULT_WORDS_CLASS,
+  charsClass = SPLIT_TEXT_ONLY_DEFAULT_CHARS_CLASS,
   render,
 }: SplitTextOnlyProps) {
   const elementRef = useRef<HTMLElement>(null);

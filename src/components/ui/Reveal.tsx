@@ -21,15 +21,21 @@ interface RevealProps extends HTMLMotionProps<"div"> {
   children: React.ReactNode;
 }
 
+// Standardized constants for Reveal
+const REVEAL_DEFAULT_VARIANT = "pageEnter";
+const REVEAL_DEFAULT_DELAY = 0;
+const REVEAL_DEFAULT_AMOUNT = 0.15;
+const REVEAL_DEFAULT_ONCE = true;
+
 /**
  * Enhanced Reveal component with variant support, reduced-motion safety,
  * and flexible configuration for entrance animations.
  */
 export function Reveal({
-  variant = "pageEnter",
-  delay = 0,
-  amount = 0.15,
-  once = true,
+  variant = REVEAL_DEFAULT_VARIANT,
+  delay = REVEAL_DEFAULT_DELAY,
+  amount = REVEAL_DEFAULT_AMOUNT,
+  once = REVEAL_DEFAULT_ONCE,
   customVariants,
   children,
   className,
@@ -78,9 +84,13 @@ interface RevealGroupProps extends HTMLMotionProps<"div"> {
   children: React.ReactNode;
 }
 
+// Standardized constants for RevealGroup
+const REVEAL_GROUP_DEFAULT_STAGGER = 0.08;
+const REVEAL_GROUP_DEFAULT_DELAY = 0.1;
+
 export function RevealGroup({
-  staggerChildren = 0.08,
-  delayChildren = 0.1,
+  staggerChildren = REVEAL_GROUP_DEFAULT_STAGGER,
+  delayChildren = REVEAL_GROUP_DEFAULT_DELAY,
   children,
   className,
   ...props
@@ -125,8 +135,11 @@ interface RevealItemProps extends HTMLMotionProps<"div"> {
   children: React.ReactNode;
 }
 
+// Standardized constants for RevealItem
+const REVEAL_ITEM_DEFAULT_VARIANT = "itemReveal";
+
 export function RevealItem({
-  variant = "itemReveal",
+  variant = REVEAL_ITEM_DEFAULT_VARIANT,
   children,
   className,
   ...props

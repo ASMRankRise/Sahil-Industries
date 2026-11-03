@@ -1,8 +1,8 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ChevronUp, ChevronDown, Minus } from "lucide-react";
-import { forwardRef, useMemo } from "react";
+import { ChevronUp, ChevronDown, Minus, FileText } from "lucide-react";
+import { useMemo } from "react";
 
 interface Column<T> {
   key: string;
@@ -28,6 +28,15 @@ interface DataTableProps<T> {
   rowClassName?: string;
   className?: string;
 }
+
+// Standardized spacing constants for consistent rhythm
+const CELL_PADDING_X = "px-4";
+const CELL_PADDING_Y = "py-3.5";
+const CHECKBOX_COL_WIDTH = "w-12";
+const ACTIONS_COL_WIDTH = "w-24";
+const SORT_ICON_SIZE = 12;
+const ROW_TRANSITION_DURATION = 0.2;
+const ROW_STAGGER_DELAY = 0.02;
 
 export function DataTable<T>({
   data,
@@ -61,19 +70,23 @@ export function DataTable<T>({
   };
 
   const renderSortIcon = (key: string) => {
-    if (!sortConfig || sortConfig.key !== key) return <Minus size={12} className="text-slate-400" />;
-    return sortConfig.direction === "asc" ? <ChevronUp size={12} className="text-safety" /> : <ChevronDown size={12} className="text-safety" />;
+    if (!sortConfig || sortConfig.key !== key) {
+      return <Minus size={SORT_ICON_SIZE} className="text-slate-400 shrink-0" aria-hidden="true" />;
+    }
+    return sortConfig.direction === "asc" ? (
+      <ChevronUp size={SORT_ICON_SIZE} className="text-safety shrink-0" aria-hidden="true" />
+    ) : (
+      <ChevronDown size={SORT_ICON_SIZE} className="text-safety shrink-0" aria-hidden="true" />
+    );
   };
 
   if (sortedData.length === 0) {
     return (
-      <div className="py-16 text-center">
+      <div className="py-12 text-center" role="status" aria-live="polite">
         {emptyIcon || (
-          <svg className="mx-auto mb-4 text-slate-500" size={48} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-          </svg>
+          <FileText className="mx-auto mb-3 text-slate-500" size={40} aria-hidden="true" />
         )}
-        <p className="text-sm text-slate-400">{emptyMessage}</p>
+        <p className="text-sm leading-6 text-slate-400">{emptyMessage}</p>
       </div>
     );
   }
@@ -81,61 +94,66 @@ export function DataTable<T>({
   return (
     <div className={`bg-surface border border-white/10 rounded-2xl overflow-hidden ${className}`}>
       <div className="overflow-x-auto">
-        <table className="w-full text-left text-sm min-w-[800px]">
+        <table className="w-full text-left text-sm leading-6 min-w-[720px]">
           <thead>
             <tr className="border-b border-white/10 text-slate-400 uppercase tracking-wider font-semibold bg-white/[0.02]">
               {onSelect && (
-                <th className="px-4 py-3.5 w-12">
+                <th scope="col" className={`${CELL_PADDING_X} ${CELL_PADDING_Y} ${CHECKBOX_COL_WIDTH} text-center`}>
                   <input
                     type="checkbox"
                     checked={isAllSelected}
                     onChange={onSelectAll}
-                    className="w-4 h-4 rounded border-white/20 text-safety bg-white/5 focus:ring-safety/50 cursor-pointer"
+                    className="w-4 h-4 rounded border-white/20 text-safety bg-white/5 focus:ring-2 focus:ring-safety/50 focus:ring-offset-2 focus:ring-offset-surface cursor-pointer"
+                    aria-label="Select all rows"
                   />
                 </th>
               )}
               {columns.map((column) => (
                 <th
                   key={column.key}
-                  className={`px-4 py-3.5 ${column.sortable ? "cursor-pointer hover:text-safety transition-colors" : ""} ${column.headerClassName || ""}`}
+                  scope="col"
+                  className={`${CELL_PADDING_X} ${CELL_PADDING_Y} ${column.sortable ? "cursor-pointer hover:text-safety transition-colors select-none" : ""} ${column.headerClassName || ""}`}
                   style={{ width: column.width }}
                   onClick={() => column.sortable && handleSort(column.key)}
                 >
-                  <div className="flex items-center gap-1.5">
+                  <div className="flex items-center gap-2">
                     {column.header}
                     {column.sortable && renderSortIcon(column.key)}
                   </div>
                 </th>
               ))}
-              <th className="px-4 py-3.5 text-center">Actions</th>
+              <th scope="col" className={`${CELL_PADDING_X} ${CELL_PADDING_Y} ${ACTIONS_COL_WIDTH} text-center`}>
+                Actions
+              </th>
             </tr>
           </thead>
           <tbody className="divide-y divide-white/5">
             {sortedData.map((item, index) => (
               <motion.tr
                 key={getRowId(item)}
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: index * 0.03, duration: 0.3 }}
+                initial={{ opacity: 0, y: 4 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * ROW_STAGGER_DELAY, duration: ROW_TRANSITION_DURATION, ease: "easeOut" }}
                 className={`hover:bg-white/[0.03] transition-colors group ${rowClassName}`}
               >
                 {onSelect && (
-                  <td className="px-4 py-3.5">
+                  <td className={`${CELL_PADDING_X} ${CELL_PADDING_Y} ${CHECKBOX_COL_WIDTH} text-center`}>
                     <input
                       type="checkbox"
                       checked={selectedItems.includes(getRowId(item))}
                       onChange={() => onSelect?.(getRowId(item))}
-                      className="w-4 h-4 rounded border-white/20 text-safety bg-white/5 focus:ring-safety/50 cursor-pointer"
+                      className="w-4 h-4 rounded border-white/20 text-safety bg-white/5 focus:ring-2 focus:ring-safety/50 focus:ring-offset-2 focus:ring-offset-surface cursor-pointer"
+                      aria-label={`Select row ${index + 1}`}
                     />
                   </td>
                 )}
                 {columns.map((column) => (
-                  <td key={column.key} className={`px-4 py-3.5 ${column.className || ""}`}>
+                  <td key={column.key} className={`${CELL_PADDING_X} ${CELL_PADDING_Y} ${column.className || ""}`}>
                     {column.render(item, index)}
                   </td>
                 ))}
-                <td className="px-4 py-3.5 text-center">
-                  <div className="flex items-center justify-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                <td className={`${CELL_PADDING_X} ${CELL_PADDING_Y} ${ACTIONS_COL_WIDTH} text-center`}>
+                  <div className="flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-150">
                     {/* Actions will be rendered by parent via render prop or children */}
                   </div>
                 </td>

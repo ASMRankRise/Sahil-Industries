@@ -7,20 +7,11 @@ import {
 } from "@/components/animations/gsapUtils";
 import { motion, type HTMLMotionProps } from "framer-motion";
 
-interface MagneticButtonProps extends HTMLMotionProps<"button"> {
-  /** Strength of magnetic pull (0-1) */
-  strength?: number;
-  /** Activation area around button (pixels) */
-  area?: number;
-  /** Whether to show visual indicator */
-  showIndicator?: boolean;
-  /** Children to render */
-  children: React.ReactNode;
-  /** Additional CSS classes */
-  className?: string;
-  /** Variant for Framer Motion hover/tap */
-  variant?: "primary" | "secondary" | "ghost";
-}
+// Standardized constants for MagneticButton
+const MAGNETIC_DEFAULT_STRENGTH = 0.3;
+const MAGNETIC_DEFAULT_AREA = 100;
+const FOCUS_RING = "focus:outline-none focus-visible:ring-2 focus-visible:ring-safety/50 focus-visible:ring-offset-2 focus-visible:ring-offset-ink";
+const BASE_BUTTON_CLASSES = "relative inline-flex items-center justify-center font-bold uppercase tracking-industrial transition-colors duration-200";
 
 const buttonVariants = {
   primary: {
@@ -40,13 +31,28 @@ const buttonVariants = {
   },
 };
 
+interface MagneticButtonProps extends HTMLMotionProps<"button"> {
+  /** Strength of magnetic pull (0-1) */
+  strength?: number;
+  /** Activation area around button (pixels) */
+  area?: number;
+  /** Whether to show visual indicator */
+  showIndicator?: boolean;
+  /** Children to render */
+  children: React.ReactNode;
+  /** Additional CSS classes */
+  className?: string;
+  /** Variant for Framer Motion hover/tap */
+  variant?: "primary" | "secondary" | "ghost";
+}
+
 /**
  * MagneticButton - Button with magnetic cursor attraction effect.
  * Uses GSAP for smooth magnetic follow, Framer Motion for press/hover.
  */
 export function MagneticButton({
-  strength = 0.3,
-  area = 100,
+  strength = MAGNETIC_DEFAULT_STRENGTH,
+  area = MAGNETIC_DEFAULT_AREA,
   showIndicator = false,
   children,
   className = "",
@@ -79,13 +85,7 @@ export function MagneticButton({
       animate={isHovering ? "hover" : "idle"}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
-      className={`
-        relative inline-flex items-center justify-center
-        font-bold uppercase tracking-industrial
-        transition-colors duration-200
-        focus:outline-none focus-visible:ring-2 focus-visible:ring-safety/50 focus-visible:ring-offset-2 focus-visible:ring-offset-ink
-        ${className}
-      `}
+      className={`${BASE_BUTTON_CLASSES} ${FOCUS_RING} ${className}`}
       {...props}>
       {showIndicator && (
         <span
@@ -111,8 +111,8 @@ interface MagneticLinkProps extends HTMLMotionProps<"a"> {
 }
 
 export function MagneticLink({
-  strength = 0.3,
-  area = 100,
+  strength = MAGNETIC_DEFAULT_STRENGTH,
+  area = MAGNETIC_DEFAULT_AREA,
   showIndicator = false,
   children,
   className = "",
@@ -145,13 +145,7 @@ export function MagneticLink({
       animate={isHovering ? "hover" : "idle"}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
-      className={`
-        relative inline-flex items-center justify-center
-        font-bold uppercase tracking-industrial
-        transition-colors duration-200
-        focus:outline-none focus-visible:ring-2 focus-visible:ring-safety/50 focus-visible:ring-offset-2 focus-visible:ring-offset-ink
-        ${className}
-      `}
+      className={`${BASE_BUTTON_CLASSES} ${FOCUS_RING} ${className}`}
       {...props}>
       {showIndicator && (
         <span
@@ -174,9 +168,12 @@ interface MagneticElementProps {
   className?: string;
 }
 
+const MAGNETIC_ELEMENT_DEFAULT_STRENGTH = 0.2;
+const MAGNETIC_ELEMENT_DEFAULT_AREA = 150;
+
 export function MagneticElement({
-  strength = 0.2,
-  area = 150,
+  strength = MAGNETIC_ELEMENT_DEFAULT_STRENGTH,
+  area = MAGNETIC_ELEMENT_DEFAULT_AREA,
   children,
   className = "",
 }: MagneticElementProps) {

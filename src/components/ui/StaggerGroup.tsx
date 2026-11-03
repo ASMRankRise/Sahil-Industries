@@ -15,14 +15,19 @@ interface StaggerGroupProps extends HTMLMotionProps<"div"> {
   children: React.ReactNode;
 }
 
+// Standardized constants for StaggerGroup
+const STAGGER_GROUP_DEFAULT_STAGGER = 0.08;
+const STAGGER_GROUP_DEFAULT_DELAY = 0.1;
+const STAGGER_GROUP_DEFAULT_DIRECTION = "forward";
+
 /**
  * StaggerGroup - A container that applies staggered animations to its children.
  * Children should be motion components or use the `variants` prop.
  */
 export function StaggerGroup({
-  stagger = 0.08,
-  delayChildren = 0.1,
-  staggerDirection = "forward",
+  stagger = STAGGER_GROUP_DEFAULT_STAGGER,
+  delayChildren = STAGGER_GROUP_DEFAULT_DELAY,
+  staggerDirection = STAGGER_GROUP_DEFAULT_DIRECTION,
   variants,
   children,
   className,
@@ -81,13 +86,20 @@ interface StaggerItemProps extends HTMLMotionProps<"div"> {
   children: React.ReactNode;
 }
 
+// Standardized constants for StaggerItem
+const STAGGER_ITEM_DEFAULT_STYLE = "fadeUp";
+const STAGGER_ITEM_TRANSITION_DURATION = 0.5;
+const STAGGER_ITEM_TRANSITION_EASE = [0.22, 1, 0.36, 1];
+const STAGGER_ITEM_SCALE_DURATION = 0.4;
+const STAGGER_ITEM_FLIP_DURATION = 0.6;
+
 const itemVariants: Record<string, any> = {
   fadeUp: {
     hidden: { opacity: 0, y: 20 },
     visible: {
       opacity: 1,
       y: 0,
-      transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] },
+      transition: { duration: STAGGER_ITEM_TRANSITION_DURATION, ease: STAGGER_ITEM_TRANSITION_EASE },
     },
   },
   fadeDown: {
@@ -95,7 +107,7 @@ const itemVariants: Record<string, any> = {
     visible: {
       opacity: 1,
       y: 0,
-      transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] },
+      transition: { duration: STAGGER_ITEM_TRANSITION_DURATION, ease: STAGGER_ITEM_TRANSITION_EASE },
     },
   },
   fadeLeft: {
@@ -103,7 +115,7 @@ const itemVariants: Record<string, any> = {
     visible: {
       opacity: 1,
       x: 0,
-      transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] },
+      transition: { duration: STAGGER_ITEM_TRANSITION_DURATION, ease: STAGGER_ITEM_TRANSITION_EASE },
     },
   },
   fadeRight: {
@@ -111,7 +123,7 @@ const itemVariants: Record<string, any> = {
     visible: {
       opacity: 1,
       x: 0,
-      transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] },
+      transition: { duration: STAGGER_ITEM_TRANSITION_DURATION, ease: STAGGER_ITEM_TRANSITION_EASE },
     },
   },
   scale: {
@@ -119,7 +131,7 @@ const itemVariants: Record<string, any> = {
     visible: {
       opacity: 1,
       scale: 1,
-      transition: { duration: 0.4, ease: [0.22, 1, 0.36, 1] },
+      transition: { duration: STAGGER_ITEM_SCALE_DURATION, ease: STAGGER_ITEM_TRANSITION_EASE },
     },
   },
   flipX: {
@@ -127,7 +139,7 @@ const itemVariants: Record<string, any> = {
     visible: {
       opacity: 1,
       rotateX: 0,
-      transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] },
+      transition: { duration: STAGGER_ITEM_FLIP_DURATION, ease: STAGGER_ITEM_TRANSITION_EASE },
     },
   },
   flipY: {
@@ -135,13 +147,13 @@ const itemVariants: Record<string, any> = {
     visible: {
       opacity: 1,
       rotateY: 0,
-      transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] },
+      transition: { duration: STAGGER_ITEM_FLIP_DURATION, ease: STAGGER_ITEM_TRANSITION_EASE },
     },
   },
 };
 
 export function StaggerItem({
-  style = "fadeUp",
+  style = STAGGER_ITEM_DEFAULT_STYLE,
   itemDelay,
   children,
   className,
@@ -173,9 +185,9 @@ export function StaggerItem({
  * Simple hook to create stagger variants for manual use.
  */
 export function createStaggerVariants(
-  staggerChildren = 0.08,
-  delayChildren = 0.1,
-  staggerDirection: "forward" | "reverse" | "random" = "forward",
+  staggerChildren = STAGGER_GROUP_DEFAULT_STAGGER,
+  delayChildren = STAGGER_GROUP_DEFAULT_DELAY,
+  staggerDirection: "forward" | "reverse" | "random" = STAGGER_GROUP_DEFAULT_DIRECTION,
 ) {
   return {
     hidden: { opacity: 1 },
