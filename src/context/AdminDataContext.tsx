@@ -69,6 +69,7 @@ export interface GalleryImage {
   size: number;
   width: number;
   height: number;
+  order: number;
 }
 
 export interface AnalyticsData {
@@ -296,6 +297,7 @@ const initialGalleryImages: GalleryImage[] = [
     size: 2450000,
     width: 1920,
     height: 1080,
+    order: 1,
   },
   {
     id: "GAL-002",
@@ -312,6 +314,7 @@ const initialGalleryImages: GalleryImage[] = [
     size: 3120000,
     width: 1920,
     height: 1080,
+    order: 2,
   },
   {
     id: "GAL-003",
@@ -328,6 +331,7 @@ const initialGalleryImages: GalleryImage[] = [
     size: 1850000,
     width: 1920,
     height: 1080,
+    order: 3,
   },
   {
     id: "GAL-004",
@@ -344,6 +348,7 @@ const initialGalleryImages: GalleryImage[] = [
     size: 4200000,
     width: 1920,
     height: 1080,
+    order: 4,
   },
   {
     id: "GAL-005",
@@ -360,6 +365,7 @@ const initialGalleryImages: GalleryImage[] = [
     size: 2100000,
     width: 1920,
     height: 1080,
+    order: 5,
   },
   {
     id: "GAL-006",
@@ -376,6 +382,7 @@ const initialGalleryImages: GalleryImage[] = [
     size: 3800000,
     width: 1920,
     height: 1080,
+    order: 6,
   },
 ];
 
@@ -559,9 +566,11 @@ export function AdminDataProvider({ children }: { children: ReactNode }) {
 
     // Gallery Image CRUD
     const addGalleryImage = useCallback((image: Omit<GalleryImage, "id">) => {
+      const maxOrder = galleryImages.length > 0 ? Math.max(...galleryImages.map(img => img.order || 0)) : 0;
       const newImage: GalleryImage = {
         ...image,
         id: `GAL-${String(galleryImages.length + 1).padStart(3, "0")}`,
+        order: image.order || maxOrder + 1,
       };
       setGalleryImages(prev => [newImage, ...prev]);
     }, [galleryImages.length]);
@@ -581,6 +590,8 @@ export function AdminDataProvider({ children }: { children: ReactNode }) {
       // Create object URL for preview
       const url = URL.createObjectURL(file);
     
+      const maxOrder = galleryImages.length > 0 ? Math.max(...galleryImages.map(img => img.order || 0)) : 0;
+    
       const newImage: GalleryImage = {
         id: `GAL-${String(galleryImages.length + 1).padStart(3, "0")}`,
         title: metadata.title || file.name.replace(/\.[^/.]+$/, ""),
@@ -596,6 +607,7 @@ export function AdminDataProvider({ children }: { children: ReactNode }) {
         size: file.size,
         width: 1920,
         height: 1080,
+        order: metadata.order || maxOrder + 1,
       };
     
       setGalleryImages(prev => [newImage, ...prev]);

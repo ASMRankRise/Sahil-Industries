@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Image as LucideImage,
@@ -23,10 +23,36 @@ import {
   RotateCcw,
   Copy,
   ExternalLink,
+  Check,
+  Minus,
+  Image as LucideImageIcon,
+  Replace,
+  Layers,
+  Tag,
+  Archive,
+  RefreshCw,
+  GripVertical,
 } from "lucide-react";
 import Link from "next/link";
 import { AdminDashboardLayoutWrapper } from "@/components/AdminDashboardLayout";
 import { useAdminData, GalleryImage } from "@/context/AdminDataContext";
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 
 const statusConfig = {
   active: { label: "Active", color: "bg-green-500/10 text-green-400 border border-green-500/20", icon: CheckCircle },
@@ -54,8 +80,13 @@ export default function GalleryPage() {
   const [deletingImage, setDeletingImage] = useState<string | null>(null);
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState<string | null>(null);
+  const [showBulkEditModal, setShowBulkEditModal] = useState(false);
+  const [showReplaceImageModal, setShowReplaceImageModal] = useState<string | null>(null);
   const [uploadProgress, setUploadProgress] = useState<Record<string, number>>({});
   const [dragActive, setDragActive] = useState(false);
+  const [bulkEditData, setBulkEditData] = useState<Partial<GalleryImage>>({});
+  const [replaceImageFile, setReplaceImageFile] = useState<File | null>(null);
+  const [replaceImageProgress, setReplaceImageProgress] = useState<number>(0);
 
   const getStatusConfig = (status: string) => statusConfig[status as keyof typeof statusConfig] || statusConfig.active;
   const getCategoryConfig = (category: string) => categoryConfig[category as keyof typeof categoryConfig] || categoryConfig.other;
@@ -72,14 +103,8 @@ export default function GalleryPage() {
   }, [galleryImages, searchQuery, statusFilter, categoryFilter]);
 
   const sortedImages = useMemo(() => {
-    return [...filteredImages].sort((a, b) => {
-      const aVal = a[sortConfig.key as keyof typeof a];
-      const bVal = b[sortConfig.key as keyof typeof b];
-      if (aVal < bVal) return sortConfig.direction === "asc" ? -1 : 1;
-      if (aVal > bVal) return sortConfig.direction === "asc" ? 1 : -1;
-      return 0;
-    });
-  }, [filteredImages, sortConfig]);
+    return [...filteredImages].sort((a, b) => (a.order || 0) - (b.order || 0));
+  }, [filteredImages]);
 
   const handleSort = (key: string) => {
     setSortConfig(prev => ({
@@ -87,6 +112,38 @@ export default function GalleryPage() {
       direction: prev.key === key && prev.direction === "asc" ? "desc" : "asc"
     }));
   };
+
+  // Drag and Drop sensors
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8,
+      },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
+  const handleDragEnd = useCallback((event: DragEndEvent) => {
+    const { active, over } = event;
+    
+    if (over && active.id !== over.id) {
+      const oldIndex = sortedImages.findIndex(img => img.id === active.id);
+      const newIndex = sortedImages.findIndex(img => img.id === over.id);
+      
+      if (oldIndex !== -1 && newIndex !== -1) {
+        const newImages = arrayMove(sortedImages, oldIndex, newIndex);
+        
+        // Update order for all affected images
+        newImages.forEach((image, index) => {
+          if (image.order !== index + 1) {
+            updateGalleryImage(image.id, { order: index + 1 });
+          }
+        });
+      }
+    }
+  }, [sortedImages, updateGalleryImage]);
 
   const toggleSelect = (id: string) => {
     setSelectedImages(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
@@ -190,6 +247,127 @@ export default function GalleryPage() {
     e.currentTarget.src = "/media/placeholder-image.svg";
   };
 
+  // Bulk Operations
+  const handleBulkStatusChange = useCallback((status: GalleryImage["status"]) => {
+    selectedImages.forEach(id => {
+      updateGalleryImage(id, { status });
+    });
+    setSelectedImages([]);
+  }, [selectedImages, updateGalleryImage]);
+
+  const handleBulkCategoryChange = useCallback((category: GalleryImage["category"]) => {
+    selectedImages.forEach(id => {
+      updateGalleryImage(id, { category });
+    });
+    setSelectedImages([]);
+  }, [selectedImages, updateGalleryImage]);
+
+  const handleBulkArchive = useCallback(() => {
+    selectedImages.forEach(id => {
+      updateGalleryImage(id, { status: "archived" });
+    });
+    setSelectedImages([]);
+  }, [selectedImages, updateGalleryImage]);
+
+  const handleBulkDelete = useCallback(() => {
+    selectedImages.forEach(id => {
+      deleteGalleryImage(id);
+    });
+    setSelectedImages([]);
+    setShowDeleteModal(false);
+  }, [selectedImages, deleteGalleryImage]);
+
+  const handleBulkTagAdd = useCallback((tags: string[]) => {
+    selectedImages.forEach(id => {
+      const image = galleryImages.find(img => img.id === id);
+      if (image) {
+        const existingTags = image.tags || [];
+        const newTags = [...new Set([...existingTags, ...tags])];
+        updateGalleryImage(id, { tags: newTags });
+      }
+    });
+    setSelectedImages([]);
+  }, [selectedImages, galleryImages, updateGalleryImage]);
+
+  const handleBulkTagRemove = useCallback((tags: string[]) => {
+    selectedImages.forEach(id => {
+      const image = galleryImages.find(img => img.id === id);
+      if (image) {
+        const newTags = (image.tags || []).filter(tag => !tags.includes(tag));
+        updateGalleryImage(id, { tags: newTags });
+      }
+    });
+    setSelectedImages([]);
+  }, [selectedImages, galleryImages, updateGalleryImage]);
+
+  const openBulkEditModal = useCallback(() => {
+    if (selectedImages.length > 0) {
+      setShowBulkEditModal(true);
+    }
+  }, [selectedImages.length]);
+
+  const handleBulkEditSave = useCallback(() => {
+    selectedImages.forEach(id => {
+      updateGalleryImage(id, bulkEditData);
+    });
+    setShowBulkEditModal(false);
+    setBulkEditData({});
+    setSelectedImages([]);
+  }, [selectedImages, bulkEditData, updateGalleryImage]);
+
+  const openReplaceImageModal = useCallback((imageId: string) => {
+    setShowReplaceImageModal(imageId);
+    setReplaceImageFile(null);
+    setReplaceImageProgress(0);
+  }, []);
+
+  const handleReplaceImage = useCallback(async (imageId: string, file: File) => {
+    setReplaceImageProgress(0);
+    
+    // Simulate upload progress
+    const progressInterval = setInterval(() => {
+      setReplaceImageProgress(prev => {
+        if (prev >= 90) {
+          clearInterval(progressInterval);
+          return prev;
+        }
+        return prev + 10;
+      });
+    }, 100);
+
+    try {
+      const url = URL.createObjectURL(file);
+      
+      clearInterval(progressInterval);
+      setReplaceImageProgress(100);
+      
+      updateGalleryImage(imageId, {
+        url,
+        thumbnailUrl: url,
+        title: file.name.replace(/\.[^/.]+$/, ""),
+        size: file.size,
+      });
+      
+      setTimeout(() => {
+        setShowReplaceImageModal(null);
+        setReplaceImageFile(null);
+        setReplaceImageProgress(0);
+      }, 500);
+    } catch (error) {
+      console.error("Replace image failed:", error);
+      clearInterval(progressInterval);
+      setReplaceImageProgress(0);
+    }
+  }, [updateGalleryImage]);
+
+  const getAllTags = useCallback(() => {
+    const allTags = new Set<string>();
+    galleryImages.forEach(img => {
+      img.tags?.forEach(tag => allTags.add(tag));
+    });
+    return Array.from(allTags).sort();
+  }, [galleryImages]);
+
   return (
     <AdminDashboardLayoutWrapper 
       activeNav="/admin/gallery" 
@@ -217,6 +395,82 @@ export default function GalleryPage() {
             </button>
           </div>
         </div>
+
+        {/* Batch Operations Toolbar */}
+        {selectedImages.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: -10, height: 0 }}
+            animate={{ opacity: 1, y: 0, height: "auto" }}
+            exit={{ opacity: 0, y: -10, height: 0 }}
+            className="bg-surface border border-safety/30 rounded-2xl p-4"
+          >
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <div className="flex items-center gap-4">
+                <span className="text-sm font-medium text-safety">
+                  {selectedImages.length} image{selectedImages.length > 1 ? "s" : ""} selected
+                </span>
+                <button
+                  onClick={() => setSelectedImages([])}
+                  className="text-sm text-slate-400 hover:text-white transition-colors"
+                >
+                  Clear selection
+                </button>
+              </div>
+              <div className="flex flex-wrap items-center gap-2">
+                <div className="relative">
+                  <select
+                    defaultValue=""
+                    onChange={(e) => e.target.value && handleBulkStatusChange(e.target.value as GalleryImage["status"])}
+                    className="h-9 pl-3 pr-8 bg-white/5 border border-white/10 rounded-lg text-sm text-white focus:outline-none focus:border-safety/50 appearance-none cursor-pointer"
+                  >
+                    <option value="" disabled>Change Status</option>
+                    <option value="active">Set Active</option>
+                    <option value="draft">Set Draft</option>
+                    <option value="archived">Archive</option>
+                  </select>
+                  <ChevronRight className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400" size={14} />
+                </div>
+                <div className="relative">
+                  <select
+                    defaultValue=""
+                    onChange={(e) => e.target.value && handleBulkCategoryChange(e.target.value as GalleryImage["category"])}
+                    className="h-9 pl-3 pr-8 bg-white/5 border border-white/10 rounded-lg text-sm text-white focus:outline-none focus:border-safety/50 appearance-none cursor-pointer"
+                  >
+                    <option value="" disabled>Change Category</option>
+                    <option value="products">Products</option>
+                    <option value="projects">Projects</option>
+                    <option value="factory">Factory</option>
+                    <option value="team">Team</option>
+                    <option value="events">Events</option>
+                    <option value="other">Other</option>
+                  </select>
+                  <ChevronRight className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400" size={14} />
+                </div>
+                <button
+                  onClick={openBulkEditModal}
+                  className="flex items-center gap-2 px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-sm font-medium hover:bg-white/10 transition-colors"
+                >
+                  <Edit size={14} />
+                  Bulk Edit
+                </button>
+                <button
+                  onClick={handleBulkArchive}
+                  className="flex items-center gap-2 px-3 py-2 bg-yellow-500/10 border border-yellow-500/20 text-yellow-400 rounded-lg text-sm font-medium hover:bg-yellow-500/20 transition-colors"
+                >
+                  <Archive size={14} />
+                  Archive
+                </button>
+                <button
+                  onClick={() => { setDeletingImage(selectedImages[0]); setShowDeleteModal(true); }}
+                  className="flex items-center gap-2 px-3 py-2 bg-red-500/10 border border-red-500/20 text-red-400 rounded-lg text-sm font-medium hover:bg-red-500/20 transition-colors"
+                >
+                  <Trash2 size={14} />
+                  Delete
+                </button>
+              </div>
+            </div>
+          </motion.div>
+        )}
 
         {/* Stats Cards */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -364,80 +618,35 @@ export default function GalleryPage() {
           ) : (
             <>
               {/* Grid View */}
-              <div className="p-4">
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                  {sortedImages.map((image, index) => (
-                    <motion.div
-                      key={image.id}
-                      initial={{ opacity: 0, scale: 0.95 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      transition={{ delay: index * 0.03, duration: 0.2 }}
-                      className="group relative bg-white/5 border border-white/10 rounded-xl overflow-hidden transition-all hover:border-safety/30"
-                    >
-                      {/* Image */}
-                      <div className="aspect-[4/3] relative overflow-hidden">
-                        <img
-                          src={image.url}
-                          alt={image.title}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                          loading="lazy"
-                          onError={handleImageError}
-                        />
-                        
-                        {/* Status Badge */}
-                        <div className="absolute top-2 left-2">
-                          <span className={`px-2 py-1 rounded-full text-[10px] font-bold uppercase ${getStatusConfig(image.status).color}`}>
-                            {getStatusConfig(image.status).label}
-                          </span>
-                        </div>
-                        
-                        {/* Category Badge */}
-                        <div className="absolute top-2 right-2">
-                          <span className={`px-2 py-1 rounded-full text-[10px] font-medium ${getCategoryConfig(image.category).color}`}>
-                            {getCategoryConfig(image.category).label}
-                          </span>
-                        </div>
-                        
-                        {/* Hover Actions */}
-                        <div className="absolute inset-0 bg-black/60 flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                          <button
-                            onClick={() => setShowEditModal(image.id)}
-                            className="p-2 bg-white/10 hover:bg-white/20 text-white rounded-lg backdrop-blur-sm transition-colors"
-                            title="Edit"
-                          >
-                            <Edit size={16} />
-                          </button>
-                          <button
-                            onClick={() => handleDelete(image.id)}
-                            className="p-2 bg-white/10 hover:bg-red-500/20 hover:text-red-400 text-white rounded-lg backdrop-blur-sm transition-colors"
-                            title="Delete"
-                          >
-                            <Trash2 size={16} />
-                          </button>
-                        </div>
-                      </div>
-                      
-                      {/* Image Info */}
-                      <div className="p-3 space-y-2">
-                        <h4 className="font-semibold text-white truncate">{image.title}</h4>
-                        <p className="text-xs text-slate-400 truncate">{image.description || "No description"}</p>
-                        <div className="flex items-center gap-2 flex-wrap">
-                          {image.tags?.slice(0, 3).map((tag) => (
-                            <span key={tag} className="px-2 py-0.5 bg-white/5 text-[10px] text-slate-300 rounded">{tag}</span>
-                          ))}
-                          {image.tags && image.tags.length > 3 && (
-                            <span className="px-2 py-0.5 bg-white/5 text-[10px] text-slate-500 rounded">+{image.tags.length - 3}</span>
-                          )}
-                        </div>
-                        <div className="flex items-center justify-between pt-2 border-t border-white/5">
-                          <span className="text-[10px] text-slate-500">{new Date(image.date).toLocaleDateString()}</span>
-                          <span className="text-[10px] text-slate-500">{(image.size / 1024).toFixed(1)} KB</span>
-                        </div>
-                      </div>
-                    </motion.div>
-                  ))}
-                </div>
-              </div>
+              <DndContext
+                sensors={sensors}
+                collisionDetection={closestCenter}
+                onDragEnd={handleDragEnd}
+              >
+                <SortableContext items={sortedImages.map(img => img.id)} strategy={verticalListSortingStrategy}>
+                  <div className="p-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                      {sortedImages.map((image, index) => {
+                        const isSelected = selectedImages.includes(image.id);
+                        return (
+                          <SortableGalleryItem
+                            key={image.id}
+                            image={image}
+                            index={index}
+                            isSelected={isSelected}
+                            onToggleSelect={toggleSelect}
+                            onEdit={() => setShowEditModal(image.id)}
+                            onReplace={() => openReplaceImageModal(image.id)}
+                            onDelete={() => handleDelete(image.id)}
+                            getStatusConfig={getStatusConfig}
+                            getCategoryConfig={getCategoryConfig}
+                          />
+                        );
+                      })}
+                    </div>
+                  </div>
+                </SortableContext>
+              </DndContext>
             </>
           )}
         </div>
@@ -614,7 +823,632 @@ export default function GalleryPage() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Bulk Edit Modal */}
+      <AnimatePresence>
+        {showBulkEditModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
+            onClick={() => setShowBulkEditModal(false)}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="bg-surface border border-white/10 rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-center justify-between p-5 border-b border-white/10">
+                <h3 className="text-lg font-bold text-white">Bulk Edit {selectedImages.length} Images</h3>
+                <button
+                  onClick={() => setShowBulkEditModal(false)}
+                  className="p-2 text-slate-400 hover:text-white rounded-lg hover:bg-white/10 transition-colors"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+              <div className="p-5">
+                <BulkEditForm 
+                  imageCount={selectedImages.length}
+                  onClose={() => setShowBulkEditModal(false)}
+                  onSave={handleBulkEditSave}
+                  bulkEditData={bulkEditData}
+                  setBulkEditData={setBulkEditData}
+                  allTags={getAllTags()}
+                />
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Replace Image Modal */}
+      <AnimatePresence>
+        {showReplaceImageModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
+            onClick={() => setShowReplaceImageModal(null)}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="bg-surface border border-white/10 rounded-2xl w-full max-w-lg"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-center justify-between p-5 border-b border-white/10">
+                <h3 className="text-lg font-bold text-white">Replace Image</h3>
+                <button
+                  onClick={() => setShowReplaceImageModal(null)}
+                  className="p-2 text-slate-400 hover:text-white rounded-lg hover:bg-white/10 transition-colors"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+              <div className="p-5">
+                <ReplaceImageForm
+                  imageId={showReplaceImageModal}
+                  image={galleryImages.find(i => i.id === showReplaceImageModal)!}
+                  onClose={() => setShowReplaceImageModal(null)}
+                  onReplace={handleReplaceImage}
+                  replaceImageFile={replaceImageFile}
+                  setReplaceImageFile={setReplaceImageFile}
+                  replaceImageProgress={replaceImageProgress}
+                />
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </AdminDashboardLayoutWrapper>
+  );
+}
+
+// Bulk Edit Form Component
+function BulkEditForm({ 
+  imageCount, 
+  onClose, 
+  onSave, 
+  bulkEditData, 
+  setBulkEditData,
+  allTags 
+}: { 
+  imageCount: number; 
+  onClose: () => void; 
+  onSave: () => void;
+  bulkEditData: Partial<GalleryImage>;
+  setBulkEditData: React.Dispatch<React.SetStateAction<Partial<GalleryImage>>>;
+  allTags: string[];
+}) {
+  const [category, setCategory] = useState<GalleryImage["category"] | "">(bulkEditData.category || "");
+  const [status, setStatus] = useState<GalleryImage["status"] | "">(bulkEditData.status || "");
+  const [tagsToAdd, setTagsToAdd] = useState("");
+  const [tagsToRemove, setTagsToRemove] = useState<string[]>([]);
+  const [isFeatured, setIsFeatured] = useState<string>(bulkEditData.isFeatured !== undefined ? String(bulkEditData.isFeatured) : "");
+  const [altText, setAltText] = useState(bulkEditData.altText || "");
+
+  const handleCategoryChange = (value: string) => {
+    setCategory(value as GalleryImage["category"]);
+    setBulkEditData(prev => ({ ...prev, category: value as GalleryImage["category"] }));
+  };
+
+  const handleStatusChange = (value: string) => {
+    setStatus(value as GalleryImage["status"]);
+    setBulkEditData(prev => ({ ...prev, status: value as GalleryImage["status"] }));
+  };
+
+  const handleFeaturedChange = (value: string) => {
+    setIsFeatured(value);
+    setBulkEditData(prev => ({ ...prev, isFeatured: value === "true" }));
+  };
+
+  const handleAltTextChange = (value: string) => {
+    setAltText(value);
+    setBulkEditData(prev => ({ ...prev, altText: value }));
+  };
+
+  const handleTagsToAddChange = (value: string) => {
+    setTagsToAdd(value);
+  };
+
+  const handleTagRemove = (tag: string) => {
+    setTagsToRemove(prev => [...prev, tag]);
+  };
+
+  const handleTagAdd = () => {
+    const newTags = tagsToAdd.split(",").map(t => t.trim()).filter(Boolean);
+    if (newTags.length > 0) {
+      // This will be handled in the onSave
+      setTagsToAdd("");
+    }
+  };
+
+  return (
+    <form onSubmit={(e) => { e.preventDefault(); onSave(); }} className="space-y-5">
+      <div className="mb-4 p-3 bg-safety/10 border border-safety/20 rounded-lg">
+        <p className="text-sm text-safety">
+          <strong>Editing {imageCount} image{imageCount > 1 ? "s" : ""}</strong> - Only filled fields will be updated. Leave empty to keep current values.
+        </p>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label className="block text-sm font-medium text-slate-300 mb-1">Category</label>
+          <select
+            value={category}
+            onChange={(e) => handleCategoryChange(e.target.value)}
+            className="w-full h-10 px-4 bg-white/5 border border-white/10 rounded-lg text-white focus:outline-none focus:border-safety/50 appearance-none cursor-pointer"
+          >
+            <option value="">Keep current</option>
+            <option value="products">Products</option>
+            <option value="projects">Projects</option>
+            <option value="factory">Factory</option>
+            <option value="team">Team</option>
+            <option value="events">Events</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-slate-300 mb-1">Status</label>
+          <select
+            value={status}
+            onChange={(e) => handleStatusChange(e.target.value)}
+            className="w-full h-10 px-4 bg-white/5 border border-white/10 rounded-lg text-white focus:outline-none focus:border-safety/50 appearance-none cursor-pointer"
+          >
+            <option value="">Keep current</option>
+            <option value="active">Active</option>
+            <option value="draft">Draft</option>
+            <option value="archived">Archived</option>
+          </select>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-slate-300 mb-1">Featured</label>
+          <select
+            value={isFeatured}
+            onChange={(e) => handleFeaturedChange(e.target.value)}
+            className="w-full h-10 px-4 bg-white/5 border border-white/10 rounded-lg text-white focus:outline-none focus:border-safety/50 appearance-none cursor-pointer"
+          >
+            <option value="">Keep current</option>
+            <option value="true">Yes</option>
+            <option value="false">No</option>
+          </select>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-slate-300 mb-1">Alt Text (SEO)</label>
+          <input
+            type="text"
+            value={altText}
+            onChange={(e) => handleAltTextChange(e.target.value)}
+            className="w-full h-10 px-4 bg-white/5 border border-white/10 rounded-lg text-white placeholder:text-slate-400 focus:outline-none focus:border-safety/50 focus:bg-white/10 transition-all"
+            placeholder="Leave empty to keep current"
+          />
+        </div>
+
+        <div className="md:col-span-2">
+          <label className="block text-sm font-medium text-slate-300 mb-1">Add Tags (comma separated)</label>
+          <div className="flex gap-2">
+            <input
+              type="text"
+              value={tagsToAdd}
+              onChange={(e) => handleTagsToAddChange(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), handleTagAdd())}
+              className="flex-1 h-10 px-4 bg-white/5 border border-white/10 rounded-lg text-white placeholder:text-slate-400 focus:outline-none focus:border-safety/50 focus:bg-white/10 transition-all"
+              placeholder="crane, installation, 2024"
+            />
+            <button
+              type="button"
+              onClick={handleTagAdd}
+              className="px-4 h-10 bg-safety/20 border border-safety/30 text-safety rounded-lg text-sm font-medium hover:bg-safety/30 transition-colors"
+            >
+              Add
+            </button>
+          </div>
+          {tagsToRemove.length > 0 && (
+            <div className="mt-2 flex flex-wrap gap-1">
+              {tagsToRemove.map((tag, i) => (
+                <span key={i} className="px-2 py-1 bg-red-500/20 border border-red-500/30 text-red-400 rounded text-xs flex items-center gap-1">
+                  {tag}
+                  <button onClick={() => setTagsToRemove(prev => prev.filter((_, idx) => idx !== i))} className="hover:text-red-300">×</button>
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Existing Tags Reference */}
+        {allTags.length > 0 && (
+          <div className="md:col-span-2">
+            <label className="block text-sm font-medium text-slate-300 mb-2">Existing Tags (click to add to remove list)</label>
+            <div className="flex flex-wrap gap-1 max-h-40 overflow-y-auto p-2 bg-white/5 rounded-lg border border-white/10">
+              {allTags.map((tag) => (
+                <button
+                  key={tag}
+                  type="button"
+                  onClick={() => handleTagRemove(tag)}
+                  className="px-2 py-1 bg-white/5 text-slate-300 rounded text-xs hover:bg-safety/20 hover:text-safety transition-colors"
+                >
+                  {tag}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+
+      <div className="flex items-center justify-end gap-3 pt-4 border-t border-white/10">
+        <button
+          type="button"
+          onClick={onClose}
+          className="px-4 py-2 border border-white/10 rounded-lg text-sm font-medium hover:bg-white/5 transition-colors"
+        >
+          Cancel
+        </button>
+        <button
+          type="submit"
+          className="px-4 py-2 bg-gradient-to-r from-safety to-yellow-400 text-ink rounded-lg text-sm font-semibold hover:brightness-105 transition-all shadow-sm shadow-safety/20"
+        >
+          Apply to {imageCount} Image{imageCount > 1 ? "s" : ""}
+        </button>
+      </div>
+    </form>
+  );
+}
+
+// Replace Image Form Component
+function ReplaceImageForm({ 
+  imageId, 
+  image, 
+  onClose, 
+  onReplace,
+  replaceImageFile,
+  setReplaceImageFile,
+  replaceImageProgress
+}: { 
+  imageId: string;
+  image: GalleryImage;
+  onClose: () => void; 
+  onReplace: (imageId: string, file: File) => void;
+  replaceImageFile: File | null;
+  setReplaceImageFile: React.Dispatch<React.SetStateAction<File | null>>;
+  replaceImageProgress: number;
+}) {
+  const [dragActive, setDragActive] = useState(false);
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragActive(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragActive(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragActive(false);
+    if (e.dataTransfer.files.length > 0) {
+      const file = e.dataTransfer.files[0];
+      if (file.type.startsWith("image/")) {
+        setReplaceImageFile(file);
+      }
+    }
+  };
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      if (file.type.startsWith("image/")) {
+        setReplaceImageFile(file);
+      }
+    }
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (replaceImageFile) {
+      onReplace(imageId, replaceImageFile);
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-5">
+      {/* Current Image Preview */}
+      <div>
+        <label className="block text-sm font-medium text-slate-300 mb-2">Current Image</label>
+        <div className="aspect-[4/3] rounded-lg overflow-hidden border border-white/10">
+          <img src={image.url} alt={image.title} className="w-full h-full object-cover" />
+        </div>
+        <p className="text-xs text-slate-500 mt-1">{image.title}</p>
+      </div>
+
+      {/* New Image Upload */}
+      <div>
+        <label className="block text-sm font-medium text-slate-300 mb-2">New Image</label>
+        <div
+          className={`border-2 border-dashed rounded-xl p-8 text-center transition-colors relative ${
+            dragActive ? "border-safety/50 bg-safety/5" : "border-white/10 hover:border-white/20"
+          }`}
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
+          onDrop={handleDrop}
+        >
+          <input
+            type="file"
+            id="replace-image-upload"
+            accept="image/*"
+            className="hidden"
+            onChange={handleFileSelect}
+          />
+          <label htmlFor="replace-image-upload" className="cursor-pointer">
+            {replaceImageFile ? (
+              <div className="flex flex-col items-center gap-3">
+                <div className="h-24 w-24 rounded-lg overflow-hidden border border-white/10 relative">
+                  <img 
+                    src={URL.createObjectURL(replaceImageFile)} 
+                    alt="Preview" 
+                    className="w-full h-full object-cover"
+                  />
+                  {replaceImageProgress > 0 && (
+                    <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                      <div className="text-center">
+                        <div className="h-2 w-48 bg-white/20 rounded-full overflow-hidden mx-auto mb-2">
+                          <motion.div
+                            animate={{ width: `${replaceImageProgress}%` }}
+                            className="h-full bg-gradient-to-r from-safety to-yellow-400 rounded-full"
+                          />
+                        </div>
+                        <p className="text-sm text-white">{replaceImageProgress}%</p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+                <p className="text-sm text-slate-400">{replaceImageFile.name} ({(replaceImageFile.size / 1024).toFixed(1)} KB)</p>
+                <button
+                  type="button"
+                  onClick={() => setReplaceImageFile(null)}
+                  className="text-xs text-red-400 hover:text-red-300"
+                >
+                  Remove
+                </button>
+              </div>
+            ) : (
+              <div className="flex flex-col items-center gap-3">
+                <Upload className="text-slate-400" size={32} />
+                <p className="text-white mb-1">Drag & drop new image here</p>
+                <p className="text-sm text-slate-400">or click to browse</p>
+                <p className="text-xs text-slate-500 mt-2">JPG, PNG, WebP, GIF • Max 10MB</p>
+              </div>
+            )}
+          </label>
+        </div>
+      </div>
+
+      {/* Progress Bar */}
+      {replaceImageProgress > 0 && replaceImageProgress < 100 && (
+        <div className="bg-white/5 border border-white/10 rounded-lg p-4">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-sm font-medium text-white">Replacing image...</span>
+            <span className="text-sm text-slate-400">{replaceImageProgress}%</span>
+          </div>
+          <div className="h-2 bg-white/10 rounded-full overflow-hidden">
+            <motion.div
+              animate={{ width: `${replaceImageProgress}%` }}
+              className="h-full bg-gradient-to-r from-safety to-yellow-400 rounded-full transition-all duration-300"
+            />
+          </div>
+        </div>
+      )}
+
+      <div className="flex items-center justify-end gap-3 pt-4 border-t border-white/10">
+        <button
+          type="button"
+          onClick={onClose}
+          className="px-4 py-2 border border-white/10 rounded-lg text-sm font-medium hover:bg-white/5 transition-colors"
+        >
+          Cancel
+        </button>
+        <button
+          type="submit"
+          disabled={!replaceImageFile}
+          className="px-4 py-2 bg-gradient-to-r from-safety to-yellow-400 text-ink rounded-lg text-sm font-semibold hover:brightness-105 transition-all shadow-sm shadow-safety/20 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          Replace Image
+        </button>
+      </div>
+    </form>
+  );
+}
+
+// Sortable Gallery Item Component
+function SortableGalleryItem({ 
+  image, 
+  index, 
+  isSelected, 
+  onToggleSelect, 
+  onEdit, 
+  onReplace, 
+  onDelete,
+  getStatusConfig,
+  getCategoryConfig
+}: { 
+  image: GalleryImage; 
+  index: number; 
+  isSelected: boolean; 
+  onToggleSelect: (id: string) => void; 
+  onEdit: () => void; 
+  onReplace: () => void; 
+  onDelete: () => void;
+  getStatusConfig: (status: string) => { label: string; color: string; icon: any };
+  getCategoryConfig: (category: string) => { label: string; color: string };
+}) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: image.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
+  return (
+    <motion.div
+      ref={setNodeRef}
+      style={style}
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ delay: index * 0.03, duration: 0.2 }}
+      className={`group relative bg-white/5 rounded-xl overflow-hidden transition-all ${
+        isSelected 
+          ? "border-2 border-safety/50 ring-2 ring-safety/20" 
+          : "border border-white/10 hover:border-safety/30"
+      } ${isDragging ? "shadow-xl shadow-safety/20 z-50" : ""}`}
+    >
+      {/* Drag Handle */}
+      <button
+        {...attributes}
+        {...listeners}
+        className="absolute top-2 left-2 z-10 p-1 bg-white/10 hover:bg-white/20 text-slate-400 hover:text-white rounded-lg backdrop-blur-sm transition-colors cursor-grab active:cursor-grabbing"
+        aria-label="Drag to reorder"
+        title="Drag to reorder"
+      >
+        <GripVertical size={16} />
+      </button>
+      
+      {/* Selection Checkbox */}
+      <div className="absolute top-2 right-2 z-10">
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            onToggleSelect(image.id);
+          }}
+          className={`h-6 w-6 rounded border-2 flex items-center justify-center transition-all ${
+            isSelected
+              ? "bg-safety border-safety text-ink"
+              : "bg-white/10 border-white/20 text-white/50 hover:border-safety/50"
+          }`}
+          aria-label={isSelected ? "Deselect" : "Select"}
+        >
+          {isSelected && <Check size={12} />}
+        </button>
+      </div>
+      
+      {/* Image */}
+      <div className="aspect-[4/3] relative overflow-hidden">
+        <img
+          src={image.url}
+          alt={image.title}
+          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+          loading="lazy"
+          onError={(e) => { e.currentTarget.src = "/media/placeholder-image.svg"; }}
+        />
+        
+        {/* Status Badge */}
+        <div className="absolute top-2 left-2">
+          <span className={`px-2 py-1 rounded-full text-[10px] font-bold uppercase ${getStatusConfig(image.status).color}`}>
+            {getStatusConfig(image.status).label}
+          </span>
+        </div>
+        
+        {/* Category Badge */}
+        <div className="absolute top-2 right-2">
+          <span className={`px-2 py-1 rounded-full text-[10px] font-medium ${getCategoryConfig(image.category).color}`}>
+            {getCategoryConfig(image.category).label}
+          </span>
+        </div>
+        
+        {/* Featured Badge */}
+        {image.isFeatured && (
+          <div className="absolute bottom-2 left-2">
+            <span className="px-2 py-1 rounded-full text-[10px] font-bold uppercase bg-yellow-500/20 text-yellow-400 border border-yellow-500/30">
+              Featured
+            </span>
+          </div>
+        )}
+        
+        {/* Order Number */}
+        <div className="absolute bottom-2 right-2">
+          <span className="px-2 py-1 rounded-full text-[10px] font-bold uppercase bg-white/10 text-white/50 border border-white/20">
+            #{image.order || index + 1}
+          </span>
+        </div>
+        
+        {/* Hover Actions */}
+        <div className="absolute inset-0 bg-black/60 flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+          <button
+            onClick={onEdit}
+            className="p-2 bg-white/10 hover:bg-white/20 text-white rounded-lg backdrop-blur-sm transition-colors"
+            title="Edit Details"
+          >
+            <Edit size={16} />
+          </button>
+          <button
+            onClick={onReplace}
+            className="p-2 bg-white/10 hover:bg-blue-500/20 hover:text-blue-400 text-white rounded-lg backdrop-blur-sm transition-colors"
+            title="Replace Image"
+          >
+            <Replace size={16} />
+          </button>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onToggleSelect(image.id);
+            }}
+            className={`p-2 rounded-lg backdrop-blur-sm transition-colors ${
+              isSelected
+                ? "bg-safety/20 text-safety"
+                : "bg-white/10 hover:bg-white/20 text-white"
+            }`}
+            title={isSelected ? "Deselect" : "Select"}
+          >
+            {isSelected ? <Check size={16} /> : <Plus size={16} />}
+          </button>
+          <button
+            onClick={onDelete}
+            className="p-2 bg-white/10 hover:bg-red-500/20 hover:text-red-400 text-white rounded-lg backdrop-blur-sm transition-colors"
+            title="Delete"
+          >
+            <Trash2 size={16} />
+          </button>
+        </div>
+      </div>
+      
+      {/* Image Info */}
+      <div className="p-3 space-y-2">
+        <h4 className="font-semibold text-white truncate">{image.title}</h4>
+        <p className="text-xs text-slate-400 truncate">{image.description || "No description"}</p>
+        <div className="flex items-center gap-2 flex-wrap">
+          {image.tags?.slice(0, 3).map((tag) => (
+            <span key={tag} className="px-2 py-0.5 bg-white/5 text-[10px] text-slate-300 rounded">{tag}</span>
+          ))}
+          {image.tags && image.tags.length > 3 && (
+            <span className="px-2 py-0.5 bg-white/5 text-[10px] text-slate-500 rounded">+{image.tags.length - 3}</span>
+          )}
+        </div>
+        <div className="flex items-center justify-between pt-2 border-t border-white/5">
+          <span className="text-[10px] text-slate-500">{new Date(image.date).toLocaleDateString()}</span>
+          <span className="text-[10px] text-slate-500">{(image.size / 1024).toFixed(1)} KB</span>
+        </div>
+      </div>
+    </motion.div>
   );
 }
 
