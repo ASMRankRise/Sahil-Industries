@@ -18,6 +18,8 @@ import { primaryNavigation, siteContact } from "@/data/site";
 import { MagneticElement } from "@/components/ui/MagneticButton";
 import { useReducedMotion } from "@/components/animations/hooks/useReducedMotion";
 
+const MotionLink = motion(Link);
+
 // Standardized spacing constants for header
 const HEADER_HEIGHT_DESKTOP = "min-h-[88px]";
 const HEADER_HEIGHT_MOBILE = "min-h-[74px]";
@@ -61,7 +63,7 @@ export function SiteHeader() {
   return (
     <>
       <header
-        className={`relative z-30 border-b border-white/10 bg-ink text-white transition-all duration-300 ${
+        className={`fixed inset-x-0 top-0 z-50 border-b border-white/10 bg-ink text-white transition-all duration-300 ${
           scrolled ? "shadow-xl bg-ink/95 backdrop-blur-sm" : ""
         }`}>
         <div className={`mx-auto grid max-w-[1440px] grid-cols-[252px_1fr_auto] ${HEADER_HEIGHT_DESKTOP} max-lg:grid-cols-[220px_1fr] max-md:flex ${HEADER_HEIGHT_MOBILE} max-md:items-center max-md:justify-between max-md:px-[18px]`}>
@@ -104,7 +106,7 @@ export function SiteHeader() {
               className={`flex items-center justify-end ${NAV_GAP_DESKTOP} ${NAV_PR_DESKTOP} ${NAV_GAP_LG} ${NAV_PR_LG} ${NAV_HEIGHT}`}
               aria-label="Primary navigation">
               {primaryItems.slice(0, 2).map((item) => (
-                <motion.a
+                      <MotionLink
                   href={item.href}
                   key={item.href}
                   className={`${navClass}${item.href === "/" ? " text-safety" : ""}`}
@@ -112,7 +114,7 @@ export function SiteHeader() {
                   whileTap={{ scale: 0.98 }}
                   transition={{ duration: 0.15 }}>
                   {item.label}
-                </motion.a>
+                </MotionLink>
               ))}
               <div className="relative">
                 <motion.button
@@ -140,7 +142,7 @@ export function SiteHeader() {
                       className="absolute left-[-24px] top-[34px] z-40 w-[285px] border border-safety/40 bg-surface p-2.5 shadow-2xl"
                       role="menu">
                       {productItem?.children?.map((item, index) => (
-                        <motion.a
+                        <MotionLink
                           href={item.href}
                           key={item.href}
                           onClick={() => setProductsOpen(false)}
@@ -152,14 +154,14 @@ export function SiteHeader() {
                           transition={{ delay: index * 0.03, duration: 0.2 }}
                           role="menuitem">
                           {item.label}
-                        </motion.a>
+                        </MotionLink>
                       ))}
                     </motion.div>
                   )}
                 </AnimatePresence>
               </div>
               {primaryItems.slice(2).map((item) => (
-                <motion.a
+                <MotionLink
                   href={item.href}
                   key={item.href}
                   className={navClass}
@@ -167,7 +169,7 @@ export function SiteHeader() {
                   whileTap={{ scale: 0.98 }}
                   transition={{ duration: 0.15 }}>
                   {item.label}
-                </motion.a>
+                </MotionLink>
               ))}
             </nav>
           </div>
@@ -216,6 +218,8 @@ export function SiteHeader() {
           </motion.button>
         </div>
       </header>
+      {/* Reserve the fixed header's space so page content never sits underneath it. */}
+      <div className={`${HEADER_HEIGHT_DESKTOP} max-md:${HEADER_HEIGHT_MOBILE}`} aria-hidden="true" />
 
       <AnimatePresence>
         {menuOpen && (
@@ -260,7 +264,7 @@ export function SiteHeader() {
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.15, duration: 0.3 }}>
               {primaryItems.map((item, index) => (
-                <motion.a
+                <MotionLink
                   href={item.href}
                   onClick={() => setMenuOpen(false)}
                   key={item.href}
@@ -269,10 +273,10 @@ export function SiteHeader() {
                   whileTap={{ scale: 0.98 }}
                   transition={{ delay: index * 0.05, duration: 0.2 }}>
                   {item.label}
-                </motion.a>
+                </MotionLink>
               ))}
 
-              <motion.a
+                    <motion.a
                 href={siteContact.phoneHref}
                 onClick={() => setMenuOpen(false)}
                 className="flex items-center gap-3 border-b border-white/10 py-3 text-sm font-bold uppercase tracking-industrial"
@@ -315,7 +319,7 @@ export function SiteHeader() {
                   animate={{ opacity: 1, height: "auto" }}
                   transition={{ duration: 0.3 }}>
                   {productItem?.children?.map((item, index) => (
-                    <motion.a
+                    <MotionLink
                       href={item.href}
                       onClick={() => setMenuOpen(false)}
                       key={item.href}
@@ -326,7 +330,7 @@ export function SiteHeader() {
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: index * 0.03, duration: 0.2 }}>
                       {item.label}
-                    </motion.a>
+                    </MotionLink>
                   ))}
                 </motion.div>
               </motion.details>

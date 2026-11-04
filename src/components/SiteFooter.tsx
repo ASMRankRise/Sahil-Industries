@@ -8,6 +8,8 @@ import { primaryNavigation, siteContact } from "@/data/site";
 import { Reveal, RevealGroup, RevealItem } from "@/components/ui/Reveal";
 import { useReducedMotion } from "@/components/animations/hooks/useReducedMotion";
 
+const MotionLink = motion(Link);
+
 // Standardized spacing constants for footer
 const FOOTER_GRID_COLS = "grid-cols-[1.15fr_.75fr_1fr_1.4fr]";
 const FOOTER_GAP = "gap-12";
@@ -155,7 +157,7 @@ export function SiteFooter() {
           <div>
             <h3 className={HEADING_STYLE}>Quick Links</h3>
             {links.map((item, index) => (
-              <motion.a
+              <MotionLink
                 href={item.href}
                 key={item.href}
                 className={LINK_STYLE}
@@ -165,7 +167,7 @@ export function SiteFooter() {
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: index * 0.05, duration: 0.3 }}>
                 {item.label}
-              </motion.a>
+              </MotionLink>
             ))}
           </div>
         </RevealItem>
@@ -175,7 +177,7 @@ export function SiteFooter() {
           <div>
             <h3 className={HEADING_STYLE}>Products</h3>
             {productItem?.children?.map((item, index) => (
-              <motion.a
+              <MotionLink
                 href={item.href}
                 key={item.href}
                 className={LINK_STYLE}
@@ -185,7 +187,7 @@ export function SiteFooter() {
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: index * 0.05, duration: 0.3 }}>
                 {item.label}
-              </motion.a>
+              </MotionLink>
             ))}
           </div>
         </RevealItem>

@@ -10,9 +10,9 @@ export default function ContactPage() {
   return (
     <ModernPageShell eyebrow="Connect with us" title="Contact Sahil Industries">
       <section className="py-28 max-md:py-20">
-        <div className="mx-auto grid w-[min(1240px,calc(100%-64px))] grid-cols-[minmax(320px,1.2fr)_minmax(240px,280px)_minmax(320px,400px)] items-start gap-[clamp(24px,4vw,48px)] max-md:w-[calc(100%-36px)] max-md:grid-cols-1 max-lg:grid-cols-[1fr_1fr] max-lg:grid-template-areas:'info map' 'form form'">
+        <div className="mx-auto grid w-[min(1240px,calc(100%-64px))] grid-cols-[minmax(0,1fr)_minmax(0,1fr)] items-start gap-[clamp(24px,4vw,48px)] max-md:w-[calc(100%-36px)] max-md:grid-cols-1">
           {/* Left Column - Address & Contact Info */}
-          <Reveal className="max-lg:col-span-2">
+          <Reveal className="max-lg:col-span-2 lg:col-start-1 lg:row-start-1">
             <div className="space-y-6">
               <div>
                 <p className="mb-4 flex items-center gap-2 text-[11px] font-extrabold uppercase tracking-[.15em] text-safety">
@@ -45,10 +45,10 @@ export default function ContactPage() {
           </Reveal>
 
           {/* Middle Column - Map (reduced width) */}
-          <Reveal delay={.08} className="max-lg:col-span-2">
-            <div className="sticky top-28 max-lg:hidden">
+          <Reveal delay={.08} className="max-lg:col-span-2 lg:col-start-1 lg:row-start-2">
+            <div className="max-lg:hidden">
               <iframe 
-                className="h-[560px] w-full border-0 grayscale-[.8] rounded-xl shadow-lg" 
+                className="h-[220px] w-full border-0 grayscale-[.8] rounded-xl shadow-lg" 
                 src={contactDetails.mapEmbed} 
                 title="Sahil Industries location" 
                 allowFullScreen 
@@ -70,8 +70,8 @@ export default function ContactPage() {
           </Reveal>
 
           {/* Right Column - Form (vertically centered) */}
-          <Reveal delay={.12}>
-            <div className="sticky top-28 self-center max-lg:col-span-2">
+          <Reveal delay={.12} className="lg:col-start-2 lg:row-start-1 lg:row-span-2">
+            <div className="sticky top-28 self-start max-lg:col-span-2">
               <div className="bg-white/5 border border-white/10 rounded-2xl p-6 md:p-8">
                 <h3 className="text-xl font-bold mb-6">Send us a Message</h3>
                 <ContactForm formType="contact" />
