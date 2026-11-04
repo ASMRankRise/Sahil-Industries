@@ -1,7 +1,8 @@
 "use client";
 
 import { useLayoutEffect, useRef, useCallback } from "react";
-import { gsap, type Context } from "gsap";
+import { gsap } from "gsap";
+import type { Context } from "gsap";
 import { useReducedMotion } from "./useReducedMotion";
 
 /**

@@ -177,10 +177,10 @@ export default function ModernHomePage() {
   }, [aboutHovered2, aboutControls2]);
 
   return (
-    <main>
-      <SiteHeader />
+      <main>
+        <SiteHeader />
 
-      {/* Hero Section */}
+        {/* Hero Section */}
       <section className={`relative flex ${HERO_MIN_H} items-center overflow-hidden bg-ink text-white ${HERO_MIN_H_MD}`}>
         {/* Background slider with enhanced transitions */}
         <HeroSliderBackdrop />
@@ -534,7 +534,7 @@ export default function ModernHomePage() {
               <RevealGroup
                 staggerChildren={0.06}
                 delayChildren={0.1}
-                                  className={PRODUCTS_GRID}>
+                                              className={`${PRODUCTS_GRID} stagger-grid`}>
                 {homeProducts.map((product, index) => (
                   <RevealItem key={product.title} variant="itemReveal">
                     <Link
@@ -598,7 +598,7 @@ export default function ModernHomePage() {
               <RevealGroup
                 staggerChildren={0.08}
                 delayChildren={0.1}
-                                  className={WHY_CHOOSE_GRID}>
+                                                className={`${WHY_CHOOSE_GRID} stagger-grid`}>
                 {reasonsToChoose.map(([title, copy], index) => (
                   <RevealItem key={title} variant="itemReveal">
                     <motion.article
@@ -650,7 +650,7 @@ export default function ModernHomePage() {
               <RevealGroup
                 staggerChildren={0.04}
                 delayChildren={0.1}
-                                  className={CLIENTS_GRID}>
+                                                className={`${CLIENTS_GRID} stagger-grid`}>
                 {clientLogos.map((logo) => (
                   <RevealItem key={logo} variant="scaleEnter">
                     <motion.div
