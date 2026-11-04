@@ -71,10 +71,10 @@ const STATS_ICON_SIZE = "text-3xl";
 const STATS_ICON_SIZE_MD = "max-md:text-[22px]";
 const STATS_LABEL_MAX_W = "max-w-[110px]";
 const STATS_LABEL_STYLE = "text-[10px] uppercase tracking-industrial text-slate-300";
-const HIGHLIGHTS_PY = "py-8";
+const HIGHLIGHTS_PY = "py-6";
 const HIGHLIGHTS_PY_MD = "max-md:py-20";
 const HIGHLIGHTS_GRID = "grid grid-cols-3 gap-8 max-md:grid-cols-1 max-md:gap-6";
-const HIGHLIGHTS_CARD_PADDING = "p-6";
+const HIGHLIGHTS_CARD_PADDING = "p-6 text-center";
 const HIGHLIGHTS_ICON_WRAPPER = "inline-flex h-16 w-16 items-center justify-center rounded-full bg-safety/10 text-safety mb-4";
 const HIGHLIGHTS_ICON_SIZE = "h-8 w-8";
 const HIGHLIGHTS_TITLE = "text-xl font-bold text-ink mb-2";
@@ -119,8 +119,8 @@ const CTA_EYEBROW_STYLE = "mb-3 flex items-center gap-2 text-[11px] font-extrabo
 const CTA_EYEBROW_BAR = "h-0.5 w-8 bg-safety";
 const CTA_TITLE = "max-w-2xl text-[clamp(30px,3vw,47px)] font-bold leading-[1.05] tracking-[-.05em]";
 const CTA_BUTTONS_GAP = "gap-4";
-const CTA_PRIMARY_PADDING = "px-5 py-4";
-const CTA_GHOST_PADDING = "px-5 py-4";
+const CTA_PRIMARY_PADDING = "px-5 py-5";
+const CTA_GHOST_PADDING = "px-5 py-5";
 
 function Eyebrow({ children }: { children: React.ReactNode }) {
   return (
@@ -266,7 +266,7 @@ export default function ModernHomePage() {
                   strength={0.25}
                   area={80}
                   variant="primary"
-                  className="group inline-flex items-center justify-center gap-3 border border-safety bg-safety px-6 py-7.5 text-xs font-extrabold uppercase tracking-industrial text-ink shadow-lg shadow-safety/25 hover:shadow-xl hover:shadow-safety/40 transition-all duration-300">
+                  className="group inline-flex items-center justify-center gap-3 border border-safety bg-safety px-6 py-1 text-xs font-extrabold uppercase tracking-industrial text-ink shadow-lg shadow-safety/25 hover:shadow-xl hover:shadow-safety/40 transition-all duration-300">
                   <span className="relative z-10">Request a consultation</span>
                   <motion.div
                     className="absolute inset-0 bg-safety/20"
@@ -281,7 +281,7 @@ export default function ModernHomePage() {
                   strength={0.15}
                   area={60}
                   variant="secondary"
-                  className="group inline-flex items-center justify-center gap-3 border border-white/60 bg-white/5 px-7 py-4.5 text-xs font-extrabold uppercase tracking-industrial text-white backdrop-blur-sm hover:bg-white/10 hover:border-white/80 transition-all duration-300">
+                  className="group inline-flex items-center justify-center gap-3 border border-white/60 bg-white/5 px-7 py-3 text-xs font-extrabold uppercase tracking-industrial text-white backdrop-blur-sm hover:bg-white/10 hover:border-white/80 transition-all duration-300">
                   <span className="relative z-10">Explore products</span>
                   <motion.div
                     className="absolute inset-0 bg-white/10"
@@ -508,8 +508,9 @@ export default function ModernHomePage() {
                 strength={0.15}
                 area={50}
                 variant="ghost"
-                className="inline-flex items-center gap-2 border-b border-safety pb-1 text-xs font-extrabold uppercase tracking-industrial">
-                Discover our company <ArrowRight size={16} />
+                className="inline-flex items-center justify-center gap-2 px-4 py-3 border-b border-safety text-xs font-extrabold uppercase tracking-industrial">
+                <span className="relative z-10">Discover our company</span>
+                <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform duration-300" />
               </MagneticLink>
             </div>
           </RevealItem>
@@ -571,8 +572,9 @@ export default function ModernHomePage() {
                   strength={0.15}
                   area={50}
                   variant="secondary"
-                  className="inline-flex items-center gap-2 bg-ink px-5 py-4 text-xs font-extrabold uppercase tracking-industrial text-white">
-                  View all products <ArrowRight size={17} />
+                  className="inline-flex items-center justify-center gap-2 bg-ink px-6 py-5 text-xs font-extrabold uppercase tracking-industrial text-white">
+                  <span className="relative z-10">View all products</span>
+                  <ArrowRight size={17} className="group-hover:translate-x-1 transition-transform duration-300" />
                 </MagneticLink>
               </div>
             </RevealItem>
@@ -716,17 +718,20 @@ export default function ModernHomePage() {
                 strength={0.2}
                 area={60}
                 variant="primary"
-                                  className={`inline-flex items-center gap-2 bg-safety ${CTA_PRIMARY_PADDING} text-xs font-extrabold uppercase tracking-industrial text-ink`}>
-                Talk to our team <ArrowRight size={17} />
+                                  className={`inline-flex items-center justify-center gap-2 bg-safety ${CTA_PRIMARY_PADDING} text-xs font-extrabold uppercase tracking-industrial text-ink`}>
+                <span className="relative z-10">Talk to our team</span>
+                <ArrowRight size={17} className="group-hover:translate-x-1 transition-transform duration-300" />
               </MagneticLink>
               <MagneticLink
                 href={siteContact.phoneHref}
                 strength={0.15}
                 area={50}
                 variant="ghost"
-                                  className={`inline-flex items-center gap-2 ${CTA_GHOST_PADDING} text-xs font-extrabold hover:text-safety`}>
-                <Phone size={17} />
-                {siteContact.phone}
+                                  className={`inline-flex items-center justify-center gap-2 ${CTA_GHOST_PADDING} text-xs font-extrabold hover:text-safety`}>
+                <span className="relative z-10 flex items-center gap-2">
+                  <Phone size={17} />
+                  {siteContact.phone}
+                </span>
               </MagneticLink>
               <MagneticLink
                 href="/sahilcrane/broucher/girder-eot-crane.pdf"
@@ -737,7 +742,7 @@ export default function ModernHomePage() {
                 variant="ghost"
                                   className={`inline-flex items-center gap-2 ${CTA_GHOST_PADDING} text-xs font-extrabold text-slate-300 hover:text-safety`}>
                 <Download size={16} />
-                Brochure
+                  Brochure
               </MagneticLink>
             </div>
           </RevealItem>
