@@ -715,7 +715,7 @@ export default function ModernHomePage() {
             </div>
           </RevealItem>
           <RevealItem variant="quickEnter">
-                              <div className={`flex flex-wrap items-center ${CTA_BUTTONS_GAP}`}>
+                               <div className={`flex flex-nowrap items-center ${CTA_BUTTONS_GAP}`}>
               <MagneticLink
                 href="/contact"
                 strength={0.2}
@@ -730,10 +730,10 @@ export default function ModernHomePage() {
                 strength={0.15}
                 area={50}
                 variant="ghost"
-                                  className={`inline-flex items-center justify-center gap-2 ${CTA_GHOST_PADDING} text-xs font-extrabold hover:text-safety`}>
-                <span className="relative z-10 flex items-center gap-2">
-                  <Phone size={17} />
-                  {siteContact.phone}
+                                  className={`inline-flex items-center justify-center gap-2 whitespace-nowrap ${CTA_GHOST_PADDING} text-xs font-extrabold hover:text-safety`}>
+                 <span className="relative z-10 inline-flex items-center justify-center gap-2 whitespace-nowrap">
+                   <Phone size={17} className="shrink-0" />
+                   <span>{siteContact.phone}</span>
                 </span>
               </MagneticLink>
               <MagneticLink

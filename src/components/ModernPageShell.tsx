@@ -58,17 +58,18 @@ export function ModernContactBand() {
               Ready to move your operation forward?
             </h2>
           </div>
-          <div className="flex flex-wrap items-center gap-4">
+          <div className="flex flex-wrap items-center justify-center gap-6">
             <Link
-              className="inline-flex items-center gap-2 border border-safety bg-safety px-5 py-4 text-xs font-extrabold uppercase tracking-industrial text-ink transition hover:-translate-y-0.5 hover:bg-yellow-300"
+              className="inline-flex items-center justify-center gap-2 whitespace-nowrap border border-safety bg-safety px-5 py-4 text-xs font-extrabold uppercase tracking-industrial text-ink transition hover:-translate-y-0.5 hover:bg-yellow-300"
               href="/contact">
-              Talk to our team <ArrowRight size={17} />
+              <span>Talk to our team</span>
+              <ArrowRight size={17} className="shrink-0" />
             </Link>
             <a
-              className="inline-flex items-center gap-2 text-xs font-extrabold text-white hover:text-safety"
+              className="inline-flex items-center justify-center gap-2 whitespace-nowrap text-xs font-extrabold text-white hover:text-safety"
               href={siteContact.phoneHref}>
-              <Phone size={17} />
-              {siteContact.phone}
+              <Phone size={17} className="shrink-0" />
+              <span>{siteContact.phone}</span>
             </a>
           </div>
         </div>

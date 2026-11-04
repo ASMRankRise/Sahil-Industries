@@ -93,7 +93,7 @@ export function MagneticButton({
           style={{ opacity: isHovering ? 1 : 0 }}
         />
       )}
-      <span className="relative z-10">{children}</span>
+      <span className="relative z-10 inline-flex items-center justify-center">{children}</span>
     </motion.button>
   );
 }
@@ -153,7 +153,7 @@ export function MagneticLink({
           style={{ opacity: isHovering ? 1 : 0 }}
         />
       )}
-      <span className="relative z-10">{children}</span>
+      <span className="relative z-10 inline-flex items-center justify-center">{children}</span>
     </motion.a>
   );
 }
