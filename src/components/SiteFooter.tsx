@@ -3,7 +3,8 @@
 import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { Globe2, Mail, MapPin, Phone, Share2 } from "lucide-react";
+import { Mail, MapPin, Phone } from "lucide-react";
+import { FaInstagram, FaFacebookF, FaWhatsapp } from "react-icons/fa";
 import { primaryNavigation, siteContact } from "@/data/site";
 import { Reveal, RevealGroup, RevealItem } from "@/components/ui/Reveal";
 import { useReducedMotion } from "@/components/animations/hooks/useReducedMotion";
@@ -59,9 +60,9 @@ export function SiteFooter() {
               <b>Monday - Closed</b>
             </p>
             <div className="mt-5 flex gap-4 text-safety">
-              <Globe2 size={SOCIAL_ICON_SIZE} aria-hidden="true" />
-              <span>G+</span>
-              <Share2 size={SOCIAL_ICON_SIZE} aria-hidden="true" />
+              <FaInstagram size={SOCIAL_ICON_SIZE} aria-label="Instagram" />
+              <FaFacebookF size={SOCIAL_ICON_SIZE} aria-label="Facebook" />
+              <FaWhatsapp size={SOCIAL_ICON_SIZE} aria-label="WhatsApp" />
             </div>
           </div>
           <div>
@@ -140,14 +141,14 @@ export function SiteFooter() {
               <motion.span
                 whileHover={{ scale: 1.2, rotate: 15 }}
                 transition={{ duration: 0.2 }}>
-                <Globe2 size={SOCIAL_ICON_SIZE} aria-hidden="true" />
+                <FaInstagram size={SOCIAL_ICON_SIZE} aria-label="Instagram" />
               </motion.span>
-              <span>G+</span>
               <motion.span
                 whileHover={{ scale: 1.2, rotate: -15 }}
                 transition={{ duration: 0.2 }}>
-                <Share2 size={SOCIAL_ICON_SIZE} aria-hidden="true" />
+                <FaFacebookF size={SOCIAL_ICON_SIZE} aria-label="Facebook" />
               </motion.span>
+              <FaWhatsapp size={SOCIAL_ICON_SIZE} aria-label="WhatsApp" />
             </div>
           </div>
         </RevealItem>

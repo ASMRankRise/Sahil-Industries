@@ -5,14 +5,12 @@ import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   ChevronDown,
-  Globe2,
   Mail,
   Menu,
   Phone,
-  Share2,
   X,
-  MessageCircle,
 } from "lucide-react";
+import { FaInstagram, FaFacebookF, FaWhatsapp } from "react-icons/fa";
 import { useState, useEffect } from "react";
 import { primaryNavigation, siteContact } from "@/data/site";
 import { MagneticElement } from "@/components/ui/MagneticButton";
@@ -97,9 +95,9 @@ export function SiteHeader() {
                   <Mail size={14} aria-hidden="true" />
                   {siteContact.email}
                 </motion.a>
-                <Globe2 size={15} aria-hidden="true" />
-                <span className="font-extrabold text-safety">G+</span>
-                <Share2 size={15} aria-hidden="true" />
+                <FaInstagram size={15} aria-label="Instagram" className="text-safety" />
+                <FaFacebookF size={15} aria-label="Facebook" className="text-safety" />
+                <a href={siteContact.whatsappHref} target="_blank" rel="noopener noreferrer" aria-label="WhatsApp"><FaWhatsapp size={15} className="text-safety" /></a>
               </div>
             </div>
             <nav
@@ -199,7 +197,7 @@ export function SiteHeader() {
               whileHover={{ x: 4, scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               transition={{ duration: 0.15 }}>
-              <MessageCircle className="text-green-500 group-hover:scale-110 transition-transform duration-300" size={CONTACT_ICON_SIZE_MOBILE} aria-hidden="true" />
+              <FaWhatsapp className="text-green-500 group-hover:scale-110 transition-transform duration-300" size={CONTACT_ICON_SIZE_MOBILE} aria-hidden="true" />
               <span className={`absolute bottom-full left-1/2 -translate-x-1/2 ${TOOLTIP_OFFSET} opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 ease-out whitespace-nowrap pointer-events-none bg-ink/95 backdrop-blur-sm border border-white/10 rounded-lg ${TOOLTIP_PADDING} shadow-xl z-10`}>
                 <small className="block text-xs text-slate-400">Chat on WhatsApp</small>
                 <b className="block text-[13px] text-green-500 font-medium">WhatsApp</b>
@@ -296,7 +294,7 @@ export function SiteHeader() {
                 whileHover={{ x: 8, color: "#25D366" }}
                 whileTap={{ scale: 0.98 }}
                 transition={{ delay: 0.15 + (primaryItems.length + 1) * 0.05, duration: 0.2 }}>
-                <MessageCircle className="text-green-500" size={20} />
+                <FaWhatsapp className="text-green-500" size={20} />
                 <span>WhatsApp</span>
               </motion.a>
 
