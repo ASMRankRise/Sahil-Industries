@@ -189,10 +189,11 @@ export function CareerForm({ onSuccess }: CareerFormProps) {
 
   // Validate captcha
   const validateCaptcha = useCallback((value: string): { error?: string } => {
-    const userAnswer = parseInt(value.trim(), 10);
-    if (isNaN(userAnswer)) {
+    const answer = value.trim();
+    if (!/^-?\d+$/.test(answer)) {
       return { error: "Please enter the answer to the math question" };
     }
+    const userAnswer = Number(answer);
     if (userAnswer !== captcha.answer) {
       return { error: "Incorrect answer. Please try again." };
     }
@@ -440,6 +441,9 @@ export function CareerForm({ onSuccess }: CareerFormProps) {
       formDataToSubmit.append('city', formData.city);
       formDataToSubmit.append('message', formData.message);
       formDataToSubmit.append('captcha', formData.captcha);
+      // Send the question as well so the server can verify the answer; client
+      // validation alone is not a security control.
+      formDataToSubmit.append('captchaQuestion', captcha.question);
       
       if (formData.resume) {
         formDataToSubmit.append('uploaded_file', formData.resume);
@@ -498,9 +502,8 @@ export function CareerForm({ onSuccess }: CareerFormProps) {
       // Don't validate captcha until client-side hydration
       if (!isClient) return false;
     
-      const captchaValid = formData.captcha.trim().length > 0 && 
-        !isNaN(parseInt(formData.captcha.trim(), 10)) && 
-        parseInt(formData.captcha.trim(), 10) === captcha.answer;
+      const captchaValid = /^-?\d+$/.test(formData.captcha.trim()) &&
+        Number(formData.captcha.trim()) === captcha.answer;
     
       return (
         formData.fullname.trim().length >= (validationRules.fullname.minLength ?? 2) &&

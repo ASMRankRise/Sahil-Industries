@@ -12,14 +12,30 @@ export async function POST(request: NextRequest) {
     const city = formData.get('city') as string;
     const message = formData.get('message') as string;
     const captcha = formData.get('captcha') as string;
+    const captchaQuestion = formData.get('captchaQuestion') as string;
     const resume = formData.get('uploaded_file') as File | null;
     
     // Validate required fields
-    if (!fullname || !email || !mobile || !message || !captcha) {
+    if (!fullname || !email || !mobile || !message || !captcha || !captchaQuestion) {
       return NextResponse.json(
         { error: 'All required fields must be filled' },
         { status: 400 }
       );
+    }
+
+    // Never trust the browser's captcha result. Recalculate the answer on the
+    // server from the exact question that was displayed to the applicant.
+    const captchaMatch = captchaQuestion.trim().match(/^(\d{1,2})\s([+-])\s(\d{1,2})$/);
+    const captchaAnswer = captcha.trim();
+    if (!captchaMatch || !/^-?\d+$/.test(captchaAnswer)) {
+      return NextResponse.json({ error: 'Invalid security verification' }, { status: 400 });
+    }
+    const [, first, operator, second] = captchaMatch;
+    const expectedCaptcha = operator === '+'
+      ? Number(first) + Number(second)
+      : Number(first) - Number(second);
+    if (Number(captchaAnswer) !== expectedCaptcha) {
+      return NextResponse.json({ error: 'Incorrect security verification' }, { status: 400 });
     }
 
     // Validate email format

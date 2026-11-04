@@ -743,10 +743,12 @@ export default function ModernHomePage() {
                 strength={0.15}
                 area={50}
                 variant="ghost"
-                                  className={`inline-flex items-center gap-2 ${CTA_GHOST_PADDING} text-xs font-extrabold text-slate-300 hover:text-safety`}>
-                <Download size={16} />
-                  Brochure
-              </MagneticLink>
+                                  className={`inline-flex items-center justify-center gap-2 ${CTA_GHOST_PADDING} text-xs font-extrabold text-slate-300 hover:text-safety`}>
+                 <span className="relative z-10 flex items-center justify-center gap-2">
+                   <Download size={16} />
+                   <span>Brochure</span>
+                 </span>
+               </MagneticLink>
             </div>
           </RevealItem>
         </RevealGroup>
