@@ -181,7 +181,8 @@ export function GalleryLightbox({ image, onClose, onNext, onPrev, images = [] }:
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.2 }}
-      className="fixed inset-0 z-50 bg-black/98 backdrop-blur-sm flex items-center justify-center"
+      className="fixed inset-0 z-[99999] backdrop-blur-md flex items-center justify-center select-none"
+      style={{ backgroundColor: "rgba(7, 11, 20, 0.96)" }}
       role="dialog"
       aria-modal="true"
       aria-label={`Image ${currentIndex + 1} of ${totalCount}: ${imageTitle}`}
@@ -201,7 +202,7 @@ export function GalleryLightbox({ image, onClose, onNext, onPrev, images = [] }:
 
       {/* Loading State */}
       {isLoading && imageSrc && (
-        <div className="absolute inset-0 flex items-center justify-center z-10">
+        <div className="absolute inset-0 flex items-center justify-center z-10 bg-black/60">
           <Loader2 className="w-12 h-12 text-safety animate-spin" />
         </div>
       )}
@@ -210,12 +211,13 @@ export function GalleryLightbox({ image, onClose, onNext, onPrev, images = [] }:
       {!isFirst && (
         <motion.button
           onClick={(e) => { e.stopPropagation(); onPrev(); }}
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.9 }}
-          className="absolute left-6 top-1/2 -translate-y-1/2 z-20 p-3 bg-white/10 backdrop-blur-sm rounded-full text-white hover:bg-white/20 transition-all"
+          whileHover={{ scale: 1.08, x: -2 }}
+          whileTap={{ scale: 0.92 }}
+          className="absolute left-4 sm:left-6 top-1/2 -translate-y-1/2 z-30 p-3.5 bg-slate-900/90 hover:bg-safety border border-white/20 rounded-full text-white shadow-2xl transition-all cursor-pointer group"
           aria-label="Previous image"
+          title="Previous (?)"
         >
-          <ChevronLeft size={24} />
+          <ChevronLeft size={26} className="text-white group-hover:text-ink transition-colors" strokeWidth={2.5} />
         </motion.button>
       )}
 
@@ -223,29 +225,32 @@ export function GalleryLightbox({ image, onClose, onNext, onPrev, images = [] }:
       {!isLast && (
         <motion.button
           onClick={(e) => { e.stopPropagation(); onNext(); }}
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.9 }}
-          className="absolute right-6 top-1/2 -translate-y-1/2 z-20 p-3 bg-white/10 backdrop-blur-sm rounded-full text-white hover:bg-white/20 transition-all"
+          whileHover={{ scale: 1.08, x: 2 }}
+          whileTap={{ scale: 0.92 }}
+          className="absolute right-4 sm:right-6 top-1/2 -translate-y-1/2 z-30 p-3.5 bg-slate-900/90 hover:bg-safety border border-white/20 rounded-full text-white shadow-2xl transition-all cursor-pointer group"
           aria-label="Next image"
+          title="Next (?)"
         >
-          <ChevronRight size={24} />
+          <ChevronRight size={26} className="text-white group-hover:text-ink transition-colors" strokeWidth={2.5} />
         </motion.button>
       )}
 
       {/* Close Button */}
       <motion.button
         onClick={(e) => { e.stopPropagation(); onClose(); }}
-        whileHover={{ scale: 1.1, rotate: 90 }}
-        whileTap={{ scale: 0.9 }}
-        className="absolute top-6 right-6 z-20 p-3 bg-white/10 backdrop-blur-sm rounded-full text-white hover:bg-white/20 hover:text-red-400 transition-all"
+        whileHover={{ scale: 1.08 }}
+        whileTap={{ scale: 0.92 }}
+        className="absolute top-5 right-5 sm:top-6 sm:right-6 z-30 p-3 bg-slate-900/90 hover:bg-red-500 border border-white/20 rounded-full text-white shadow-2xl transition-all cursor-pointer group"
         aria-label="Close lightbox"
+        title="Close (Esc)"
       >
-        <X size={24} />
+        <X size={22} className="text-white group-hover:rotate-90 transition-transform duration-200" strokeWidth={2.5} />
       </motion.button>
 
       {/* Image Counter */}
-      <div className="absolute top-6 left-6 z-20 px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full text-white/80 text-sm font-medium">
-        {currentIndex + 1} / {totalCount}
+      <div className="absolute top-5 left-5 sm:top-6 sm:left-6 z-30 px-4 py-2 bg-slate-900/90 border border-white/20 rounded-full text-white text-xs sm:text-sm font-semibold tracking-wider shadow-2xl flex items-center gap-2">
+        <span className="h-2 w-2 rounded-full bg-safety animate-pulse" />
+        <span>{currentIndex + 1} / {totalCount}</span>
       </div>
 
       {/* Image Container */}
@@ -270,12 +275,12 @@ export function GalleryLightbox({ image, onClose, onNext, onPrev, images = [] }:
               width={1920}
               height={1080}
               onLoad={handleLoad}
-              className="max-w-[90vw] max-h-[85vh] w-auto h-auto object-contain select-none"
+              className="max-w-[90vw] max-h-[85vh] w-auto h-auto object-contain select-none rounded-lg shadow-2xl"
               priority
               sizes="90vw"
             />
           ) : (
-            <div className="flex flex-col items-center justify-center p-8 text-center text-slate-400 bg-white/5 rounded-2xl border border-white/10">
+            <div className="flex flex-col items-center justify-center p-8 text-center text-slate-300 bg-slate-900/90 rounded-2xl border border-white/20 shadow-2xl">
               <Info size={40} className="mb-3 text-safety" />
               <p className="text-base font-semibold text-white">No Image Available</p>
               <p className="text-xs text-slate-400 mt-1">Image source is empty or could not be loaded.</p>
@@ -288,107 +293,106 @@ export function GalleryLightbox({ image, onClose, onNext, onPrev, images = [] }:
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2, duration: 0.3 }}
-        className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 flex items-center gap-3 bg-white/5 backdrop-blur-sm rounded-xl px-4 py-3 border border-white/10"
+        transition={{ delay: 0.15, duration: 0.3 }}
+        className="absolute bottom-5 sm:bottom-6 left-1/2 -translate-x-1/2 z-30 flex items-center gap-1.5 sm:gap-2.5 bg-slate-900/95 border border-white/20 rounded-2xl px-4 py-2 sm:px-5 sm:py-2.5 shadow-2xl backdrop-blur-lg"
       >
-        <motion.button
+        <button
           onClick={(e) => { e.stopPropagation(); onPrev(); }}
           disabled={isFirst}
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.9 }}
-          className="p-2 text-white/70 hover:text-white disabled:opacity-30 disabled:pointer-events-none transition-colors"
+          className="p-2.5 text-slate-300 hover:text-white hover:bg-white/10 rounded-xl transition-all cursor-pointer disabled:opacity-25 disabled:pointer-events-none"
           aria-label="Previous"
+          title="Previous image"
         >
-          <ChevronLeft size={20} />
-        </motion.button>
+          <ChevronLeft size={20} strokeWidth={2.2} />
+        </button>
 
-        <motion.button
+        <button
           onClick={(e) => { e.stopPropagation(); toggleFullscreen(); }}
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.9 }}
-          className="p-2 text-white/70 hover:text-white transition-colors"
+          className="p-2.5 text-slate-300 hover:text-white hover:bg-white/10 rounded-xl transition-all cursor-pointer"
           aria-label={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
+          title={isFullscreen ? "Exit fullscreen (F)" : "Enter fullscreen (F)"}
         >
-          {isFullscreen ? <Minimize2 size={20} /> : <Maximize2 size={20} />}
-        </motion.button>
+          {isFullscreen ? <Minimize2 size={20} strokeWidth={2.2} /> : <Maximize2 size={20} strokeWidth={2.2} />}
+        </button>
 
-        <motion.button
+        <button
           onClick={(e) => { e.stopPropagation(); handleDownload(); }}
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.9 }}
-          className="p-2 text-white/70 hover:text-white transition-colors"
+          className="p-2.5 text-slate-300 hover:text-white hover:bg-white/10 rounded-xl transition-all cursor-pointer"
           aria-label="Download"
+          title="Download image"
         >
-          <Download size={20} />
-        </motion.button>
+          <Download size={20} strokeWidth={2.2} />
+        </button>
 
-        <motion.button
+        <button
           onClick={(e) => { e.stopPropagation(); handleShare(); }}
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.9 }}
-          className="p-2 text-white/70 hover:text-white transition-colors"
+          className="p-2.5 text-slate-300 hover:text-white hover:bg-white/10 rounded-xl transition-all cursor-pointer"
           aria-label="Share"
+          title="Share image"
         >
-          <Share2 size={20} />
-        </motion.button>
+          <Share2 size={20} strokeWidth={2.2} />
+        </button>
 
-        <motion.button
+        <button
           onClick={(e) => { e.stopPropagation(); setShowInfo((prev) => !prev); }}
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.9 }}
-          className={`p-2 transition-colors ${showInfo ? "text-safety" : "text-white/70 hover:text-white"}`}
+          className={`p-2.5 rounded-xl transition-all cursor-pointer ${
+            showInfo
+              ? "bg-safety text-ink font-bold shadow-md shadow-safety/25"
+              : "text-slate-300 hover:text-white hover:bg-white/10"
+          }`}
           aria-label="Toggle info"
+          title="Toggle image details (I)"
         >
-          <Info size={20} />
-        </motion.button>
+          <Info size={20} strokeWidth={2.2} />
+        </button>
 
-        <motion.button
+        <button
           onClick={(e) => { e.stopPropagation(); onNext(); }}
           disabled={isLast}
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.9 }}
-          className="p-2 text-white/70 hover:text-white disabled:opacity-30 disabled:pointer-events-none transition-colors"
+          className="p-2.5 text-slate-300 hover:text-white hover:bg-white/10 rounded-xl transition-all cursor-pointer disabled:opacity-25 disabled:pointer-events-none"
           aria-label="Next"
+          title="Next image"
         >
-          <ChevronRight size={20} />
-        </motion.button>
+          <ChevronRight size={20} strokeWidth={2.2} />
+        </button>
       </motion.div>
 
       {/* Info Panel */}
       <AnimatePresence>
         {showInfo && (
           <motion.div
-            initial={{ opacity: 0, x: -30 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -30 }}
-            transition={{ duration: 0.3 }}
-            className="absolute bottom-6 left-6 right-6 md:left-6 md:right-auto md:w-80 z-20 bg-white/5 backdrop-blur-sm rounded-2xl p-6 border border-white/10 max-h-[60vh] overflow-y-auto"
+            initial={{ opacity: 0, x: -20, scale: 0.95 }}
+            animate={{ opacity: 1, x: 0, scale: 1 }}
+            exit={{ opacity: 0, x: -20, scale: 0.95 }}
+            transition={{ duration: 0.25 }}
+            className="absolute bottom-20 sm:bottom-24 left-4 right-4 sm:left-6 sm:right-auto sm:w-96 z-30 border border-white/20 rounded-2xl p-6 shadow-2xl backdrop-blur-xl max-h-[70vh] overflow-y-auto"
+            style={{ backgroundColor: "rgba(15, 23, 42, 0.98)" }}
           >
             <div className="flex items-start justify-between gap-4 mb-4">
-              <div className="flex-1">
-                <span className="px-3 py-1 text-[10px] font-bold uppercase tracking-wider rounded-full bg-safety/20 text-safety mb-3 inline-block">
+              <div className="flex-1 min-w-0">
+                <span className="px-3 py-1 text-[11px] font-extrabold uppercase tracking-wider rounded-md bg-safety text-ink inline-block mb-3 shadow-sm">
                   {imageCategory ? imageCategory.charAt(0).toUpperCase() + imageCategory.slice(1) : 'Product'}
                 </span>
-                <h3 className="text-xl font-bold mb-2">{imageTitle}</h3>
+                <h3 className="text-xl font-bold text-white mb-2 leading-snug">{imageTitle}</h3>
                 {imageDescription && <p className="text-slate-300 text-sm leading-relaxed">{imageDescription}</p>}
               </div>
-              <motion.button
+              <button
                 onClick={(e) => { e.stopPropagation(); setShowInfo(false); }}
-                whileHover={{ scale: 1.1 }}
-                className="p-1 text-slate-400 hover:text-white transition-colors"
+                className="p-1.5 text-slate-400 hover:text-white hover:bg-white/10 rounded-lg transition-colors cursor-pointer"
                 aria-label="Close info"
+                title="Close details (I)"
               >
-                <X size={20} />
-              </motion.button>
+                <X size={18} />
+              </button>
             </div>
 
             {/* Tags */}
             {imageTags && imageTags.length > 0 && (
-              <div className="flex flex-wrap gap-2 mb-4">
+              <div className="flex flex-wrap gap-2 mb-5">
                 {imageTags.map((tag, i) => (
                   <span
                     key={i}
-                    className="px-3 py-1 text-[11px] font-medium uppercase tracking-wider rounded-full bg-white/10 text-slate-300 hover:bg-safety/20 hover:text-safety transition-colors"
+                    className="px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider rounded-md bg-slate-800 text-slate-200 border border-white/15"
                   >
                     {tag}
                   </span>
@@ -397,33 +401,33 @@ export function GalleryLightbox({ image, onClose, onNext, onPrev, images = [] }:
             )}
 
             {/* Action Buttons */}
-            <div className="flex flex-wrap gap-2">
+            <div className="flex items-center gap-3">
               <button
                 onClick={(e) => { e.stopPropagation(); handleDownload(); }}
-                className="flex items-center gap-2 px-4 py-2 bg-safety/10 text-safety rounded-lg hover:bg-safety/20 transition-colors text-sm font-medium"
+                className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-safety text-ink font-bold rounded-xl hover:brightness-110 shadow-lg shadow-safety/20 transition-all text-sm cursor-pointer"
               >
-                <Download size={16} />
+                <Download size={16} strokeWidth={2.5} />
                 Download
               </button>
               <button
                 onClick={(e) => { e.stopPropagation(); handleShare(); }}
-                className="flex items-center gap-2 px-4 py-2 bg-white/10 text-white rounded-lg hover:bg-white/20 transition-colors text-sm font-medium"
+                className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-slate-800 text-white font-semibold border border-white/20 rounded-xl hover:bg-slate-700 transition-all text-sm cursor-pointer"
               >
-                <Share2 size={16} />
+                <Share2 size={16} strokeWidth={2.2} />
                 Share
               </button>
             </div>
 
             {/* Keyboard Shortcuts Hint */}
-            <div className="mt-6 pt-4 border-t border-white/10">
-              <p className="text-[11px] text-slate-500 mb-2 font-medium uppercase tracking-wider">Keyboard Shortcuts</p>
-              <div className="grid grid-cols-2 gap-2 text-[11px] text-slate-400">
-                <div className="flex justify-between"><kbd className="px-2 py-0.5 bg-white/5 rounded">?</kbd><span>Previous</span></div>
-                <div className="flex justify-between"><kbd className="px-2 py-0.5 bg-white/5 rounded">?</kbd><span>Next</span></div>
-                <div className="flex justify-between"><kbd className="px-2 py-0.5 bg-white/5 rounded">Esc</kbd><span>Close</span></div>
-                <div className="flex justify-between"><kbd className="px-2 py-0.5 bg-white/5 rounded">I</kbd><span>Toggle Info</span></div>
-                <div className="flex justify-between"><kbd className="px-2 py-0.5 bg-white/5 rounded">F</kbd><span>Fullscreen</span></div>
-                <div className="flex justify-between"><kbd className="px-2 py-0.5 bg-white/5 rounded">Space</kbd><span>Next</span></div>
+            <div className="mt-5 pt-4 border-t border-white/15">
+              <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2.5">Keyboard Shortcuts</p>
+              <div className="grid grid-cols-2 gap-2 text-[11px] text-slate-300">
+                <div className="flex justify-between items-center bg-slate-800/60 px-2 py-1 rounded border border-white/5"><kbd className="px-1.5 py-0.5 bg-slate-700 rounded text-safety font-bold font-mono">?</kbd><span>Previous</span></div>
+                <div className="flex justify-between items-center bg-slate-800/60 px-2 py-1 rounded border border-white/5"><kbd className="px-1.5 py-0.5 bg-slate-700 rounded text-safety font-bold font-mono">?</kbd><span>Next</span></div>
+                <div className="flex justify-between items-center bg-slate-800/60 px-2 py-1 rounded border border-white/5"><kbd className="px-1.5 py-0.5 bg-slate-700 rounded text-safety font-bold font-mono">Esc</kbd><span>Close</span></div>
+                <div className="flex justify-between items-center bg-slate-800/60 px-2 py-1 rounded border border-white/5"><kbd className="px-1.5 py-0.5 bg-slate-700 rounded text-safety font-bold font-mono">I</kbd><span>Info</span></div>
+                <div className="flex justify-between items-center bg-slate-800/60 px-2 py-1 rounded border border-white/5"><kbd className="px-1.5 py-0.5 bg-slate-700 rounded text-safety font-bold font-mono">F</kbd><span>Fullscreen</span></div>
+                <div className="flex justify-between items-center bg-slate-800/60 px-2 py-1 rounded border border-white/5"><kbd className="px-1.5 py-0.5 bg-slate-700 rounded text-safety font-bold font-mono">Space</kbd><span>Next</span></div>
               </div>
             </div>
           </motion.div>
@@ -435,7 +439,7 @@ export function GalleryLightbox({ image, onClose, onNext, onPrev, images = [] }:
         <motion.div
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="absolute bottom-24 right-6 z-20 px-3 py-1.5 bg-white/10 backdrop-blur-sm rounded-full text-white/90 text-sm font-mono"
+          className="absolute bottom-20 sm:bottom-24 right-5 sm:right-6 z-30 px-3.5 py-1.5 bg-slate-900/95 border border-white/20 rounded-full text-safety font-bold text-sm font-mono shadow-2xl"
         >
           {Math.round(zoom * 100)}%
         </motion.div>
@@ -446,7 +450,7 @@ export function GalleryLightbox({ image, onClose, onNext, onPrev, images = [] }:
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="absolute bottom-24 left-1/2 -translate-x-1/2 z-20 px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full text-white/70 text-sm"
+          className="absolute bottom-20 sm:bottom-24 left-1/2 -translate-x-1/2 z-30 px-4 py-1.5 bg-slate-900/90 border border-white/20 rounded-full text-white text-xs sm:text-sm font-medium shadow-2xl"
         >
           Drag to pan
         </motion.div>
@@ -454,3 +458,4 @@ export function GalleryLightbox({ image, onClose, onNext, onPrev, images = [] }:
     </motion.div>
   );
 }
+

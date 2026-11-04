@@ -806,10 +806,10 @@ export default function GalleryPage() {
                 <button
                   onClick={() => setShowUploadModal(false)}
                   className="p-2 text-slate-400 hover:text-white rounded-lg hover:bg-white/10 transition-colors">
-                  <X size={20} />
+                  <X size={20} className="text-white" strokeWidth={2.5} />
                 </button>
               </div>
-              <div className="p-5">
+              <div className="p-5 text-white">
                 <div
                   className={`border-2 border-dashed rounded-xl p-8 text-center transition-colors ${
                     dragActive
@@ -903,10 +903,10 @@ export default function GalleryPage() {
                 <button
                   onClick={() => setShowEditModal(null)}
                   className="p-2 text-slate-400 hover:text-white rounded-lg hover:bg-white/10 transition-colors">
-                  <X size={20} />
+                  <X size={20} className="text-white" strokeWidth={2.5} />
                 </button>
               </div>
-              <div className="p-5">
+              <div className="p-5 text-white">
                 <EditImageForm
                   image={galleryImages.find((i) => i.id === showEditModal)!}
                   onClose={() => setShowEditModal(null)}
@@ -985,10 +985,10 @@ export default function GalleryPage() {
                 <button
                   onClick={() => setShowBulkEditModal(false)}
                   className="p-2 text-slate-400 hover:text-white rounded-lg hover:bg-white/10 transition-colors">
-                  <X size={20} />
+                  <X size={20} className="text-white" strokeWidth={2.5} />
                 </button>
               </div>
-              <div className="p-5">
+              <div className="p-5 text-white">
                 <BulkEditForm
                   imageCount={selectedImages.length}
                   onClose={() => setShowBulkEditModal(false)}
@@ -1023,10 +1023,10 @@ export default function GalleryPage() {
                 <button
                   onClick={() => setShowReplaceImageModal(null)}
                   className="p-2 text-slate-400 hover:text-white rounded-lg hover:bg-white/10 transition-colors">
-                  <X size={20} />
+                  <X size={20} className="text-white" strokeWidth={2.5} />
                 </button>
               </div>
-              <div className="p-5">
+              <div className="p-5 text-white">
                 <ReplaceImageForm
                   imageId={showReplaceImageModal}
                   image={
