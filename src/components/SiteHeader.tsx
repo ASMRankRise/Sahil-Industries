@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { FaInstagram, FaFacebookF, FaWhatsapp } from "react-icons/fa";
 import { useState, useEffect } from "react";
+import { usePathname } from "next/navigation";
 import { primaryNavigation, siteContact } from "@/data/site";
 import { MagneticElement } from "@/components/ui/MagneticButton";
 import { useReducedMotion } from "@/components/animations/hooks/useReducedMotion";
@@ -39,6 +40,7 @@ export function SiteHeader() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [productsOpen, setProductsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const pathname = usePathname();
   const prefersReduced = useReducedMotion();
 
   // Track scroll position for header effects
@@ -83,7 +85,7 @@ export function SiteHeader() {
           </MagneticElement>
 
           <div className="min-w-0 max-md:hidden">
-            <div className={`flex items-center justify-between border-b border-white/10 ${TOP_BAR_HEIGHT} ${LOGO_PADDING_X} text-[10px] uppercase tracking-industrial text-slate-400`}>
+            <div className={`flex items-center justify-between border-b border-white/10 ${TOP_BAR_HEIGHT} ${LOGO_PADDING_X} text-[10px] uppercase tracking-industrial text-white`}>
               <span>An ISO 9001:2008 Certified Company</span>
               <div className="flex items-center gap-3">
                 <motion.a
@@ -107,7 +109,7 @@ export function SiteHeader() {
                       <MotionLink
                   href={item.href}
                   key={item.href}
-                  className={`${navClass}${item.href === "/" ? " text-safety" : ""}`}
+                  className={`${navClass}${pathname === item.href ? " !text-safety" : ""}`}
                   whileHover={{ y: -2, scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   transition={{ duration: 0.15 }}>
@@ -120,7 +122,7 @@ export function SiteHeader() {
                   onClick={() => setProductsOpen(!productsOpen)}
                   aria-expanded={productsOpen}
                   aria-haspopup="true"
-                  className={`${navClass} flex items-center gap-1`}
+                   className={`${navClass} flex items-center gap-1${pathname.startsWith("/products") ? " !text-safety" : ""}`}
                   whileHover={{ y: -2, scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}>
                   Products{" "}
@@ -144,7 +146,7 @@ export function SiteHeader() {
                           href={item.href}
                           key={item.href}
                           onClick={() => setProductsOpen(false)}
-                          className="block px-3 py-2.5 text-xs text-white hover:bg-safety/10 hover:text-safety"
+                           className={`block px-3 py-2.5 text-xs hover:bg-safety/10 hover:text-safety${pathname === item.href ? " !text-safety" : " text-white"}`}
                           whileHover={{ x: 4 }}
                           whileTap={{ scale: 0.98 }}
                           initial={{ opacity: 0, x: -10 }}
@@ -162,7 +164,7 @@ export function SiteHeader() {
                 <MotionLink
                   href={item.href}
                   key={item.href}
-                  className={navClass}
+                   className={`${navClass}${pathname === item.href ? " !text-safety" : ""}`}
                   whileHover={{ y: -2, scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   transition={{ duration: 0.15 }}>
@@ -266,7 +268,7 @@ export function SiteHeader() {
                   href={item.href}
                   onClick={() => setMenuOpen(false)}
                   key={item.href}
-                  className="border-b border-white/10 py-3 text-sm font-bold uppercase tracking-industrial"
+                   className={`border-b border-white/10 py-3 text-sm font-bold uppercase tracking-industrial${pathname === item.href ? " !text-safety" : " text-white"}`}
                   whileHover={{ x: 8, color: "#F6C515" }}
                   whileTap={{ scale: 0.98 }}
                   transition={{ delay: index * 0.05, duration: 0.2 }}>
