@@ -1,10 +1,9 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import {
-  animateCounter,
-  prefersReducedMotion,
-} from "@/components/animations/gsapUtils";
+import type React from "react";
+import { gsap } from "gsap";
+import { prefersReducedMotion } from "@/components/animations/gsapUtils";
 
 // Standardized constants for Counter
 const COUNTER_DEFAULT_START = 0;
@@ -66,75 +65,100 @@ export function Counter({
   className = "",
   tag: Tag = COUNTER_DEFAULT_TAG,
   scrollTrigger = false,
-  scrollTriggerOptions = {},
+  scrollTriggerOptions: _scrollTriggerOptions,
 }: CounterProps) {
-  const elementRef = useRef<HTMLElement>(null);
+  const elementRef = useRef<Element>(null);
   const [isVisible, setIsVisible] = useState(!scrollTrigger);
-  const [hasAnimated, setHasAnimated] = useState(false);
-  const scrollTriggerRef = useRef<ReturnType<typeof animateCounter> | null>(
-    null,
-  );
+  const [displayValue, setDisplayValue] = useState(start);
+  const hasAnimatedRef = useRef(false);
+  const animationRef = useRef<gsap.core.Tween | null>(null);
 
   // Handle scroll-triggered animation
-  useEffect(() => {
-    if (!scrollTrigger || isVisible || hasAnimated) return;
+    useEffect(() => {
+      if (!scrollTrigger || isVisible || hasAnimatedRef.current) return;
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            setIsVisible(true);
-            observer.disconnect();
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              setIsVisible(true);
+              observer.disconnect();
+            }
+          });
+        },
+        {
+          rootMargin: COUNTER_OBSERVER_ROOT_MARGIN,
+          threshold: COUNTER_OBSERVER_THRESHOLD,
+        },
+      );
+
+      if (elementRef.current) {
+        observer.observe(elementRef.current);
+      
+        // Check if element is already in viewport (for refresh scenarios)
+        // Use requestAnimationFrame to ensure layout is complete
+        const checkViewport = () => {
+          if (elementRef.current) {
+            const rect = elementRef.current.getBoundingClientRect();
+            const isInViewport = rect.top < window.innerHeight && rect.bottom > 0;
+            if (isInViewport) {
+              setIsVisible(true);
+              observer.disconnect();
+            }
           }
-        });
-      },
-      {
-        rootMargin: COUNTER_OBSERVER_ROOT_MARGIN,
-        threshold: COUNTER_OBSERVER_THRESHOLD,
-        ...scrollTriggerOptions,
-      },
-    );
+        };
+      
+        // Immediate check
+        checkViewport();
+      
+        // Check after layout is complete
+        requestAnimationFrame(checkViewport);
+      
+        // Fallback: check again after a short delay in case layout isn't ready
+        const timeoutId = setTimeout(checkViewport, 100);
+      
+        return () => {
+          observer.disconnect();
+          clearTimeout(timeoutId);
+        };
+      }
 
-    if (elementRef.current) {
-      observer.observe(elementRef.current);
-    }
-
-    return () => observer.disconnect();
-  }, [scrollTrigger, isVisible, hasAnimated, scrollTriggerOptions]);
+      return () => observer.disconnect();
+    }, [scrollTrigger, isVisible]);
 
   // Animate when visible
   useEffect(() => {
-    if (!isVisible || hasAnimated || !elementRef.current) return;
+    if (!isVisible || hasAnimatedRef.current) return;
 
-    setHasAnimated(true);
+    hasAnimatedRef.current = true;
+    setDisplayValue(start);
 
     if (prefersReducedMotion()) {
-      elementRef.current.textContent = `${prefix}${formatNumber(end, decimals, separator)}${suffix}`;
+      setDisplayValue(end);
       onComplete?.();
       return;
     }
 
     const obj = { value: start };
-    scrollTriggerRef.current = gsap.to(obj, {
+    animationRef.current = gsap.to(obj, {
       value: end,
       duration,
       ease,
       onUpdate: function () {
-        if (elementRef.current) {
-          elementRef.current.textContent = `${prefix}${formatNumber(obj.value, decimals, separator)}${suffix}`;
-        }
+        setDisplayValue(obj.value);
       },
       onComplete: () => {
+        setDisplayValue(end);
         onComplete?.();
       },
     });
 
     return () => {
-      scrollTriggerRef.current?.kill();
+      animationRef.current?.kill();
+      animationRef.current = null;
     };
   }, [
     isVisible,
-    hasAnimated,
     end,
     start,
     duration,
@@ -145,9 +169,6 @@ export function Counter({
     suffix,
     onComplete,
   ]);
-
-  // Need to import gsap
-  const gsap = typeof window !== "undefined" ? require("gsap").gsap : null;
 
   function formatNumber(
     value: number,
@@ -162,16 +183,12 @@ export function Counter({
 
   return (
     <Tag
-      ref={elementRef}
+      ref={elementRef as React.Ref<HTMLElement>}
       className={className}
       aria-live="polite"
       aria-atomic="true">
       {prefix}
-      {formatNumber(
-        isVisible && !prefersReducedMotion() ? start : end,
-        decimals,
-        separator,
-      )}
+      {formatNumber(displayValue, decimals, separator)}
       {suffix}
     </Tag>
   );
@@ -252,13 +269,15 @@ export function CounterGroup({
           `[data-counter-index="${index}"]`,
         ) as HTMLElement;
         if (element) {
-          animateCounter(element, counter.end, {
+          const obj = { value: 0 };
+          gsap.to(obj, {
+            value: counter.end,
             duration: counter.duration || COUNTER_GROUP_DEFAULT_DURATION,
-            decimals: counter.decimals || COUNTER_GROUP_DEFAULT_DECIMALS,
-            prefix: counter.prefix || "",
-            suffix: counter.suffix || "",
-            separator: COUNTER_GROUP_DEFAULT_SEPARATOR,
+            ease: COUNTER_DEFAULT_EASE,
             delay: index * stagger,
+            onUpdate: function () {
+              element.textContent = `${counter.prefix || ""}${obj.value.toFixed(counter.decimals || COUNTER_GROUP_DEFAULT_DECIMALS).replace(/\B(?=(\d{3})+(?!\d))/g, COUNTER_GROUP_DEFAULT_SEPARATOR)}${counter.suffix || ""}`;
+            },
           });
         }
       });
@@ -266,8 +285,6 @@ export function CounterGroup({
 
     return () => ctx.revert();
   }, [isVisible, hasAnimated, counters, stagger]);
-
-  const gsap = typeof window !== "undefined" ? require("gsap").gsap : null;
 
   return (
     <div

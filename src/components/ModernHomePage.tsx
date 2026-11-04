@@ -308,6 +308,7 @@ export default function ModernHomePage() {
                   end={22}
                   suffix="+"
                   duration={2.5}
+                  scrollTrigger={true}
                   className={`${STATS_ICON_SIZE} font-bold text-safety ${STATS_ICON_SIZE_MD}`}
                 />
                 <motion.div
@@ -332,6 +333,7 @@ export default function ModernHomePage() {
                   end={100}
                   suffix="+"
                   duration={2.5}
+                  scrollTrigger={true}
                   className={`${STATS_ICON_SIZE} font-bold text-safety ${STATS_ICON_SIZE_MD}`}
                 />
                 <motion.div
@@ -356,6 +358,7 @@ export default function ModernHomePage() {
                 suffix="+"
                   end={200}
                   duration={2.5}
+                  scrollTrigger={true}
                   className={`${STATS_ICON_SIZE} font-bold text-safety ${STATS_ICON_SIZE_MD}`}
                 />
                 <motion.div
