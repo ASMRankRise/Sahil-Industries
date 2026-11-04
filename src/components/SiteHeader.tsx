@@ -5,6 +5,7 @@ import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   ChevronDown,
+  ArrowUp,
   Mail,
   Menu,
   Phone,
@@ -116,7 +117,10 @@ export function SiteHeader() {
                   {item.label}
                 </MotionLink>
               ))}
-              <div className="relative">
+              <div
+                className="relative"
+                onMouseEnter={() => setProductsOpen(true)}
+                onMouseLeave={() => setProductsOpen(false)}>
                 <motion.button
                   type="button"
                   onClick={() => setProductsOpen(!productsOpen)}
@@ -139,7 +143,7 @@ export function SiteHeader() {
                       animate={{ opacity: 1, y: 0, scaleY: 1 }}
                       exit={{ opacity: 0, y: -10, scaleY: 0.9 }}
                       transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
-                      className="absolute left-[-24px] top-[34px] z-40 w-[285px] border border-safety/40 bg-surface p-2.5 shadow-2xl"
+                       className="absolute left-[-24px] top-[24px] z-40 w-[285px] border border-safety/40 bg-surface p-2.5 shadow-2xl"
                       role="menu">
                       {productItem?.children?.map((item, index) => (
                         <MotionLink
@@ -336,6 +340,20 @@ export function SiteHeader() {
               </motion.details>
             </motion.nav>
           </motion.aside>
+        )}
+      </AnimatePresence>
+      <AnimatePresence>
+        {scrolled && (
+          <motion.button
+            type="button"
+            aria-label="Back to top"
+            onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 16 }}
+            className="fixed bottom-6 right-6 z-40 flex h-11 w-11 items-center justify-center rounded-full bg-safety text-ink shadow-lg transition hover:bg-yellow-300 max-md:bottom-4 max-md:right-4">
+            <ArrowUp size={19} aria-hidden="true" />
+          </motion.button>
         )}
       </AnimatePresence>
     </>

@@ -424,10 +424,10 @@ export default function ModernHomePage() {
           className={`mx-auto grid ${CONTAINER_MAX_WIDTH} ${ABOUT_GRID_COLS} items-center ${ABOUT_GAP} ${CONTAINER_MAX_WIDTH_MD} max-md:grid-cols-1`}>
           {/* Image - Left Side */}
           <RevealItem variant="itemReveal">
-            <div className={`relative ${ABOUT_IMG_PB} ${ABOUT_IMG_PR}`}>
-              <div className="absolute bottom-0 right-0 h-3/4 w-3/4 border border-safety" />
+            <div className="relative min-h-[520px] overflow-hidden bg-[#f4f4f4] max-md:min-h-[430px]">
+              <div className="absolute left-0 top-0 h-[62%] w-[58%] border border-safety bg-safety/10" />
               <motion.img
-                className={`relative z-10 w-full object-fill grayscale-[.16] ${ABOUT_IMG_MAIN_H} ${ABOUT_IMG_MAIN_H_MD}`}
+                className="absolute left-0 top-0 z-10 h-[62%] w-[58%] object-cover grayscale-[.16]"
                 src="/media/home/about-01.jpg"
                 alt="Sahil Industries crane manufacturing"
                 animate={aboutControls1}
@@ -440,7 +440,7 @@ export default function ModernHomePage() {
                 transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
               />
               <motion.img
-                className={`absolute -bottom-7 -right-7 z-20 ${ABOUT_IMG_SECONDARY_H} ${ABOUT_IMG_SECONDARY_W} border-1 object-cover shadow-xl max-md:hidden`}
+                className="absolute bottom-5 left-[27%] z-20 h-[58%] w-[58%] border border-safety object-cover shadow-xl max-md:left-[18%] max-md:w-[58%]"
                 src="/media/home/about-02.jpg"
                 alt="Sahil Industries manufacturing facility"
                 animate={aboutControls2}
@@ -456,14 +456,15 @@ export default function ModernHomePage() {
                 }}
               />
               <motion.div
-                className={ABOUT_ISO_BL}
+                className="absolute right-[13%] top-3 z-30 text-center text-ink"
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.4, duration: 0.4 }}>
-                ISO
-                <br />
-                <b className="text-[15px]">9001:2008</b>
+                <b className="block text-[82px] leading-none text-safety max-md:text-[58px]">22<sup className="text-[38px]">+</sup></b>
+                <span className="block text-[16px] font-extrabold leading-tight uppercase">Years of<br />Experienced</span>
               </motion.div>
+              <div className="absolute bottom-2 left-5 z-30 w-[25%] max-md:w-[30%]"><img src="/media/home/about-logo.png" alt="Sahil Industries certified" /></div>
+              <div className="absolute right-[-28px] top-[34%] z-0 rotate-90 text-[86px] font-black tracking-[.18em] text-white/80 max-md:text-[55px]">SAHIL</div>
             </div>
           </RevealItem>
 
