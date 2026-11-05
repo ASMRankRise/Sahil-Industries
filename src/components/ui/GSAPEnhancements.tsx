@@ -115,8 +115,8 @@ export function GSAPEnhancements() {
           gsap.to(el, { x: 0, y: 0, duration: 0.5, ease: "elastic.out(1, 0.5)" });
         };
 
-        el.addEventListener("mousemove", handleMouseMove);
-        el.addEventListener("mouseleave", handleMouseLeave);
+        el.addEventListener("mousemove", handleMouseMove as EventListener);
+        el.addEventListener("mouseleave", handleMouseLeave as EventListener);
       });
 
       // 5. Counter animations for stat numbers
@@ -322,7 +322,7 @@ export function GSAPEnhancements() {
 
       // 15. Smooth anchor link scrolling
       document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
-        anchor.addEventListener("click", function (e) {
+        anchor.addEventListener("click", function (this: HTMLAnchorElement, e) {
           const targetId = this.getAttribute("href");
           if (targetId && targetId !== "#") {
             const target = document.querySelector(targetId);

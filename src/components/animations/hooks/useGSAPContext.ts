@@ -2,7 +2,6 @@
 
 import { useLayoutEffect, useRef, useCallback } from "react";
 import { gsap } from "gsap";
-import type { Context } from "gsap";
 import { useReducedMotion } from "./useReducedMotion";
 
 /**
@@ -29,7 +28,7 @@ import { useReducedMotion } from "./useReducedMotion";
 export function useGSAPContext(scope?: string) {
   const prefersReduced = useReducedMotion();
   const rootRef = useRef<HTMLElement>(null);
-  const ctxRef = useRef<Context | null>(null);
+  const ctxRef = useRef<ReturnType<typeof gsap.context> | null>(null);
 
   useLayoutEffect(() => {
     if (prefersReduced) return;
@@ -83,7 +82,7 @@ export function useScrollTrigger() {
   const { rootRef, add } = useGSAPContext();
 
   const createTrigger = useCallback(
-    (config: gsap.ScrollTriggerInstanceVars) => {
+    (config: Parameters<typeof ScrollTrigger.create>[0]) => {
       if (prefersReduced) return null;
       // ScrollTrigger.create returns the instance
       return ScrollTrigger.create(config);
@@ -94,11 +93,11 @@ export function useScrollTrigger() {
   const batch = useCallback(
     (
       targets: gsap.TweenTarget,
-      config: gsap.ScrollTriggerInstanceVars & { interval?: number },
+      config: Parameters<typeof ScrollTrigger.batch>[1],
     ) => {
       if (prefersReduced) return;
       // ScrollTrigger.batch for staggered scroll animations
-      return ScrollTrigger.batch(targets, config);
+      return ScrollTrigger.batch(targets as gsap.DOMTarget, config);
     },
     [prefersReduced],
   );

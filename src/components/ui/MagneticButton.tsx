@@ -196,10 +196,10 @@ export function MagneticElement({
 
   return (
     <div
-      ref={elementRef}
+      ref={elementRef as unknown as React.Ref<HTMLDivElement>}
       className={`inline-block ${className}`}
       style={{ willChange: "transform" }}>
-      {React.cloneElement(child, { ref: elementRef })}
+      {React.cloneElement(child as React.ReactElement<any>, { ref: elementRef })}
     </div>
   );
 }
@@ -242,7 +242,7 @@ export function RippleButton({
   };
 
   return (
-    <button
+    <motion.button
       ref={buttonRef}
       onClick={handleClick}
       className={`
@@ -280,6 +280,6 @@ export function RippleButton({
           animation: ripple 0.6s ease-out forwards;
         }
       `}</style>
-    </button>
+    </motion.button>
   );
 }

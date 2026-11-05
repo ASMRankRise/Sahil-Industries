@@ -67,7 +67,7 @@ export function Counter({
   scrollTrigger = false,
   scrollTriggerOptions: _scrollTriggerOptions,
 }: CounterProps) {
-  const elementRef = useRef<Element>(null);
+  const elementRef = useRef<HTMLElement>(null);
   const [isVisible, setIsVisible] = useState(!scrollTrigger);
   const [displayValue, setDisplayValue] = useState(start);
   const hasAnimatedRef = useRef(false);
@@ -183,7 +183,7 @@ export function Counter({
 
   return (
     <Tag
-      ref={elementRef as React.Ref<HTMLElement>}
+      ref={elementRef as unknown as React.Ref<HTMLDivElement>}
       className={className}
       aria-live="polite"
       aria-atomic="true">

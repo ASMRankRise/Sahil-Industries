@@ -2,12 +2,14 @@
 
 import type { Variants } from "framer-motion";
 
+export type VariantsMap = Record<string, any>;
+
 /**
  * Shared Framer Motion variants for consistent animations across the site.
  * All variants respect prefers-reduced-motion via the Reveal component.
  */
 
-export const variants: Record<string, Variants> = {
+export const variants: VariantsMap = {
   // Page/Section entrance - main content reveal
   pageEnter: {
     initial: { opacity: 0, y: 30 },
@@ -256,7 +258,7 @@ export function createStaggerVariant(
     animate: {
       ...baseVariant.animate,
       transition: {
-        ...(baseVariant.animate?.transition as object),
+        ...(((baseVariant.animate as any)?.transition as object) ?? {}),
         staggerChildren,
         delayChildren,
       },

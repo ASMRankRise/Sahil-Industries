@@ -47,9 +47,9 @@ export function Reveal({
 
   if (prefersReduced) {
     return (
-      <div className={className} style={style} {...props}>
+      <motion.div className={className} style={style} {...props}>
         {children}
-      </div>
+      </motion.div>
     );
   }
 
@@ -99,9 +99,9 @@ export function RevealGroup({
 
   if (prefersReduced) {
     return (
-      <div className={className} {...props}>
+      <motion.div className={className} {...props}>
         {children}
-      </div>
+      </motion.div>
     );
   }
 
@@ -149,9 +149,9 @@ export function RevealItem({
 
   if (prefersReduced) {
     return (
-      <div className={className} {...props}>
+      <motion.div className={className} {...props}>
         {children}
-      </div>
+      </motion.div>
     );
   }
 

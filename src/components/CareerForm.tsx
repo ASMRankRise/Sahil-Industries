@@ -828,7 +828,7 @@ function CareerField({ name, label, type, placeholder, icon: Icon, required, aut
     <div className="form-group space-y-1.5">
       <label htmlFor={name} className="block text-xs font-bold uppercase tracking-industrial text-ink flex items-center gap-1">
         {label} {required && <span className="text-safety">*</span>}
-        {isValidating && <Loader2 className="w-3 h-3 text-safety animate-spin" title="Validating..." />}
+        {isValidating && <Loader2 className="w-3 h-3 text-safety animate-spin" aria-label="Validating..." />}
       </label>
       <div className="relative">
         <div className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 transition-colors">
@@ -898,6 +898,7 @@ interface CareerTextareaFieldProps {
   fieldState: CareerFieldStateType;
   isSubmitting: boolean;
   maxLength: number;
+  rows?: number;
 }
 
 function CareerTextareaField({ name, label, placeholder, required, value, onChange, onBlur, fieldState, isSubmitting, maxLength, rows = 3 }: CareerTextareaFieldProps) {

@@ -94,8 +94,10 @@ interface ParallaxLayerProps {
   zIndex?: number;
   /** Additional CSS classes */
   className?: string;
+  /** Style overrides */
+  style?: React.CSSProperties;
   /** Children to render */
-  children: React.ReactNode;
+  children?: React.ReactNode;
 }
 
 // Standardized constants for ParallaxLayer
@@ -116,6 +118,7 @@ export function ParallaxLayer({
   zIndex = PARALLAX_LAYER_DEFAULT_Z_INDEX,
   children,
   className = "",
+  style = {},
 }: ParallaxLayerProps) {
   const elementRef = useRef<HTMLDivElement>(null);
   const parallaxRef = useRef<ReturnType<typeof createParallax> | null>(null);
@@ -145,6 +148,8 @@ export function ParallaxLayer({
         opacity,
         transform: `translate3d(${xPercent}%, ${yPercent}%, 0) scale(${scale}) rotate(${rotate}deg)`,
         willChange: "transform, opacity",
+        ...style,
+        ...style,
       }}>
       {children}
     </div>

@@ -1,0 +1,18 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "sahil-industries-next",
+  "main": ".open-next/worker.js",
+  "compatibility_date": "2026-01-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "assets": {
+    "directory": ".open-next/assets",
+    "binding": "ASSETS"
+  },
+  "d1_databases": [
+    {
+      "binding": "GALLERY_DB",
+      "database_name": "sahil-industries-gallery",
+      "database_id": "f789289e-0d9e-49bf-9a3c-0c26e8389b95"
+    }
+  ]
+}

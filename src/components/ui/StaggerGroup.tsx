@@ -37,9 +37,9 @@ export function StaggerGroup({
 
   if (prefersReduced) {
     return (
-      <div className={className} {...props}>
+      <motion.div className={className} {...props}>
         {children}
-      </div>
+      </motion.div>
     );
   }
 
@@ -71,7 +71,7 @@ export function StaggerGroup({
 /**
  * StaggerItem - A child component for StaggerGroup with predefined variants.
  */
-interface StaggerItemProps extends HTMLMotionProps<"div"> {
+interface StaggerItemProps extends Omit<HTMLMotionProps<"div">, "style"> {
   /** Predefined animation style */
   style?:
     | "fadeUp"
@@ -164,9 +164,9 @@ export function StaggerItem({
 
   if (prefersReduced) {
     return (
-      <div className={className} {...props}>
+      <motion.div className={className} {...props}>
         {children}
-      </div>
+      </motion.div>
     );
   }
 

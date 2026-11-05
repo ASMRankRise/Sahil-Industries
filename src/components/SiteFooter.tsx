@@ -163,7 +163,6 @@ export function SiteFooter() {
                 key={item.href}
                 className={LINK_STYLE}
                 whileHover={{ x: 4 }}
-                transition={{ duration: 0.15 }}
                 initial={{ opacity: 0, x: -10 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: index * 0.05, duration: 0.3 }}>
@@ -183,7 +182,6 @@ export function SiteFooter() {
                 key={item.href}
                 className={LINK_STYLE}
                 whileHover={{ x: 4 }}
-                transition={{ duration: 0.15 }}
                 initial={{ opacity: 0, x: -10 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: index * 0.05, duration: 0.3 }}>
