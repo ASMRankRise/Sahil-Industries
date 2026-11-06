@@ -12,7 +12,7 @@
   "d1_databases": [
     {
       "binding": "GALLERY_DB",
-      "database_name": "sahil-industries-gallery",
+      "database_name": "sahil-industries-db",
       "database_id": "f789289e-0d9e-49bf-9a3c-0c26e8389b95"
     }
   ]

@@ -10,8 +10,8 @@
     "cf:build": "opennextjs-cloudflare build",
     "cf:preview": "npm run cf:build && wrangler dev",
     "cf:deploy": "npm run cf:build && wrangler deploy",
-    "cf:d1:migrations": "wrangler d1 migrations apply GALLERY_DB --local",
-    "cf:d1:migrations:remote": "wrangler d1 migrations apply GALLERY_DB --remote"
+    "cf:d1:migrations": "wrangler d1 migrations apply sahil-industries-db --local",
+    "cf:d1:migrations:remote": "wrangler d1 migrations apply sahil-industries-db --remote"
   },
   "keywords": [],
   "author": "",
