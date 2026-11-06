@@ -165,18 +165,18 @@ export function AdminDashboardLayout({ children, activeNav, pageTitle, pageDescr
         {/* Sidebar Footer */}
         <div className="p-4 border-t border-white/10 flex-shrink-0 space-y-2">
           <button
-            onClick={async () => {
-              await logout();
-              router.replace("/admin");
-              router.refresh();
-            }}
+            onClick={() => {}}
             className="flex w-full items-center gap-3 px-3 py-2.5 text-sm font-medium text-slate-400 rounded-xl hover:bg-white/5 hover:text-white transition-colors group"
           >
             <User size={17} className="group-hover:text-blue-400 transition-colors" />
             <span>Profile</span>
           </button>
           <button
-            onClick={() => {}}
+            onClick={async () => {
+              await logout();
+              router.replace("/admin");
+              router.refresh();
+            }}
             className="flex w-full items-center gap-3 px-3 py-2.5 text-sm font-medium text-slate-400 rounded-xl hover:bg-white/5 hover:text-white transition-colors group"
           >
             <LogOut size={17} className="group-hover:text-red-400 transition-colors" />

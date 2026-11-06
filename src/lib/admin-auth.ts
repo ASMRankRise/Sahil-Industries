@@ -8,6 +8,7 @@ type DB = {
   prepare: (sql: string) => {
     bind: (...values: string[]) => {
       first: <T>() => Promise<T | null>;
+      all: <T>() => Promise<{ results: T[] }>;
       run: () => Promise<unknown>;
     };
   };

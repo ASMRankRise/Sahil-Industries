@@ -781,7 +781,7 @@ export default function AdminDashboard() {
                 { src: "home/about-01.jpg", title: "Electric Wire Hoist Assembly", desc: "Testing and assembly line" },
               ].map((img, i) => (
                 <div
-                  key={img.src}
+                  key={`${img.src}-${i}`}
                   className="relative rounded-xl overflow-hidden border border-white/10 bg-black/20 aspect-[16/10] group"
                 >
                   <img
