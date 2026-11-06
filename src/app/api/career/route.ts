@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import nodemailer from 'nodemailer';
+import { getMailConfig, getResend } from '@/lib/resend';
 
 export async function POST(request: NextRequest) {
   try {
@@ -65,20 +65,6 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Create transporter using nodemailer (same as contact form)
-    const transporter = nodemailer.createTransport({
-      host: process.env.SMTP_HOST || 'smtp.gmail.com',
-      port: parseInt(process.env.SMTP_PORT || '587'),
-      secure: process.env.SMTP_SECURE === 'true',
-      auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS,
-      },
-    });
-
-    // Verify transporter
-    await transporter.verify();
-
     // Prepare email content
     const htmlContent = `
       <!DOCTYPE html>
@@ -125,8 +111,8 @@ export async function POST(request: NextRequest) {
 
     // Send email to admin
     const mailOptions: any = {
-      from: `"Sahil Industries Website" <${process.env.SMTP_USER}>`,
-      to: process.env.CONTACT_EMAIL || 'sahilcranes@gmail.com',
+      from: getMailConfig().from,
+      to: getMailConfig().to,
       subject: `New Career Application: ${fullname}`,
       html: htmlContent,
       replyTo: email,
@@ -142,11 +128,11 @@ export async function POST(request: NextRequest) {
       }];
     }
 
-    await transporter.sendMail(mailOptions);
+    await getResend().emails.send(mailOptions);
 
     // Send confirmation email to applicant
-    await transporter.sendMail({
-      from: `"Sahil Industries" <${process.env.SMTP_USER}>`,
+    await getResend().emails.send({
+      from: getMailConfig().from,
       to: email,
       subject: 'Thank you for your application - Sahil Industries',
       html: `
@@ -194,3 +180,4 @@ export async function POST(request: NextRequest) {
     );
   }
 }
+

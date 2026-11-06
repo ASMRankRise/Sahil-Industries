@@ -40,3 +40,15 @@ npm run cf:deploy
 
 The deployed URL is printed by `wrangler deploy`. Keep credentials in Wrangler's
 local authentication store; do not commit API tokens or `.env` files.
+
+## Resend email configuration
+
+Set the Resend API key as a Cloudflare secret; never commit it to `.env` files:
+
+```powershell
+npx wrangler secret put RESEND_API_KEY
+npx wrangler secret put RESEND_FROM_EMAIL
+```
+
+Use a verified sender for `RESEND_FROM_EMAIL`, then redeploy with
+`npm run cf:deploy`.
