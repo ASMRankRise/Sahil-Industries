@@ -778,7 +778,7 @@ export default function AdminDashboard() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {[
                 { src: "home/about-01.jpg", title: "Heavy EOT Crane Fabrication", desc: "Main manufacturing facility bay" },
-                { src: "home/about-02.jpg", title: "Electric Wire Hoist Assembly", desc: "Testing and assembly line" },
+                { src: "home/about-01.jpg", title: "Electric Wire Hoist Assembly", desc: "Testing and assembly line" },
               ].map((img, i) => (
                 <div
                   key={img.src}

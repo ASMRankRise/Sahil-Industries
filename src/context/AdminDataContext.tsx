@@ -150,11 +150,11 @@ interface AdminDataContextType {
   settings: Record<string, string>;
   updateSettings: (settings: Record<string, string>) => void;
   
-  // Auth (simulated login)
+  // Auth (server session; credentials never persist in the browser)
   isAuthenticated: boolean;
   user: { name: string; email: string } | null;
   login: (credentials: { email: string; password: string }) => Promise<void>;
-  logout: () => void;
+  logout: () => Promise<void>;
   
   // Loading states
   loading: boolean;
@@ -389,108 +389,72 @@ const initialGalleryImages: GalleryImage[] = [
 const AdminDataContext = createContext<AdminDataContextType | undefined>(undefined);
 
 export function AdminDataProvider({ children }: { children: ReactNode }) {
-  const [customers, setCustomers] = useState<Customer[]>(() => {
-    if (typeof window !== "undefined") {
-      const stored = localStorage.getItem("admin_customers");
-      if (stored) return JSON.parse(stored);
-    }
-    return initialCustomers;
-  });
+  const [customers, setCustomers] = useState<Customer[]>(initialCustomers);
   
-  const [products, setProducts] = useState<Product[]>(() => {
-    if (typeof window !== "undefined") {
-      const stored = localStorage.getItem("admin_products");
-      if (stored) return JSON.parse(stored);
-    }
-    return initialProducts;
-  });
+  const [products, setProducts] = useState<Product[]>(initialProducts);
   
-  const [orders, setOrders] = useState<Order[]>(() => {
-    if (typeof window !== "undefined") {
-      const stored = localStorage.getItem("admin_orders");
-      if (stored) return JSON.parse(stored);
-    }
-    return initialOrders;
-  });
+  const [orders, setOrders] = useState<Order[]>(initialOrders);
   
-  const [enquiries, setEnquiries] = useState<Enquiry[]>(() => {
-    if (typeof window !== "undefined") {
-      const stored = localStorage.getItem("admin_enquiries");
-      if (stored) return JSON.parse(stored);
-    }
-    return initialEnquiries;
-  });
+  const [enquiries, setEnquiries] = useState<Enquiry[]>(initialEnquiries);
   
   const [analytics] = useState<AnalyticsData>(initialAnalytics);
-  const [settings, setSettings] = useState<Record<string, string>>(() => {
-    if (typeof window !== "undefined") {
-      const stored = localStorage.getItem("admin_settings");
-      if (stored) return JSON.parse(stored);
-    }
-    return initialSettings;
-  });
+  const [settings, setSettings] = useState<Record<string, string>>(initialSettings);
   
-    const [galleryImages, setGalleryImages] = useState<GalleryImage[]>(() => {
-      if (typeof window !== "undefined") {
-        const stored = localStorage.getItem("admin_gallery_images");
-        if (stored) return JSON.parse(stored);
-      }
-      return initialGalleryImages;
-    });
+    const [galleryImages, setGalleryImages] = useState<GalleryImage[]>(initialGalleryImages);
   
-    const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [storageReady, setStorageReady] = useState(false);
 
-  // Auth state (simulated login — persisted in localStorage)
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
-    if (typeof window !== "undefined") {
-      const stored = localStorage.getItem("admin_auth");
-      if (stored) {
-        try { return JSON.parse(stored).isAuthenticated === true; } catch { return false; }
-      }
-    }
-    return false;
-  });
-  const [user, setUser] = useState<{ name: string; email: string } | null>(() => {
-    if (typeof window !== "undefined") {
-      const stored = localStorage.getItem("admin_auth");
-      if (stored) {
-        try { return JSON.parse(stored).user ?? null; } catch { return null; }
-      }
-    }
-    return null;
-  });
-
-  const SIMULATED_CREDENTIALS = {
-    email: "admin@sahilcranes.in",
-    password: "admin123",
-  };
-
-  const login = useCallback(async (credentials: { email: string; password: string }) => {
-    // Simulate network request
-    await new Promise(resolve => setTimeout(resolve, 800));
-    if (credentials.email === SIMULATED_CREDENTIALS.email && credentials.password === SIMULATED_CREDENTIALS.password) {
-      const authUser = { name: "Admin User", email: credentials.email };
-      setUser(authUser);
-      setIsAuthenticated(true);
-      localStorage.setItem("admin_auth", JSON.stringify({ isAuthenticated: true, user: authUser }));
-    } else {
-      throw new Error("Invalid email or password");
-    }
+  // Read browser-only data after hydration so the server and first client
+  // render always produce identical markup.
+  useEffect(() => {
+    const read = <T,>(key: string, fallback: T): T => {
+      try { return JSON.parse(localStorage.getItem(key) || "null") ?? fallback; } catch { return fallback; }
+    };
+    setCustomers(read("admin_customers", initialCustomers));
+    setProducts(read("admin_products", initialProducts));
+    setOrders(read("admin_orders", initialOrders));
+    setEnquiries(read("admin_enquiries", initialEnquiries));
+    setSettings(read("admin_settings", initialSettings));
+    setGalleryImages(read("admin_gallery_images", initialGalleryImages));
+    setStorageReady(true);
   }, []);
 
-  const logout = useCallback(() => {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [user, setUser] = useState<{ name: string; email: string } | null>(null);
+
+  useEffect(() => {
+    fetch("/api/auth/session").then(async (response) => {
+      if (!response.ok) return;
+      const data = await response.json();
+      if (data.authenticated) {
+        setUser(data.user);
+        setIsAuthenticated(true);
+      }
+    }).catch(() => undefined).finally(() => setLoading(false));
+  }, []);
+
+  const login = useCallback(async (credentials: { email: string; password: string }) => {
+    const response = await fetch("/api/auth/login", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(credentials) });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error || "Invalid email or password");
+    setUser(data.user);
+    setIsAuthenticated(true);
+  }, []);
+
+  const logout = useCallback(async () => {
+    await fetch("/api/auth/logout", { method: "POST" });
     setUser(null);
     setIsAuthenticated(false);
-    localStorage.removeItem("admin_auth");
   }, []);
 
   // Persist to localStorage
-  useEffect(() => { localStorage.setItem("admin_customers", JSON.stringify(customers)); }, [customers]);
-  useEffect(() => { localStorage.setItem("admin_products", JSON.stringify(products)); }, [products]);
-  useEffect(() => { localStorage.setItem("admin_orders", JSON.stringify(orders)); }, [orders]);
-  useEffect(() => { localStorage.setItem("admin_enquiries", JSON.stringify(enquiries)); }, [enquiries]);
-  useEffect(() => { localStorage.setItem("admin_settings", JSON.stringify(settings)); }, [settings]);
-    useEffect(() => { localStorage.setItem("admin_gallery_images", JSON.stringify(galleryImages)); }, [galleryImages]);
+  useEffect(() => { if (storageReady) localStorage.setItem("admin_customers", JSON.stringify(customers)); }, [customers, storageReady]);
+  useEffect(() => { if (storageReady) localStorage.setItem("admin_products", JSON.stringify(products)); }, [products, storageReady]);
+  useEffect(() => { if (storageReady) localStorage.setItem("admin_orders", JSON.stringify(orders)); }, [orders, storageReady]);
+  useEffect(() => { if (storageReady) localStorage.setItem("admin_enquiries", JSON.stringify(enquiries)); }, [enquiries, storageReady]);
+  useEffect(() => { if (storageReady) localStorage.setItem("admin_settings", JSON.stringify(settings)); }, [settings, storageReady]);
+  useEffect(() => { if (storageReady) localStorage.setItem("admin_gallery_images", JSON.stringify(galleryImages)); }, [galleryImages, storageReady]);
 
   // Customer CRUD
   const addCustomer = useCallback((customer: Omit<Customer, "id">) => {
