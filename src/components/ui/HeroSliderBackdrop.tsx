@@ -1,7 +1,8 @@
 'use client';
 
-import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
+import { AnimatePresence, motion, useMotionValue, useReducedMotion, useSpring } from 'framer-motion';
 import { useEffect, useState } from 'react';
+import type { PointerEvent } from 'react';
 
 // Standardized constants for HeroSliderBackdrop
 const SLIDES = ['/media/slider/slider-01.jpg', '/media/slider/slider-02.jpg'];
@@ -22,6 +23,14 @@ const DOT_INACTIVE = "bg-transparent";
 export function HeroSliderBackdrop() {
   const [active, setActive] = useState(0);
   const reducedMotion = useReducedMotion();
+  const pointerX = useSpring(useMotionValue(0), { stiffness: 45, damping: 20 });
+  const pointerY = useSpring(useMotionValue(0), { stiffness: 45, damping: 20 });
+  const handlePointerMove = (event: PointerEvent<HTMLDivElement>) => {
+    if (reducedMotion || event.pointerType === 'touch') return;
+    const bounds = event.currentTarget.getBoundingClientRect();
+    pointerX.set(((event.clientX - bounds.left) / bounds.width - 0.5) * -10);
+    pointerY.set(((event.clientY - bounds.top) / bounds.height - 0.5) * -6);
+  };
   
   useEffect(() => {
     if (reducedMotion) return;
@@ -31,13 +40,13 @@ export function HeroSliderBackdrop() {
 
   return (
     <>
-      <div className="absolute inset-0" aria-hidden="true">
+      <div className="absolute inset-0" aria-hidden="true" onPointerMove={handlePointerMove} onPointerLeave={() => { pointerX.set(0); pointerY.set(0); }}>
         <AnimatePresence initial={false}>
           {SLIDES.map((src, index) => index === active && (
             <motion.div
               key={src}
               className={SLIDE_CLASS}
-              style={{ backgroundImage: `url(${src})` }}
+              style={{ backgroundImage: `url(${src})`, x: pointerX, y: pointerY }}
               initial={SLIDE_INITIAL}
               animate={SLIDE_ANIMATE}
               exit={SLIDE_EXIT}

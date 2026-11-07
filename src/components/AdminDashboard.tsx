@@ -50,7 +50,6 @@ const asset = (path: string) => `/sahilcrane/${path}`;
 const navItems = [
   { label: "Dashboard", href: "/admin", icon: LayoutDashboard },
   { label: "Enquiries", href: "/admin/enquiries", icon: Mail, badge: 8 },
-  { label: "Customers", href: "/admin/customers", icon: Users },
   { label: "Gallery", href: "/admin/gallery", icon: Image },
   { label: "Analytics", href: "/admin/analytics", icon: BarChart3 },
 ];
@@ -778,10 +777,10 @@ export default function AdminDashboard() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {[
                 { src: "home/about-01.jpg", title: "Heavy EOT Crane Fabrication", desc: "Main manufacturing facility bay" },
-                { src: "home/about-02.jpg", title: "Electric Wire Hoist Assembly", desc: "Testing and assembly line" },
+                { src: "home/about-01.jpg", title: "Electric Wire Hoist Assembly", desc: "Testing and assembly line" },
               ].map((img, i) => (
                 <div
-                  key={img.src}
+                  key={`${img.src}-${i}`}
                   className="relative rounded-xl overflow-hidden border border-white/10 bg-black/20 aspect-[16/10] group"
                 >
                   <img

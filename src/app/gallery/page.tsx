@@ -101,7 +101,7 @@ const galleryImages = [
   },
   {
     id: 9,
-    src: "/sahilcrane/home/about-02.jpg",
+    src: "/sahilcrane/home/about-01.jpg",
     alt: "Production Assembly Line",
     title: "Production Assembly Line",
     category: "facility",

@@ -121,12 +121,9 @@ export default function AdminLogin() {
             </button>
           </form>
 
-          <div className="mt-8 pt-6 border-t border-white/10 flex items-center justify-center text-xs text-slate-500">
-            <span className="mr-2">Demo credentials</span>
-            <span className="text-safety font-mono text-[11px]">admin@sahilcranes.in</span>
-            <span className="ml-2 text-slate-500">/</span>
-            <span className="ml-2 text-safety font-mono text-[11px]">admin123</span>
-          </div>
+          <p className="mt-8 pt-6 border-t border-white/10 text-center text-xs text-slate-500">
+            Use an administrator account provisioned by your deployment administrator.
+          </p>
         </div>
 
         <p className="mt-6 text-center text-[11px] text-slate-500">

@@ -13,8 +13,8 @@ const MotionLink = motion(Link);
 
 // Standardized spacing constants for footer
 const FOOTER_GRID_COLS = "grid-cols-[1.15fr_.75fr_1fr_1.4fr]";
-const FOOTER_GAP = "gap-12";
-const FOOTER_PY = "py-20";
+const FOOTER_GAP = "gap-x-10 gap-y-12 max-md:gap-y-10";
+const FOOTER_PY = "py-20 max-md:py-14";
 const FOOTER_MAX_WIDTH = "w-[min(1240px,calc(100%-64px))]";
 const FOOTER_MD_GRID = "max-md:grid-cols-2";
 const FOOTER_SM_WIDTH = "max-sm:w-[calc(100%-36px)]";
@@ -24,8 +24,8 @@ const LINK_STYLE = "block py-1.5 text-sm text-slate-300 transition-colors hover:
 const ICON_SIZE = 17;
 const SOCIAL_ICON_SIZE = 17;
 const CONTACT_ICON_SIZE = 17;
-const COPYRIGHT_PY = "py-5";
-const COPYRIGHT_TEXT = "text-center text-xs text-slate-500";
+const COPYRIGHT_PY = "py-5 max-md:px-5 max-md:py-4";
+const COPYRIGHT_TEXT = "text-center text-xs leading-5 text-slate-500";
 
 export function SiteFooter() {
   const prefersReduced = useReducedMotion();
@@ -38,7 +38,7 @@ export function SiteFooter() {
 
   if (prefersReduced) {
     return (
-      <footer className="bg-[#0c131a] text-slate-300">
+       <footer className="bg-[#0c131a] bg-cover bg-center text-slate-300" style={{ backgroundImage: "linear-gradient(rgba(6,10,14,.58), rgba(6,10,14,.72)), url('/media/theme-images/footer/footer-style3-bg.jpg')" }}>
         <div className={`mx-auto grid ${FOOTER_MAX_WIDTH} ${FOOTER_GRID_COLS} ${FOOTER_GAP} ${FOOTER_PY} ${FOOTER_MD_GRID} ${FOOTER_SM_WIDTH} ${FOOTER_SM_GRID}`}>
           <div>
             <Image
@@ -111,7 +111,7 @@ export function SiteFooter() {
   }
 
   return (
-    <footer className="bg-[#0c131a] text-slate-300">
+     <footer className="bg-[#0c131a] bg-cover bg-center text-slate-300" style={{ backgroundImage: "linear-gradient(rgba(6,10,14,.58), rgba(6,10,14,.72)), url('/media/theme-images/footer/footer-style3-bg.jpg')" }}>
       <RevealGroup
         staggerChildren={0.1}
         delayChildren={0.1}
