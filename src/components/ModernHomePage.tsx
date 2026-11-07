@@ -26,6 +26,7 @@ import { reasonsToChoose } from "@/data/about";
 import { clientLogos, homeProducts, industries } from "@/data/home";
 import { siteContact } from "@/data/site";
 import { useReducedMotion } from "@/components/animations/hooks/useReducedMotion";
+import { WhySahilTimeline } from "@/components/WhySahilTimeline";
 
 // Standardized spacing constants for ModernHomePage
 const asset = (path: string) => `/sahilcrane/${path}`;
@@ -111,12 +112,12 @@ const productTileLayout = (index: number) => [
   "max-lg:col-span-1 max-md:col-span-1",
   "max-lg:col-span-1 max-md:col-span-1",
 ][index] ?? "max-md:col-span-1";
-const WHY_CHOOSE_GRID = "grid grid-cols-3 gap-4 max-md:grid-cols-1";
-const WHY_CHOOSE_CARD_H = "min-h-[265px]";
-const WHY_CHOOSE_CARD_PADDING = "p-7";
+const WHY_CHOOSE_GRID = "grid grid-cols-3 gap-5 max-md:grid-cols-1";
+const WHY_CHOOSE_CARD_H = "min-h-[285px]";
+const WHY_CHOOSE_CARD_PADDING = "p-9";
 const WHY_CHOOSE_NUMBER_STYLE = "text-xs font-extrabold tracking-[.18em] text-safety";
 const WHY_CHOOSE_TITLE = "mb-3 mt-8 text-xl font-bold tracking-[-.02em]";
-const WHY_CHOOSE_COPY = "m-0 max-w-[300px] text-sm leading-6 text-slate-300";
+const WHY_CHOOSE_COPY = "m-0 max-w-[300px] text-sm leading-6 text-slate-600";
 const WHY_CHOOSE_ICONS = [Shield, Award, Users];
 const INDUSTRIES_CAROUSEL_MT = "mt-8";
 const CLIENTS_GRID = "grid grid-cols-6 gap-px border border-ink/15 bg-ink/15 max-lg:grid-cols-4 max-md:grid-cols-3";
@@ -658,46 +659,7 @@ export default function ModernHomePage() {
         </div>
       </section>
 
-                        <section className={`bg-ink ${SECTION_PY_DESKTOP} text-white ${SECTION_PY_MD}`}>
-                          <div className={`mx-auto ${CONTAINER_MAX_WIDTH} ${CONTAINER_MAX_WIDTH_MD}`}>
-                            <RevealGroup staggerChildren={REVEAL_GROUP_STAGGER} delayChildren={REVEAL_GROUP_DELAY}>
-            <RevealItem variant="quickEnter">
-              <Heading
-                eyebrow="Why Sahil"
-                title="Built around operational confidence."
-              />
-            </RevealItem>
-            <RevealItem variant="quickEnter">
-              <RevealGroup
-                staggerChildren={0.08}
-                delayChildren={0.1}
-                                                className={`${WHY_CHOOSE_GRID} stagger-grid`}>
-                {reasonsToChoose.map(([title, copy], index) => (
-                  <RevealItem key={title} variant="itemReveal">
-                    <motion.article
-                                        className={`group relative ${WHY_CHOOSE_CARD_H} overflow-hidden rounded-xl border border-white/10 bg-white/[0.04] ${WHY_CHOOSE_CARD_PADDING} transition-colors duration-300 hover:border-safety/60 hover:bg-white/[0.08]`}
-                      whileHover={{ y: -6 }}
-                      transition={{ duration: 0.2 }}>
-                      <div className="flex items-start justify-between">
-                        <span className="flex h-11 w-11 items-center justify-center rounded-lg bg-safety text-ink transition-transform duration-300 group-hover:scale-110">
-                          {(() => { const Icon = WHY_CHOOSE_ICONS[index % WHY_CHOOSE_ICONS.length]; return <Icon size={21} />; })()}
-                        </span>
-                      </div>
-                                        <h3 className={WHY_CHOOSE_TITLE}>{title}</h3>
-                                        <p className={WHY_CHOOSE_COPY}>
-                        {copy}
-                      </p>
-                      <ArrowRight className="absolute bottom-7 right-7 text-safety transition-transform duration-300 group-hover:translate-x-2" size={19} />
-                    </motion.article>
-                  </RevealItem>
-                ))}
-              </RevealGroup>
-            </RevealItem>
-          </RevealGroup>
-        </div>
-      </section>
-
-                        <section className={`${SECTION_PY_DESKTOP} ${SECTION_PY_MD}`}>
+                        <WhySahilTimeline /><section className={`${SECTION_PY_DESKTOP} ${SECTION_PY_MD}`}>
                           <div className={`mx-auto ${CONTAINER_MAX_WIDTH} ${CONTAINER_MAX_WIDTH_MD}`}>
                             <RevealGroup staggerChildren={REVEAL_GROUP_STAGGER} delayChildren={REVEAL_GROUP_DELAY}>
             <RevealItem variant="quickEnter">
@@ -834,3 +796,4 @@ export default function ModernHomePage() {
     </main>
   );
 }
+

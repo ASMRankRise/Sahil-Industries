@@ -50,7 +50,6 @@ const asset = (path: string) => `/sahilcrane/${path}`;
 const navItems = [
   { label: "Dashboard", href: "/admin", icon: LayoutDashboard },
   { label: "Enquiries", href: "/admin/enquiries", icon: Mail, badge: 8 },
-  { label: "Customers", href: "/admin/customers", icon: Users },
   { label: "Gallery", href: "/admin/gallery", icon: Image },
   { label: "Analytics", href: "/admin/analytics", icon: BarChart3 },
 ];
