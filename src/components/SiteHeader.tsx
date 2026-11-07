@@ -74,14 +74,22 @@ export function SiteHeader() {
               href="/"
               className="flex items-center bg-safety px-[34px] [clip-path:polygon(0_0,100%_0,88%_100%,0_100%)] max-md:bg-transparent max-md:px-0 max-md:[clip-path:none] transition-transform duration-300"
               aria-label="Sahil Industries - Home">
-              <Image
-                src="/media/logo/logo.png"
-                alt="Sahil Industries"
-                width={183}
-                height={72}
-                priority
-                className="h-auto w-[164px] max-md:w-[148px]"
-              />
+               <Image
+                 src="/media/logo/logo.png"
+                 alt="Sahil Industries"
+                 width={183}
+                 height={72}
+                 priority
+                 className="h-auto w-[164px] max-md:hidden"
+               />
+               <Image
+                 src="/media/logo/logo-footer.png"
+                 alt="Sahil Industries"
+                 width={183}
+                 height={72}
+                 priority
+                 className="hidden h-auto w-[148px] max-md:block"
+               />
             </Link>
           </MagneticElement>
 
@@ -272,7 +280,7 @@ export function SiteHeader() {
                   href={item.href}
                   onClick={() => setMenuOpen(false)}
                   key={item.href}
-                   className={`border-b border-white/10 py-3 text-sm font-bold uppercase tracking-industrial${pathname === item.href ? " !text-safety" : " text-white"}`}
+                    className={`block w-full border-b border-white/10 py-3 text-sm font-bold uppercase tracking-industrial${pathname === item.href ? " !text-safety" : " text-white"}`}
                   whileHover={{ x: 8, color: "#F6C515" }}
                   whileTap={{ scale: 0.98 }}
                   transition={{ delay: index * 0.05, duration: 0.2 }}>
@@ -327,7 +335,7 @@ export function SiteHeader() {
                       href={item.href}
                       onClick={() => setMenuOpen(false)}
                       key={item.href}
-                      className="text-sm text-slate-300"
+                       className="block w-full text-sm text-slate-300"
                       whileHover={{ x: 4, color: "#F6C515" }}
                       whileTap={{ scale: 0.98 }}
                       initial={{ opacity: 0, x: -10 }}
