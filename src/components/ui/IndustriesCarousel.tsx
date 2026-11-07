@@ -19,7 +19,7 @@ const CAROUSEL_BREAKPOINTS = {
   1280: { slidesPerView: 4 },
 };
 const CARD_MIN_H = "h-[280px] max-md:h-[250px]";
-const CARD_IMG_TRANSITION = "transition duration-500 group-hover:scale-105 group-hover:opacity-90";
+const CARD_IMG_TRANSITION = "object-center transition duration-500 group-hover:scale-[1.02] group-hover:opacity-90";
 const CARD_GRADIENT = "absolute inset-0 bg-gradient-to-t from-ink/90 via-ink/10 to-transparent";
 const CARD_TITLE = "absolute bottom-4 left-4 z-10 max-w-[150px] text-sm font-bold leading-5";
 const CONTROLS_MT = "mt-8";
@@ -65,7 +65,7 @@ export function IndustriesCarousel() {
      />
      <div className={`flex items-center justify-between border-t border-ink/10 pt-5 ${CONTROLS_MT}`}>
       <div className="industries-pagination !static !w-auto" />
-      <div className={`flex ${CONTROLS_GAP}`}>
+       <div className={`mr-6 flex ${CONTROLS_GAP}`}>
          <button
            type="button"
            onClick={() => carousel.current?.slidePrev()}

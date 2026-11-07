@@ -29,6 +29,8 @@ import { useReducedMotion } from "@/components/animations/hooks/useReducedMotion
 
 // Standardized spacing constants for ModernHomePage
 const asset = (path: string) => `/sahilcrane/${path}`;
+const HERO_TYPED_LINE = "Built for industry.";
+const HERO_TYPED_FIRST_LINE = "Precision lifting.";
 
 const CONTAINER_MAX_WIDTH = "w-[min(1240px,calc(100%-64px))]";
 const CONTAINER_MAX_WIDTH_MD = "max-md:w-[calc(100%-36px)]";
@@ -74,7 +76,7 @@ const STATS_LABEL_STYLE = "text-[10px] uppercase tracking-industrial text-slate-
 const HIGHLIGHTS_PY = "py-6";
 const HIGHLIGHTS_PY_MD = "max-md:py-20";
 const HIGHLIGHTS_GRID = "grid grid-cols-3 gap-8 max-md:grid-cols-1 max-md:gap-6";
-const HIGHLIGHTS_CARD_PADDING = "relative flex min-h-[178px] flex-col justify-between overflow-hidden rounded-xl border border-ink/10 bg-white p-6 text-left shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-safety/60 hover:shadow-lg";
+const HIGHLIGHTS_CARD_PADDING = "relative flex min-h-[178px] flex-col items-center justify-between overflow-hidden rounded-xl border border-ink/10 bg-white p-6 text-center shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-safety/60 hover:shadow-lg";
 const HIGHLIGHTS_ICON_WRAPPER = "inline-flex h-12 w-12 items-center justify-center rounded-lg bg-safety/15 text-safety transition-colors duration-300 group-hover:bg-safety group-hover:text-ink";
 const HIGHLIGHTS_ICON_SIZE = "h-8 w-8";
 const HIGHLIGHTS_TITLE = "text-xl font-bold text-ink mb-2";
@@ -161,6 +163,47 @@ function Heading({
 
 export default function ModernHomePage() {
   const prefersReduced = useReducedMotion();
+  const [typedFirstCharacters, setTypedFirstCharacters] = useState(prefersReduced ? HERO_TYPED_FIRST_LINE.length : 0);
+  const [typedHeroCharacters, setTypedHeroCharacters] = useState(prefersReduced ? HERO_TYPED_LINE.length : 0);
+
+  useEffect(() => {
+    if (prefersReduced) {
+      setTypedFirstCharacters(HERO_TYPED_FIRST_LINE.length);
+      return;
+    }
+    setTypedFirstCharacters(0);
+    let count = 0;
+    const timer = window.setInterval(() => {
+      count += 1;
+      setTypedFirstCharacters(count);
+      if (count >= HERO_TYPED_FIRST_LINE.length) window.clearInterval(timer);
+    }, 65);
+    return () => window.clearInterval(timer);
+  }, [prefersReduced]);
+
+  useEffect(() => {
+    if (prefersReduced) {
+      setTypedHeroCharacters(HERO_TYPED_LINE.length);
+      return;
+    }
+    setTypedHeroCharacters(0);
+    let typingTimer: number | undefined;
+    const startTimer = window.setTimeout(() => {
+      typingTimer = window.setInterval(() => {
+        setTypedHeroCharacters((count) => {
+          if (count >= HERO_TYPED_LINE.length) {
+            if (typingTimer) window.clearInterval(typingTimer);
+            return count;
+          }
+          return count + 1;
+        });
+      }, 65);
+    }, HERO_TYPED_FIRST_LINE.length * 65 + 280);
+    return () => {
+      window.clearTimeout(startTimer);
+      if (typingTimer) window.clearInterval(typingTimer);
+    };
+  }, [prefersReduced]);
 
   // About section image animation controls for continuous hover loop
   const aboutControls1 = useAnimation();
@@ -226,85 +269,103 @@ export default function ModernHomePage() {
 
             {/* Headline with proper h1 and enhanced Framer Motion line-by-line animation */}
             <RevealItem variant="quickEnter">
-              <h1 className="m-0 max-w-[800px] text-[clamp(48px,6vw,88px)] font-bold leading-[.98] tracking-[-.065em]">
+               <h1 className="relative z-10 m-0 max-w-[800px] text-[clamp(48px,6vw,88px)] font-bold leading-[.98] tracking-[-.065em]">
                 <motion.div
-                  className="block"
+                     className="block overflow-hidden"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ duration: HERO_HEADLINE_DURATION, ease: [0.22, 1, 0.36, 1] }}>
                   <motion.span
-                    className="block"
-                    initial={{ opacity: 0, y: 40, filter: 'blur(8px)' }}
-                    animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-                    transition={{ duration: HERO_LINE_DURATION, ease: [0.22, 1, 0.36, 1] }}>
-                    Precision lifting.
+                     className="block overflow-hidden"
+                     initial={{ opacity: 0, y: 28, filter: 'blur(8px)', clipPath: 'inset(0 100% 0 0)' }}
+                     animate={{ opacity: 1, y: 0, filter: 'blur(0px)', clipPath: 'inset(0 0% 0 0)' }}
+                     transition={{ duration: HERO_LINE_DURATION, delay: 0.22, ease: [0.22, 1, 0.36, 1] }}>
+                     {HERO_TYPED_FIRST_LINE.slice(0, typedFirstCharacters)}
+                     {!prefersReduced && typedFirstCharacters < HERO_TYPED_FIRST_LINE.length && (
+                       <motion.span
+                         aria-hidden="true"
+                         className="ml-1 inline-block h-[.82em] w-[3px] translate-y-[.08em] bg-white"
+                         animate={{ opacity: [1, 0, 1] }}
+                         transition={{ duration: 0.8, repeat: Infinity }}
+                       />
+                     )}
                   </motion.span>
                   <motion.span
-                    className="block not-italic text-safety relative"
-                    initial={{ opacity: 0, y: 40, filter: 'blur(8px)' }}
-                    animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+                     className="relative block overflow-hidden not-italic text-safety"
+                     initial={{ opacity: 0, y: 28, filter: 'blur(8px)', clipPath: 'inset(0 100% 0 0)' }}
+                     animate={{ opacity: 1, y: 0, filter: 'blur(0px)', clipPath: 'inset(0 0% 0 0)' }}
                     transition={{ duration: HERO_LINE_DURATION, delay: HERO_LINE_DELAY, ease: [0.22, 1, 0.36, 1] }}>
-                    Built for industry.
-                    <motion.span
-                      className="absolute -bottom-1 left-0 right-0 h-1 bg-safety/30"
-                      initial={{ scaleX: 0 }}
-                      animate={{ scaleX: 1 }}
-                      transition={{ duration: HERO_UNDERLINE_DURATION, delay: HERO_UNDERLINE_DELAY, ease: [0.22, 1, 0.36, 1] }}
-                    />
-                  </motion.span>
-                </motion.div>
-              </h1>
-            </RevealItem>
+                     {HERO_TYPED_LINE.slice(0, typedHeroCharacters)}
+                     {!prefersReduced && typedHeroCharacters < HERO_TYPED_LINE.length && (
+                       <motion.span
+                         aria-hidden="true"
+                         className="ml-1 inline-block h-[.82em] w-[3px] translate-y-[.08em] bg-safety"
+                         animate={{ opacity: [1, 0, 1] }}
+                         transition={{ duration: 0.8, repeat: Infinity }}
+                       />
+                      )}
+                   </motion.span>
+                   </motion.div>
+               </h1>
+               <motion.div
+                 aria-hidden="true"
+                 className="mt-3 h-1 w-full max-w-[1024px] origin-left bg-safety/45 shadow-[0_0_12px_rgba(246,197,21,.22)]"
+                 initial={{ scaleX: 0, opacity: 0 }}
+                 animate={{ scaleX: 1, opacity: 1 }}
+                 transition={{ duration: HERO_UNDERLINE_DURATION, delay: 0.9, ease: [0.22, 1, 0.36, 1] }}
+               />
+             </RevealItem>
 
             {/* Description with enhanced animation */}
             <RevealItem variant="quickEnter">
               <motion.p
-                className="my-7 max-w-[520px] text-[17px] leading-7 text-slate-200 max-md:text-[15px]"
+                 className="relative z-10 mb-7 mt-9 max-w-[520px] text-[17px] leading-7 text-slate-200 max-md:mt-7 max-md:text-[15px]"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: HERO_DESC_DURATION, delay: HERO_DESC_DELAY, ease: [0.22, 1, 0.36, 1] }}>
+                 transition={{ duration: HERO_DESC_DURATION, delay: 0.68, ease: [0.22, 1, 0.36, 1] }}>
                 Manufacturing EOT cranes and hoists for dependable, safe
                 material movement across India.
               </motion.p>
             </RevealItem>
 
             {/* CTA Buttons with enhanced styling */}
-            <RevealItem variant="quickEnter">
+             <RevealItem variant="quickEnter">
               <div className={`flex flex-wrap ${HERO_CTA_GAP} ${HERO_CTA_MD}`}>
                 <MagneticLink
                   href="/enquiry"
                   strength={0.25}
                   area={80}
                   variant="primary"
-                  className="group inline-flex items-center justify-center gap-3 border border-safety bg-safety px-6 py-1 text-xs font-extrabold uppercase tracking-industrial text-ink shadow-lg shadow-safety/25 hover:shadow-xl hover:shadow-safety/40 transition-all duration-300">
-                  <span className="relative z-10">Request a consultation</span>
-                  <motion.div
-                    className="absolute inset-0 bg-safety/20"
-                    initial={{ scaleX: 0 }}
-                    whileHover={{ scaleX: 1 }}
-                    transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-                  />
-                  <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform duration-300" />
+                    className="group relative inline-flex items-center justify-center gap-3 overflow-hidden border border-safety bg-safety px-6 py-3 text-xs font-extrabold uppercase tracking-industrial text-ink shadow-lg shadow-safety/25 transition-all duration-300 before:pointer-events-none before:absolute before:inset-0 before:z-0 before:origin-left before:scale-x-0 before:bg-[rgba(255,255,255,0.42)] before:transition-transform before:duration-500 before:ease-[cubic-bezier(.22,1,.36,1)] hover:-translate-y-0.5 hover:before:scale-x-100 hover:shadow-xl hover:shadow-safety/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-safety focus-visible:ring-offset-2 focus-visible:ring-offset-ink">
+                   <span className="relative z-10">Request a consultation</span>
+                    <ArrowRight size={18} className="relative z-10 transition-transform duration-300 group-hover:translate-x-1" />
                 </MagneticLink>
                 <MagneticLink
                   href="/products/single-girder-eot-crane"
                   strength={0.15}
                   area={60}
                   variant="secondary"
-                  className="group inline-flex items-center justify-center gap-3 border border-white/60 bg-white/5 px-7 py-3 text-xs font-extrabold uppercase tracking-industrial text-white backdrop-blur-sm hover:bg-white/10 hover:border-white/80 transition-all duration-300">
-                  <span className="relative z-10">Explore products</span>
-                  <motion.div
-                    className="absolute inset-0 bg-white/10"
-                    initial={{ scaleX: 0 }}
-                    whileHover={{ scaleX: 1 }}
-                    transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-                  />
-                  <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform duration-300" />
+                    className="group relative inline-flex items-center justify-center gap-3 overflow-hidden border border-white/60 bg-white/5 px-7 py-3 text-xs font-extrabold uppercase tracking-industrial text-white backdrop-blur-sm transition-all duration-300 before:pointer-events-none before:absolute before:inset-0 before:z-0 before:origin-left before:scale-x-0 before:bg-safety before:transition-transform before:duration-500 before:ease-[cubic-bezier(.22,1,.36,1)] hover:-translate-y-0.5 hover:border-safety hover:before:scale-x-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-safety focus-visible:ring-offset-2 focus-visible:ring-offset-ink">
+                   <span className="relative z-10 transition-colors duration-300 group-hover:text-ink">Explore products</span>
+                   <ArrowRight size={18} className="relative z-10 transition-transform duration-300 group-hover:translate-x-1" />
                 </MagneticLink>
               </div>
             </RevealItem>
           </RevealGroup>
         </div>
+
+        <motion.div
+          className="absolute bottom-7 left-1/2 z-10 hidden -translate-x-1/2 flex-col items-center gap-2 text-[9px] font-bold uppercase tracking-[.24em] text-white/60 md:flex"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1.4, duration: 0.6 }}>
+          <span>Scroll to explore</span>
+          <motion.span
+            className="h-8 w-px bg-gradient-to-b from-safety to-transparent"
+            animate={prefersReduced ? undefined : { scaleY: [0.5, 1, 0.5], opacity: [0.5, 1, 0.5] }}
+            transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
+          />
+        </motion.div>
 
         {/* Enhanced Stats Bar - Animated Counters */}
         <div className={`absolute bottom-0 left-1/2 z-10 grid ${CONTAINER_MAX_WIDTH} -translate-x-1/2 ${STATS_GRID_COLS} ${STATS_GAP} ${STATS_BORDER} ${STATS_MD_BOTTOM} ${CONTAINER_MAX_WIDTH_MD} ${STATS_MD_GRID} ${STATS_MD_GAP}`}>
@@ -395,7 +456,6 @@ export default function ModernHomePage() {
             className={HIGHLIGHTS_GRID}>
             <RevealItem variant="itemReveal">
                <div className={`group ${HIGHLIGHTS_CARD_PADDING}`}>
-                 <span className="absolute right-5 top-5 text-[10px] font-extrabold tracking-[.2em] text-steel/60">01</span>
                 <div className={HIGHLIGHTS_ICON_WRAPPER}>
                   <Shield className={HIGHLIGHTS_ICON_SIZE} />
                 </div>
@@ -405,7 +465,6 @@ export default function ModernHomePage() {
             </RevealItem>
             <RevealItem variant="itemReveal">
                <div className={`group ${HIGHLIGHTS_CARD_PADDING}`}>
-                 <span className="absolute right-5 top-5 text-[10px] font-extrabold tracking-[.2em] text-steel/60">02</span>
                 <div className={HIGHLIGHTS_ICON_WRAPPER}>
                   <Award className={HIGHLIGHTS_ICON_SIZE} />
                 </div>
@@ -415,7 +474,6 @@ export default function ModernHomePage() {
             </RevealItem>
             <RevealItem variant="itemReveal">
                <div className={`group ${HIGHLIGHTS_CARD_PADDING}`}>
-                 <span className="absolute right-5 top-5 text-[10px] font-extrabold tracking-[.2em] text-steel/60">03</span>
                 <div className={HIGHLIGHTS_ICON_WRAPPER}>
                   <Users className={HIGHLIGHTS_ICON_SIZE} />
                 </div>
@@ -525,7 +583,7 @@ export default function ModernHomePage() {
                 strength={0.15}
                 area={50}
                 variant="ghost"
-                className="inline-flex items-center justify-center gap-2 px-4 py-3 border-b border-safety text-xs font-extrabold uppercase tracking-industrial">
+                 className="inline-flex items-center justify-center gap-2 border border-safety px-5 py-3 text-xs font-extrabold uppercase tracking-industrial transition-colors duration-300 hover:bg-safety hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-safety">
                 <span className="relative z-10">Discover our company</span>
                 <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform duration-300" />
               </MagneticLink>
@@ -590,7 +648,7 @@ export default function ModernHomePage() {
                   strength={0.15}
                   area={50}
                   variant="secondary"
-                  className="inline-flex items-center justify-center gap-2 bg-ink px-6 py-5 text-xs font-extrabold uppercase tracking-industrial text-white">
+                   className="group relative inline-flex items-center justify-center gap-2 overflow-hidden bg-ink px-6 py-5 text-xs font-extrabold uppercase tracking-industrial text-white before:pointer-events-none before:absolute before:inset-0 before:z-0 before:origin-left before:scale-x-0 before:bg-[rgba(246,197,21,0.9)] before:transition-transform before:duration-500 before:ease-[cubic-bezier(.22,1,.36,1)] hover:before:scale-x-100 hover:text-ink">
                   <span className="relative z-10">View all products</span>
                   <ArrowRight size={17} className="group-hover:translate-x-1 transition-transform duration-300" />
                 </MagneticLink>
@@ -623,9 +681,6 @@ export default function ModernHomePage() {
                       <div className="flex items-start justify-between">
                         <span className="flex h-11 w-11 items-center justify-center rounded-lg bg-safety text-ink transition-transform duration-300 group-hover:scale-110">
                           {(() => { const Icon = WHY_CHOOSE_ICONS[index % WHY_CHOOSE_ICONS.length]; return <Icon size={21} />; })()}
-                        </span>
-                        <span className={WHY_CHOOSE_NUMBER_STYLE}>
-                        0{index + 1}
                         </span>
                       </div>
                                         <h3 className={WHY_CHOOSE_TITLE}>{title}</h3>

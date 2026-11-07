@@ -38,7 +38,7 @@ export function SiteFooter() {
 
   if (prefersReduced) {
     return (
-      <footer className="bg-[#0c131a] text-slate-300">
+       <footer className="bg-[#0c131a] bg-cover bg-center text-slate-300" style={{ backgroundImage: "linear-gradient(rgba(6,10,14,.58), rgba(6,10,14,.72)), url('/media/theme-images/footer/footer-style3-bg.jpg')" }}>
         <div className={`mx-auto grid ${FOOTER_MAX_WIDTH} ${FOOTER_GRID_COLS} ${FOOTER_GAP} ${FOOTER_PY} ${FOOTER_MD_GRID} ${FOOTER_SM_WIDTH} ${FOOTER_SM_GRID}`}>
           <div>
             <Image
@@ -111,7 +111,7 @@ export function SiteFooter() {
   }
 
   return (
-    <footer className="bg-[#0c131a] text-slate-300">
+     <footer className="bg-[#0c131a] bg-cover bg-center text-slate-300" style={{ backgroundImage: "linear-gradient(rgba(6,10,14,.58), rgba(6,10,14,.72)), url('/media/theme-images/footer/footer-style3-bg.jpg')" }}>
       <RevealGroup
         staggerChildren={0.1}
         delayChildren={0.1}
