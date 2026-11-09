@@ -133,7 +133,7 @@ export function AdminDashboardLayout({ children, activeNav, pageTitle, pageDescr
         </div>
 
         {/* Sidebar Navigation */}
-        <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
+        <nav className="min-h-0 flex-1 overflow-y-auto px-3 py-4 space-y-1">
           {navItems.map((item, index) => {
             const Icon = item.icon;
             const isActive = activeNav === item.href;
@@ -162,7 +162,7 @@ export function AdminDashboardLayout({ children, activeNav, pageTitle, pageDescr
         </nav>
 
         {/* Sidebar Footer */}
-        <div className="p-4 border-t border-white/10 flex-shrink-0 space-y-2">
+        <div className="mt-auto flex-shrink-0 border-t border-white/10 p-4 space-y-2">
           <button
             onClick={() => {}}
             className="flex w-full items-center gap-3 px-3 py-2.5 text-sm font-medium text-slate-400 rounded-xl hover:bg-white/5 hover:text-white transition-colors group"
@@ -171,10 +171,11 @@ export function AdminDashboardLayout({ children, activeNav, pageTitle, pageDescr
             <span>Profile</span>
           </button>
           <button
-            onClick={async () => {
+           onClick={async () => {
               await logout();
-              router.replace("/admin");
-              router.refresh();
+              // Hard navigation prevents the current protected page from
+              // rendering once more while the auth context is updating.
+              window.location.replace("/admin");
             }}
             className="flex w-full items-center gap-3 px-3 py-2.5 text-sm font-medium text-slate-400 rounded-xl hover:bg-white/5 hover:text-white transition-colors group"
           >

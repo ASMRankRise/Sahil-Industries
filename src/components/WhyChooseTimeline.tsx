@@ -18,13 +18,13 @@ export function WhyChooseTimeline() {
     return () => query.removeEventListener("change", update);
   }, []);
   const { scrollYProgress } = useScroll({ target: sectionRef, offset: ["start start", "end end"] });
-  const progress = useSpring(scrollYProgress, { stiffness: 90, damping: 24, mass: 0.35 });
+  const progress = useSpring(scrollYProgress, { stiffness: 12, damping: 38, mass: 1.2 });
   const lineScale = useTransform(progress, [0.05, 0.9], [0, 1]);
   const trackX = useTransform(progress, [0.08, 0.92], ["0%", "-62.5%"]);
 
   return (
-    <section ref={sectionRef} className="relative min-h-[300vh] bg-[#faf9f6] text-[#241116] max-md:min-h-0">
-      <div className="sticky top-0 flex min-h-screen items-center overflow-hidden py-20 max-md:static max-md:min-h-0 max-md:py-16">
+    <section ref={sectionRef} className="relative min-h-screen bg-[#faf9f6] text-[#241116] max-md:min-h-0">
+      <div className="sticky top-0 flex h-screen items-center overflow-hidden py-20 max-md:static max-md:h-auto max-md:min-h-0 max-md:py-16">
         <div className="mx-auto w-[min(1240px,calc(100%-64px))] max-md:w-[calc(100%-36px)]">
           <p className="mb-5 flex items-center justify-center gap-2 text-xs font-semibold tracking-[.18em] text-[#6f5b60]"><span className="text-xl">+</span> WHY CHOOSE US</p>
           <h2 className="mx-auto max-w-[850px] text-center text-[clamp(38px,5vw,68px)] font-medium leading-[1.05] tracking-[-.055em]">Reasons for choosing us.</h2>
