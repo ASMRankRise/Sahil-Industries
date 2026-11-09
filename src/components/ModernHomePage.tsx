@@ -270,7 +270,7 @@ export default function ModernHomePage() {
 
             {/* Headline with proper h1 and enhanced Framer Motion line-by-line animation */}
             <RevealItem variant="quickEnter">
-               <h1 className="relative z-10 m-0 max-w-[800px] text-[clamp(48px,6vw,88px)] font-bold leading-[.98] tracking-[-.065em]">
+               <h1 className="relative z-10 m-0 max-w-[800px] text-[clamp(48px,6vw,88px)] font-bold leading-[.98] tracking-[-.065em] max-md:text-[clamp(34px,10.5vw,58px)]">
                 <motion.div
                      className="block overflow-hidden"
                   initial={{ opacity: 0 }}
@@ -320,7 +320,7 @@ export default function ModernHomePage() {
             {/* Description with enhanced animation */}
             <RevealItem variant="quickEnter">
               <motion.p
-                 className="relative z-10 mb-7 mt-9 max-w-[520px] text-[17px] leading-7 text-slate-200 max-md:mt-7 max-md:text-[15px]"
+                 className="relative z-10 mb-7 mt-9 max-w-[520px] text-[17px] leading-7 text-slate-200 max-md:mt-6 max-md:mb-5 max-md:text-[13px] max-md:leading-6"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                  transition={{ duration: HERO_DESC_DURATION, delay: 0.68, ease: [0.22, 1, 0.36, 1] }}>
@@ -753,13 +753,13 @@ export default function ModernHomePage() {
             </div>
           </RevealItem>
           <RevealItem variant="quickEnter">
-                               <div className={`flex flex-nowrap items-center ${CTA_BUTTONS_GAP}`}>
+                               <div className={`flex flex-nowrap items-center ${CTA_BUTTONS_GAP} max-md:mx-auto max-md:grid max-md:w-fit max-md:min-w-0 max-md:grid-cols-[96px_auto_auto] max-md:justify-items-center max-md:gap-2 [&>*]:min-w-0`}>
               <MagneticLink
                 href="/contact"
                 strength={0.2}
                 area={60}
                 variant="primary"
-                                  className={`inline-flex items-center justify-center gap-2 bg-safety ${CTA_PRIMARY_PADDING} text-xs font-extrabold uppercase tracking-industrial text-ink`}>
+                                  className={`inline-flex items-center justify-center gap-2 bg-safety ${CTA_PRIMARY_PADDING} text-xs font-extrabold uppercase tracking-industrial text-ink max-md:h-[70px] max-md:w-[96px] max-md:min-w-0 max-md:px-1 max-md:py-2 max-md:text-[8px] max-md:leading-3 max-md:whitespace-nowrap`}>
                 <span className="relative z-10">Talk to our team</span>
                 <ArrowRight size={17} className="group-hover:translate-x-1 transition-transform duration-300" />
               </MagneticLink>
@@ -768,7 +768,7 @@ export default function ModernHomePage() {
                 strength={0.15}
                 area={50}
                 variant="ghost"
-                                  className={`inline-flex items-center justify-center gap-2 whitespace-nowrap ${CTA_GHOST_PADDING} text-xs font-extrabold hover:text-safety`}>
+                                  className={`inline-flex h-[70px] min-w-0 items-center justify-center gap-2 whitespace-nowrap ${CTA_GHOST_PADDING} text-xs font-extrabold hover:text-safety max-md:px-1 max-md:py-2 max-md:text-[9px]`}>
                  <span className="relative z-10 inline-flex items-center justify-center gap-2 whitespace-nowrap">
                    <Phone size={17} className="shrink-0" />
                    <span>{siteContact.phone}</span>
@@ -781,7 +781,7 @@ export default function ModernHomePage() {
                 strength={0.15}
                 area={50}
                 variant="ghost"
-                                  className={`inline-flex items-center justify-center gap-2 ${CTA_GHOST_PADDING} text-xs font-extrabold text-slate-300 hover:text-safety`}>
+                                  className={`inline-flex h-[70px] min-w-0 items-center justify-center gap-2 ${CTA_GHOST_PADDING} text-xs font-extrabold text-slate-300 hover:text-safety max-md:px-1 max-md:py-2 max-md:text-[9px]`}>
                  <span className="relative z-10 flex items-center justify-center gap-2">
                    <Download size={16} />
                    <span>Brochure</span>

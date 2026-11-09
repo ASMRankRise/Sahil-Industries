@@ -54,6 +54,16 @@ export function SiteHeader() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, [prefersReduced]);
 
+  // Close the mobile drawer when switching back to a desktop viewport.
+  useEffect(() => {
+    const closeOnDesktop = () => {
+      if (window.innerWidth > 767) setMenuOpen(false);
+    };
+    window.addEventListener("resize", closeOnDesktop);
+    closeOnDesktop();
+    return () => window.removeEventListener("resize", closeOnDesktop);
+  }, []);
+
   const productItem = primaryNavigation.find(
     (item) => item.label === "Products",
   );
@@ -275,7 +285,7 @@ export function SiteHeader() {
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.15, duration: 0.3 }}>
-              {primaryItems.map((item, index) => (
+               {primaryItems.slice(0, 2).map((item, index) => (
                 <MotionLink
                   href={item.href}
                   onClick={() => setMenuOpen(false)}
@@ -284,11 +294,29 @@ export function SiteHeader() {
                   whileHover={{ x: 8, color: "#F6C515" }}
                   whileTap={{ scale: 0.98 }}
                   transition={{ delay: index * 0.05, duration: 0.2 }}>
-                  {item.label}
-                </MotionLink>
-              ))}
+                 {item.label}
+               </MotionLink>
+               ))}
 
-                    <motion.a
+               {/* Keep Products in the same position as the desktop navigation. */}
+               <motion.details className="border-b border-white/10 py-3" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>
+                 <motion.summary className="cursor-pointer text-sm font-bold uppercase tracking-industrial" whileHover={{ color: "#F6C515" }}>Products</motion.summary>
+                 <motion.div className="mt-3 grid gap-2">
+                   {productItem?.children?.map((item) => (
+                     <MotionLink href={item.href} onClick={() => setMenuOpen(false)} key={item.href} className="block w-full text-sm text-slate-300" whileHover={{ x: 4, color: "#F6C515" }}>
+                       {item.label}
+                     </MotionLink>
+                   ))}
+                 </motion.div>
+               </motion.details>
+
+               {primaryItems.slice(2).map((item, index) => (
+                 <MotionLink href={item.href} onClick={() => setMenuOpen(false)} key={item.href} className={`block w-full border-b border-white/10 py-3 text-sm font-bold uppercase tracking-industrial${pathname === item.href ? " !text-safety" : " text-white"}`} whileHover={{ x: 8, color: "#F6C515" }}>
+                   {item.label}
+                 </MotionLink>
+               ))}
+
+                     <motion.a
                 href={siteContact.phoneHref}
                 onClick={() => setMenuOpen(false)}
                 className="flex items-center gap-3 border-b border-white/10 py-3 text-sm font-bold uppercase tracking-industrial"
@@ -312,40 +340,6 @@ export function SiteHeader() {
                 <span>WhatsApp</span>
               </motion.a>
 
-              <motion.details
-                className="border-b border-white/10 py-3"
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{
-                  delay: 0.15 + primaryItems.length * 0.05,
-                  duration: 0.3,
-                }}>
-                <motion.summary
-                  className="cursor-pointer text-sm font-bold uppercase tracking-industrial"
-                  whileHover={{ color: "#F6C515" }}>
-                  Products
-                </motion.summary>
-                <motion.div
-                  className="mt-3 grid gap-2"
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: "auto" }}
-                  transition={{ duration: 0.3 }}>
-                  {productItem?.children?.map((item, index) => (
-                    <MotionLink
-                      href={item.href}
-                      onClick={() => setMenuOpen(false)}
-                      key={item.href}
-                       className="block w-full text-sm text-slate-300"
-                      whileHover={{ x: 4, color: "#F6C515" }}
-                      whileTap={{ scale: 0.98 }}
-                      initial={{ opacity: 0, x: -10 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: index * 0.03, duration: 0.2 }}>
-                      {item.label}
-                    </MotionLink>
-                  ))}
-                </motion.div>
-              </motion.details>
             </motion.nav>
           </motion.aside>
         )}

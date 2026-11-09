@@ -38,7 +38,11 @@ export function WhySahilTimeline() {
                 const start = index * 0.1;
                 const x = useTransform(progress, [start, start + 0.2], [index === 0 ? -70 : 70, 0]);
                 const opacity = useTransform(progress, [start, start + 0.14], [index < 3 ? 1 : 0.35, 1]);
-                return <motion.article key={title} style={{ x: isMobile ? 0 : x, opacity: isMobile ? 1 : opacity, width: "12.5%" }} className="relative shrink-0 pt-14 max-md:!w-full max-md:pt-0"><span className="absolute left-0 top-0 flex h-12 w-12 items-center justify-center rounded-full bg-safety text-ink shadow-[0_0_24px_rgba(246,197,21,.25)]"><Icon size={21} /></span><h3 className="mb-4 text-2xl font-bold">{title}</h3><p className="max-w-[300px] text-base leading-7 text-slate-300">{description}</p></motion.article>;
+                return <motion.article key={title} style={{ x: isMobile ? 0 : x, opacity: isMobile ? 1 : opacity, width: "12.5%" }} className="relative shrink-0 pt-14 max-md:!w-full max-md:pt-0 max-md:pb-1">
+                  <span className="absolute left-0 top-0 flex h-12 w-12 items-center justify-center rounded-full bg-safety text-ink shadow-[0_0_24px_rgba(246,197,21,.25)] max-md:-top-3 max-md:h-10 max-md:w-10"><Icon size={19} /></span>
+                  <h3 className="mb-2 pl-14 text-2xl font-bold leading-tight max-md:text-[17px] max-md:leading-6">{title}</h3>
+                  <p className="max-w-[300px] text-base leading-7 text-slate-300 max-md:pl-0 max-md:text-[12px] max-md:leading-5">{description}</p>
+                </motion.article>;
               })}
             </motion.div>
           </div>

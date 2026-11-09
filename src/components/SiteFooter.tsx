@@ -18,7 +18,9 @@ const FOOTER_PY = "py-20 max-md:py-14";
 const FOOTER_MAX_WIDTH = "w-[min(1240px,calc(100%-64px))]";
 const FOOTER_MD_GRID = "max-md:grid-cols-2";
 const FOOTER_SM_WIDTH = "max-sm:w-[calc(100%-36px)]";
-const FOOTER_SM_GRID = "max-sm:grid-cols-1";
+// Keep the navigation columns side-by-side on phones; the brand and contact
+// sections still span the full width.
+const FOOTER_SM_GRID = "max-sm:grid-cols-2 max-sm:[&>div:first-child]:col-span-2 max-sm:[&>div:last-child]:col-span-2";
 const HEADING_STYLE = "mb-5 text-base font-bold text-white";
 const LINK_STYLE = "block py-1.5 text-sm text-slate-300 transition-colors hover:text-safety";
 const ICON_SIZE = 17;

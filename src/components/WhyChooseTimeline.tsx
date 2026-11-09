@@ -42,10 +42,10 @@ export function WhyChooseTimeline() {
                 const x = useTransform(progress, [start, start + 0.22], [index === 0 ? -80 : 80, 0]);
                 const opacity = useTransform(progress, [start, start + 0.14], [index < 3 ? 1 : 0.35, 1]);
                 return (
-                  <motion.article key={title} style={{ x: isMobile ? 0 : x, opacity: isMobile ? 1 : opacity, width: "12.5%" }} className="relative shrink-0 pt-12 max-md:!w-full max-md:pt-0">
-                    <span className="absolute left-0 top-0 flex h-12 w-12 items-center justify-center rounded-full bg-[#fff36b] text-[#241116] shadow-sm md:left-0"><Icon size={21} /></span>
-                    <h3 className="mb-5 text-2xl font-medium tracking-[-.03em]">{title}</h3>
-                    <p className="max-w-[300px] text-base leading-7 text-[#5f5558]">{description}</p>
+                  <motion.article key={title} style={{ x: isMobile ? 0 : x, opacity: isMobile ? 1 : opacity, width: "12.5%" }} className="relative min-w-0 shrink-0 overflow-visible pt-12 max-md:!w-full max-md:pt-0 max-md:pb-1">
+                    <span className="absolute left-0 top-0 flex h-12 w-12 items-center justify-center rounded-full bg-[#fff36b] text-[#241116] shadow-sm max-md:-top-3 max-md:h-10 max-md:w-10"><Icon size={19} /></span>
+                    <h3 className="mb-2 min-w-0 whitespace-normal break-words pl-14 text-2xl font-medium leading-tight tracking-[-.03em] max-md:text-[17px] max-md:leading-6">{title}</h3>
+                    <p className="max-w-[300px] whitespace-normal break-words text-base leading-7 text-[#5f5558] max-md:text-[12px] max-md:leading-5">{description}</p>
                   </motion.article>
                 );
               })}
