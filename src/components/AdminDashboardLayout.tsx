@@ -41,15 +41,15 @@ import {
   Image,
 } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { ReactNode } from "react";
-import { AdminDataProvider } from "@/context/AdminDataContext";
+import { AdminDataProvider, useAdminData } from "@/context/AdminDataContext";
 
 const asset = (path: string) => `/sahilcrane/${path}`;
 
 const navItems = [
   { label: "Dashboard", href: "/admin", icon: LayoutDashboard },
   { label: "Enquiries", href: "/admin/enquiries", icon: Mail, badge: 8 },
-  { label: "Customers", href: "/admin/customers", icon: Users },
   { label: "Gallery", href: "/admin/gallery", icon: Image },
   { label: "Analytics", href: "/admin/analytics", icon: BarChart3 },
 ];
@@ -62,6 +62,13 @@ interface AdminDashboardLayoutProps {
 }
 
 export function AdminDashboardLayout({ children, activeNav, pageTitle, pageDescription }: AdminDashboardLayoutProps) {
+  const router = useRouter();
+  const { logout, isAuthenticated, loading } = useAdminData();
+
+  useEffect(() => {
+    if (!loading && !isAuthenticated) router.replace("/admin");
+  }, [loading, isAuthenticated, router]);
+
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
   const [theme, setTheme] = useState<"light" | "dark">("dark");
@@ -81,6 +88,8 @@ export function AdminDashboardLayout({ children, activeNav, pageTitle, pageDescr
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
+
+  if (loading || !isAuthenticated) return null;
 
   return (
     <div className={`min-h-screen bg-ink text-slate-100 ${theme === "light" ? "bg-slate-50 text-slate-900" : ""}`}>
@@ -124,7 +133,7 @@ export function AdminDashboardLayout({ children, activeNav, pageTitle, pageDescr
         </div>
 
         {/* Sidebar Navigation */}
-        <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
+        <nav className="min-h-0 flex-1 overflow-y-auto px-3 py-4 space-y-1">
           {navItems.map((item, index) => {
             const Icon = item.icon;
             const isActive = activeNav === item.href;
@@ -153,7 +162,7 @@ export function AdminDashboardLayout({ children, activeNav, pageTitle, pageDescr
         </nav>
 
         {/* Sidebar Footer */}
-        <div className="p-4 border-t border-white/10 flex-shrink-0 space-y-2">
+        <div className="mt-auto flex-shrink-0 border-t border-white/10 p-4 space-y-2">
           <button
             onClick={() => {}}
             className="flex w-full items-center gap-3 px-3 py-2.5 text-sm font-medium text-slate-400 rounded-xl hover:bg-white/5 hover:text-white transition-colors group"
@@ -162,7 +171,12 @@ export function AdminDashboardLayout({ children, activeNav, pageTitle, pageDescr
             <span>Profile</span>
           </button>
           <button
-            onClick={() => {}}
+           onClick={async () => {
+              await logout();
+              // Hard navigation prevents the current protected page from
+              // rendering once more while the auth context is updating.
+              window.location.replace("/admin");
+            }}
             className="flex w-full items-center gap-3 px-3 py-2.5 text-sm font-medium text-slate-400 rounded-xl hover:bg-white/5 hover:text-white transition-colors group"
           >
             <LogOut size={17} className="group-hover:text-red-400 transition-colors" />

@@ -4,5 +4,7 @@ export const reasonsToChoose = [
   ['Customization', 'Specialized designs to meet your needs and increasing efficiency. Wide Customizations To Suit Your Requirements.'],
   ['Advance Technology', 'We adopted advanced technology, process to manufacture our products.'],
   ['Customer Support', 'We are committed to provide customer support to our valuable customers.'],
-  ['Expert Engineers', 'We have team of expert engineers and technicians to provide best solutions & service.'],
+   ['Expert Engineers', 'We have team of expert engineers and technicians to provide best solutions & service.'],
+   ['Reliable Service', 'Dependable support from planning through installation and after-sales service.'],
+   ['Safety First', 'Carefully engineered solutions designed around safe, efficient operations.'],
 ] as const;
