@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getMailConfig, getResend } from '@/lib/resend';
+import { getMailConfig, getMailer, renderSubmissionEmail } from '@/lib/mail';
+
+export const runtime = 'nodejs';
 
 export async function POST(request: NextRequest) {
   try {
@@ -66,48 +68,17 @@ export async function POST(request: NextRequest) {
     }
 
     // Prepare email content
-    const htmlContent = `
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      </head>
-      <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
-        <div style="background: linear-gradient(135deg, #f6c515 0%, #e6b314 100%); padding: 30px; border-radius: 10px 10px 0 0;">
-          <h1 style="color: #0c131a; margin: 0; font-size: 24px;">New Career Application Received</h1>
-        </div>
-        <div style="background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px; border: 1px solid #eee;">
-          <table style="width: 100%; border-collapse: collapse;">
-            <tr>
-              <td style="padding: 10px 0; font-weight: bold; color: #555; width: 120px;">Name:</td>
-              <td style="padding: 10px 0; color: #333;">${fullname}</td>
-            </tr>
-            <tr>
-              <td style="padding: 10px 0; font-weight: bold; color: #555;">Email:</td>
-              <td style="padding: 10px 0; color: #333;"><a href="mailto:${email}" style="color: #f6c515; text-decoration: none;">${email}</a></td>
-            </tr>
-            <tr>
-              <td style="padding: 10px 0; font-weight: bold; color: #555;">Phone:</td>
-              <td style="padding: 10px 0; color: #333;"><a href="tel:${mobile}" style="color: #f6c515; text-decoration: none;">${mobile}</a></td>
-            </tr>
-            <tr>
-              <td style="padding: 10px 0; font-weight: bold; color: #555;">City:</td>
-              <td style="padding: 10px 0; color: #333;">${city || 'Not specified'}</td>
-            </tr>
-            <tr>
-              <td style="padding: 10px 0; font-weight: bold; color: #555; vertical-align: top;">Message:</td>
-              <td style="padding: 10px 0; color: #333; white-space: pre-wrap;">${message}</td>
-            </tr>
-          </table>
-          <hr style="border: none; border-top: 1px solid #ddd; margin: 20px 0;">
-          <p style="color: #888; font-size: 12px; margin: 0;">
-            This email was sent from the Career Form on Sahil Industries website.
-          </p>
-        </div>
-      </body>
-      </html>
-    `;
+    const htmlContent = renderSubmissionEmail({
+      title: 'New Career Application',
+      intro: 'A new career application has been received.',
+      fields: [
+        { label: 'Name', value: fullname },
+        { label: 'Email', value: email, link: `<a href="mailto:${email}" style="color:#b48600">${email}</a>` },
+        { label: 'Phone', value: mobile, link: `<a href="tel:${mobile}" style="color:#b48600">${mobile}</a>` },
+        { label: 'City', value: city },
+      ],
+      message,
+    });
 
     // Send email to admin
     const mailOptions: any = {
@@ -128,10 +99,10 @@ export async function POST(request: NextRequest) {
       }];
     }
 
-    await getResend().emails.send(mailOptions);
+    await getMailer().sendMail(mailOptions);
 
     // Send confirmation email to applicant
-    await getResend().emails.send({
+    await getMailer().sendMail({
       from: getMailConfig().from,
       to: email,
       subject: 'Thank you for your application - Sahil Industries',

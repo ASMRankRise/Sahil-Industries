@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getCloudflareContext } from '@opennextjs/cloudflare';
-import { getMailConfig, getResend } from '@/lib/resend';
+import { getMailConfig, getMailer, renderSubmissionEmail } from '@/lib/mail';
+
+export const runtime = 'nodejs';
 
 export async function POST(request: NextRequest) {
   try {
@@ -18,12 +20,22 @@ export async function POST(request: NextRequest) {
       .bind(crypto.randomUUID(), formType === 'enquiry' ? 'enquiry' : 'contact', name, email, phone || '', subject || '', message).run();
 
     const isEnquiry = formType === 'enquiry';
-    await getResend().emails.send({
+    await getMailer().sendMail({
       from: getMailConfig().from,
       to: getMailConfig().to,
       replyTo: email,
       subject: `${isEnquiry ? 'New Enquiry' : 'New Contact Form'}: ${subject || 'General'}`,
-      html: `<h2>${isEnquiry ? 'New enquiry' : 'New contact submission'}</h2><p><strong>Name:</strong> ${name}</p><p><strong>Email:</strong> ${email}</p><p><strong>Phone:</strong> ${phone || 'Not provided'}</p><p><strong>Subject:</strong> ${subject || 'Not specified'}</p><p><strong>Message:</strong></p><p>${String(message).replace(/\n/g, '<br>')}</p>`,
+      html: renderSubmissionEmail({
+        title: isEnquiry ? 'New Product Enquiry' : 'New Contact Message',
+        intro: isEnquiry ? 'A new product enquiry has been received.' : 'A new contact request has been received.',
+        fields: [
+          { label: 'Name', value: name },
+          { label: 'Email', value: email, link: `<a href="mailto:${email}" style="color:#b48600">${email}</a>` },
+          { label: 'Phone', value: phone, link: phone ? `<a href="tel:${phone}" style="color:#b48600">${phone}</a>` : undefined },
+          { label: 'Subject', value: subject },
+        ],
+        message,
+      }),
     });
     return NextResponse.json({ message: 'Form submitted successfully' });
   } catch (error) {
