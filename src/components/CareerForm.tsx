@@ -364,7 +364,7 @@ export function CareerForm({ onSuccess }: CareerFormProps) {
         [fieldName]: { ...prev[fieldName], error, warning }
       }));
     });
-  }, []);
+  }, [validateField]);
 
   // Format phone number
   const formatPhoneNumber = (value: string): string => {
