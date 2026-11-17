@@ -400,23 +400,24 @@ export function AdminDataProvider({ children }: { children: ReactNode }) {
   const [analytics] = useState<AnalyticsData>(initialAnalytics);
   const [settings, setSettings] = useState<Record<string, string>>(initialSettings);
   
-    const [galleryImages, setGalleryImages] = useState<GalleryImage[]>(initialGalleryImages);
-  
-  const [loading, setLoading] = useState(true);
-  const [storageReady, setStorageReady] = useState(false);
+  const [galleryImages, setGalleryImages] = useState<GalleryImage[]>(initialGalleryImages);
 
-  // Read browser-only data after hydration so the server and first client
-  // render always produce identical markup.
+  const [loading, setLoading] = useState(true);
+
+  // Business data is server-backed. Remove keys created by the former
+  // localStorage-based admin implementation so stale temporary data cannot
+  // remain in a browser after upgrading.
   useEffect(() => {
-    const read = <T,>(key: string, fallback: T): T => {
-      try { return JSON.parse(localStorage.getItem(key) || "null") ?? fallback; } catch { return fallback; }
-    };
-    setCustomers(read("admin_customers", initialCustomers));
-    setProducts(read("admin_products", initialProducts));
-    setOrders(read("admin_orders", initialOrders));
-    setEnquiries(read("admin_enquiries", initialEnquiries));
-    setSettings(read("admin_settings", initialSettings));
-    setStorageReady(true);
+    [
+      "admin_auth",
+      "admin_customers",
+      "admin_products",
+      "admin_orders",
+      "admin_enquiries",
+      "admin_settings",
+      "admin_gallery_images",
+    ].forEach((key) => localStorage.removeItem(key));
+
     fetch("/api/admin/gallery").then(async (response) => {
       if (!response.ok) throw new Error("Unable to load gallery");
       const data = await response.json();
@@ -458,13 +459,6 @@ export function AdminDataProvider({ children }: { children: ReactNode }) {
     setUser(null);
     setIsAuthenticated(false);
   }, []);
-
-  // Other admin sections still use their existing local UI persistence.
-  useEffect(() => { if (storageReady) localStorage.setItem("admin_customers", JSON.stringify(customers)); }, [customers, storageReady]);
-  useEffect(() => { if (storageReady) localStorage.setItem("admin_products", JSON.stringify(products)); }, [products, storageReady]);
-  useEffect(() => { if (storageReady) localStorage.setItem("admin_orders", JSON.stringify(orders)); }, [orders, storageReady]);
-  useEffect(() => { if (storageReady) localStorage.setItem("admin_enquiries", JSON.stringify(enquiries)); }, [enquiries, storageReady]);
-  useEffect(() => { if (storageReady) localStorage.setItem("admin_settings", JSON.stringify(settings)); }, [settings, storageReady]);
 
   // Customer CRUD
   const addCustomer = useCallback((customer: Omit<Customer, "id">) => {
