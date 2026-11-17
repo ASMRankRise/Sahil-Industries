@@ -15,5 +15,11 @@
       "database_name": "sahil-industries-db",
       "database_id": "f789289e-0d9e-49bf-9a3c-0c26e8389b95"
     }
+  ],
+  "r2_buckets": [
+    {
+      "binding": "GALLERY_IMAGES",
+      "bucket_name": "sahil-industries-gallery-images"
+    }
   ]
 }

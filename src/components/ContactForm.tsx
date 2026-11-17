@@ -121,6 +121,7 @@ export function ContactForm({ formType = "contact", onSuccess }: ContactFormProp
   const [submitStatus, setSubmitStatus] = useState<"idle" | "success" | "error">("idle");
   const [errorMessage, setErrorMessage] = useState("");
   const [touchedFields, setTouchedFields] = useState<Set<keyof FormData>>(new Set());
+  const [captcha, setCaptcha] = useState(() => ({ question: `${Math.floor(Math.random() * 9) + 1} + ${Math.floor(Math.random() * 9) + 1}`, answer: "" }));
   
   const validationTimeouts = useRef<Record<string, NodeJS.Timeout>>({});
   const asyncValidationCache = useRef<Record<string, boolean>>({});
@@ -319,6 +320,8 @@ export function ContactForm({ formType = "contact", onSuccess }: ContactFormProp
         body: JSON.stringify({
           ...formData,
           formType,
+          captcha: captcha.answer,
+          captchaQuestion: captcha.question,
         }),
       });
 
@@ -338,6 +341,7 @@ export function ContactForm({ formType = "contact", onSuccess }: ContactFormProp
         message: initialFieldState,
       });
       setTouchedFields(new Set());
+      setCaptcha({ question: `${Math.floor(Math.random() * 9) + 1} + ${Math.floor(Math.random() * 9) + 1}`, answer: "" });
       onSuccess?.();
     } catch (error) {
       setSubmitStatus("error");
@@ -488,6 +492,11 @@ export function ContactForm({ formType = "contact", onSuccess }: ContactFormProp
         isSubmitting={isSubmitting}
         maxLength={validationRules.message.maxLength ?? 5000}
       />
+
+      <div className="flex items-center gap-3">
+        <label htmlFor="contact-captcha" className="text-sm font-semibold">Security check: {captcha.question} =</label>
+        <input id="contact-captcha" inputMode="numeric" value={captcha.answer} onChange={(e) => setCaptcha(prev => ({ ...prev, answer: e.target.value }))} className="w-24 rounded border border-white/20 bg-transparent px-3 py-2" required aria-label="Security check answer" />
+      </div>
 
       <motion.button
         type="submit"

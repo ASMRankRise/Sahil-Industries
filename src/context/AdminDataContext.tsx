@@ -548,29 +548,32 @@ export function AdminDataProvider({ children }: { children: ReactNode }) {
     }, []);
 
     const uploadImage = useCallback(async (file: File, metadata: Partial<GalleryImage>) => {
-      // Simulate upload delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
-    
-      // Create object URL for preview
-      const url = URL.createObjectURL(file);
-    
+      const form = new FormData();
+      form.append("file", file);
+      if (metadata.title) form.append("title", metadata.title);
+      if (metadata.altText) form.append("alt_text", metadata.altText);
+      form.append("status", metadata.status || "active");
+      const response = await fetch("/api/admin/gallery/upload", { method: "POST", body: form });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error || "Upload failed");
+
       const maxOrder = galleryImages.length > 0 ? Math.max(...galleryImages.map(img => img.order || 0)) : 0;
     
       const newImage: GalleryImage = {
-        id: `GAL-${String(galleryImages.length + 1).padStart(3, "0")}`,
-        title: metadata.title || file.name.replace(/\.[^/.]+$/, ""),
+        id: result.id,
+        title: result.title,
         description: metadata.description || "",
-        url: url,
-        thumbnailUrl: url,
+        url: result.url,
+        thumbnailUrl: result.url,
         category: metadata.category || "products",
-        status: metadata.status || "draft",
+        status: metadata.status || "active",
         tags: metadata.tags || [],
         altText: metadata.altText || "",
         isFeatured: metadata.isFeatured || false,
         date: new Date().toISOString().split("T")[0],
         size: file.size,
-        width: 1920,
-        height: 1080,
+        width: result.width,
+        height: result.height,
         order: metadata.order || maxOrder + 1,
       };
     
