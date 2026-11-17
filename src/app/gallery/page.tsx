@@ -28,10 +28,12 @@ function parseTags(value: string | null): string[] {
 }
 
 async function getGalleryImages(): Promise<GalleryImage[]> {
-  const { env } = getCloudflareContext();
+  const { env } = await getCloudflareContext({ async: true });
   const db = (env as unknown as { GALLERY_DB: GalleryDb }).GALLERY_DB;
   const { results } = await db
-    .prepare("SELECT * FROM gallery_images WHERE status = 'active' ORDER BY sort_order ASC, created_at DESC")
+    // Keep the public gallery compatible with databases that have not yet
+    // received the optional gallery metadata migration (0004).
+    .prepare("SELECT * FROM gallery_images WHERE status = 'active' ORDER BY created_at DESC")
     .all<GalleryRow>();
 
   return results.map((row) => ({

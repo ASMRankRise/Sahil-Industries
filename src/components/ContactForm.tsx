@@ -121,7 +121,17 @@ export function ContactForm({ formType = "contact", onSuccess }: ContactFormProp
   const [submitStatus, setSubmitStatus] = useState<"idle" | "success" | "error">("idle");
   const [errorMessage, setErrorMessage] = useState("");
   const [touchedFields, setTouchedFields] = useState<Set<keyof FormData>>(new Set());
-  const [captcha, setCaptcha] = useState(() => ({ question: `${Math.floor(Math.random() * 9) + 1} + ${Math.floor(Math.random() * 9) + 1}`, answer: "" }));
+  // Keep the initial render deterministic. Randomizing during state
+  // initialization runs once on the server and again in the browser, which
+  // produces different captcha text and causes a hydration mismatch.
+  const [captcha, setCaptcha] = useState({ question: "2 + 2", answer: "" });
+
+  useEffect(() => {
+    setCaptcha({
+      question: `${Math.floor(Math.random() * 9) + 1} + ${Math.floor(Math.random() * 9) + 1}`,
+      answer: "",
+    });
+  }, []);
   
   const validationTimeouts = useRef<Record<string, NodeJS.Timeout>>({});
   const asyncValidationCache = useRef<Record<string, boolean>>({});
