@@ -270,14 +270,14 @@ export default function ModernHomePage() {
 
             {/* Headline with proper h1 and enhanced Framer Motion line-by-line animation */}
             <RevealItem variant="quickEnter">
-               <h1 className="relative z-10 m-0 max-w-[800px] text-[clamp(48px,6vw,88px)] font-bold leading-[.98] tracking-[-.065em] max-md:text-[clamp(34px,10.5vw,58px)]">
+               <h1 className="relative z-10 m-0 max-w-[800px] text-[clamp(48px,6vw,88px)] font-bold leading-[1.08] tracking-[-.065em] max-md:text-[clamp(34px,10.5vw,58px)]">
                 <motion.div
-                     className="block overflow-hidden"
+                      className="block overflow-visible"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ duration: HERO_HEADLINE_DURATION, ease: [0.22, 1, 0.36, 1] }}>
                   <motion.span
-                     className="block overflow-hidden"
+                      className="block overflow-visible"
                      initial={{ opacity: 0, y: 28, filter: 'blur(8px)', clipPath: 'inset(0 100% 0 0)' }}
                      animate={{ opacity: 1, y: 0, filter: 'blur(0px)', clipPath: 'inset(0 0% 0 0)' }}
                      transition={{ duration: HERO_LINE_DURATION, delay: 0.22, ease: [0.22, 1, 0.36, 1] }}>
@@ -292,7 +292,7 @@ export default function ModernHomePage() {
                      )}
                   </motion.span>
                   <motion.span
-                     className="relative block overflow-hidden not-italic text-safety"
+                      className="relative block overflow-visible not-italic text-safety"
                      initial={{ opacity: 0, y: 28, filter: 'blur(8px)', clipPath: 'inset(0 100% 0 0)' }}
                      animate={{ opacity: 1, y: 0, filter: 'blur(0px)', clipPath: 'inset(0 0% 0 0)' }}
                     transition={{ duration: HERO_LINE_DURATION, delay: HERO_LINE_DELAY, ease: [0.22, 1, 0.36, 1] }}>
@@ -337,9 +337,9 @@ export default function ModernHomePage() {
                   strength={0.25}
                   area={80}
                   variant="primary"
-                    className="group relative inline-flex items-center justify-center gap-3 overflow-hidden border border-safety bg-safety px-6 py-3 text-xs font-extrabold uppercase tracking-industrial text-ink shadow-lg shadow-safety/25 transition-all duration-300 before:pointer-events-none before:absolute before:inset-0 before:z-0 before:origin-left before:scale-x-0 before:bg-[rgba(255,255,255,0.42)] before:transition-transform before:duration-500 before:ease-[cubic-bezier(.22,1,.36,1)] hover:-translate-y-0.5 hover:before:scale-x-100 hover:shadow-xl hover:shadow-safety/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-safety focus-visible:ring-offset-2 focus-visible:ring-offset-ink">
-                   <span className="relative z-10">Request a consultation</span>
-                    <ArrowRight size={18} className="relative z-10 transition-transform duration-300 group-hover:translate-x-1" />
+                    className="group relative inline-flex items-center justify-center gap-3 overflow-hidden border border-safety bg-safety px-6 py-3 text-xs font-extrabold uppercase tracking-industrial text-ink shadow-lg shadow-safety/25 transition-all duration-500 before:pointer-events-none before:absolute before:inset-0 before:z-0 before:origin-left before:scale-x-100 before:bg-transparent before:transition-transform before:duration-500 before:ease-[cubic-bezier(.22,1,.36,1)] hover:-translate-y-0.5 hover:bg-transparent hover:text-white hover:before:scale-x-0 hover:shadow-xl hover:shadow-safety/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-safety focus-visible:ring-offset-2 focus-visible:ring-offset-ink">
+                    <span className="relative z-10 transition-colors duration-500">Request a consultation</span>
+                     <ArrowRight size={18} className="relative z-10 transition-transform duration-300 group-hover:translate-x-1" />
                 </MagneticLink>
                 <MagneticLink
                   href="/products/single-girder-eot-crane"
