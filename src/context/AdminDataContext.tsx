@@ -138,9 +138,9 @@ interface AdminDataContextType {
   
   // Gallery Images
   galleryImages: GalleryImage[];
-  addGalleryImage: (image: Omit<GalleryImage, "id">) => void;
-  updateGalleryImage: (id: string, updates: Partial<GalleryImage>) => void;
-  deleteGalleryImage: (id: string) => void;
+  addGalleryImage: (image: Omit<GalleryImage, "id">) => Promise<GalleryImage>;
+  updateGalleryImage: (id: string, updates: Partial<GalleryImage>) => Promise<void>;
+  deleteGalleryImage: (id: string) => Promise<void>;
   uploadImage: (file: File, metadata: Partial<GalleryImage>) => Promise<GalleryImage>;
   
   // Analytics
@@ -416,8 +416,19 @@ export function AdminDataProvider({ children }: { children: ReactNode }) {
     setOrders(read("admin_orders", initialOrders));
     setEnquiries(read("admin_enquiries", initialEnquiries));
     setSettings(read("admin_settings", initialSettings));
-    setGalleryImages(read("admin_gallery_images", initialGalleryImages));
     setStorageReady(true);
+    fetch("/api/admin/gallery").then(async (response) => {
+      if (!response.ok) throw new Error("Unable to load gallery");
+      const data = await response.json();
+      setGalleryImages((data.images || []).map((image: Record<string, unknown>, index: number) => ({
+        id: String(image.id), title: String(image.title || ""), description: String(image.description || ""),
+        url: String(image.url || `/api/gallery/${encodeURIComponent(String(image.object_key))}`),
+        thumbnailUrl: String(image.thumbnail_url || image.url || `/api/gallery/${encodeURIComponent(String(image.object_key))}`),
+        category: (image.category || "other") as GalleryImage["category"], status: (image.status === "published" ? "active" : image.status || "draft") as GalleryImage["status"],
+        tags: Array.isArray(image.tags) ? image.tags as string[] : typeof image.tags === "string" ? (() => { try { return JSON.parse(image.tags as string); } catch { return []; } })() : [], altText: String(image.alt_text || ""), isFeatured: Boolean(image.is_featured),
+        date: String(image.created_at || new Date().toISOString()), size: Number(image.size || 0), width: Number(image.width || 0), height: Number(image.height || 0), order: Number(image.order || index + 1),
+      })));
+    }).catch(() => setGalleryImages([]));
   }, []);
 
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -448,13 +459,12 @@ export function AdminDataProvider({ children }: { children: ReactNode }) {
     setIsAuthenticated(false);
   }, []);
 
-  // Persist to localStorage
+  // Other admin sections still use their existing local UI persistence.
   useEffect(() => { if (storageReady) localStorage.setItem("admin_customers", JSON.stringify(customers)); }, [customers, storageReady]);
   useEffect(() => { if (storageReady) localStorage.setItem("admin_products", JSON.stringify(products)); }, [products, storageReady]);
   useEffect(() => { if (storageReady) localStorage.setItem("admin_orders", JSON.stringify(orders)); }, [orders, storageReady]);
   useEffect(() => { if (storageReady) localStorage.setItem("admin_enquiries", JSON.stringify(enquiries)); }, [enquiries, storageReady]);
   useEffect(() => { if (storageReady) localStorage.setItem("admin_settings", JSON.stringify(settings)); }, [settings, storageReady]);
-  useEffect(() => { if (storageReady) localStorage.setItem("admin_gallery_images", JSON.stringify(galleryImages)); }, [galleryImages, storageReady]);
 
   // Customer CRUD
   const addCustomer = useCallback((customer: Omit<Customer, "id">) => {
@@ -529,21 +539,22 @@ export function AdminDataProvider({ children }: { children: ReactNode }) {
   }, []);
 
     // Gallery Image CRUD
-    const addGalleryImage = useCallback((image: Omit<GalleryImage, "id">) => {
-      const maxOrder = galleryImages.length > 0 ? Math.max(...galleryImages.map(img => img.order || 0)) : 0;
-      const newImage: GalleryImage = {
-        ...image,
-        id: `GAL-${String(galleryImages.length + 1).padStart(3, "0")}`,
-        order: image.order || maxOrder + 1,
-      };
-      setGalleryImages(prev => [newImage, ...prev]);
-    }, [galleryImages.length]);
+    const addGalleryImage = useCallback(async (image: Omit<GalleryImage, "id">) => {
+      const response = await fetch("/api/admin/gallery", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...image, object_key: image.url }) });
+      const result = await response.json(); if (!response.ok) throw new Error(result.error || "Unable to create image");
+      const newImage = { ...image, id: result.id };
+      setGalleryImages(prev => [newImage, ...prev]); return newImage;
+    }, []);
 
-    const updateGalleryImage = useCallback((id: string, updates: Partial<GalleryImage>) => {
+    const updateGalleryImage = useCallback(async (id: string, updates: Partial<GalleryImage>) => {
+      const response = await fetch(`/api/admin/gallery/${encodeURIComponent(id)}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(updates) });
+      const result = await response.json(); if (!response.ok) throw new Error(result.error || "Unable to update image");
       setGalleryImages(prev => prev.map(img => img.id === id ? { ...img, ...updates } : img));
     }, []);
 
-    const deleteGalleryImage = useCallback((id: string) => {
+    const deleteGalleryImage = useCallback(async (id: string) => {
+      const response = await fetch(`/api/admin/gallery/${encodeURIComponent(id)}`, { method: "DELETE" });
+      if (!response.ok) throw new Error("Unable to delete image");
       setGalleryImages(prev => prev.filter(img => img.id !== id));
     }, []);
 

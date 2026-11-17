@@ -6,7 +6,7 @@ import { X, ChevronLeft, ChevronRight, Maximize2, Minimize2, Download, Share2, H
 import { useState, useEffect, useCallback, useRef } from "react";
 
 interface GalleryImage {
-  id: number;
+  id: string | number;
   src: string;
   alt: string;
   title: string;
@@ -458,4 +458,3 @@ export function GalleryLightbox({ image, onClose, onNext, onPrev, images = [] }:
     </motion.div>
   );
 }
-

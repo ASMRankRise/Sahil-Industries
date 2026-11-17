@@ -6,7 +6,7 @@ export async function GET(request: NextRequest) {
     await requireAdmin(request);
     const rows = await getAdminDb()
       .prepare(
-        "SELECT id, object_key, title, alt_text, status, created_at FROM gallery_images ORDER BY created_at DESC",
+        "SELECT *, '/api/gallery/' || object_key AS url FROM gallery_images ORDER BY COALESCE(sort_order, 999999), created_at DESC",
       )
       .bind()
       .all?.();
@@ -33,7 +33,7 @@ export async function POST(request: NextRequest) {
     const id = crypto.randomUUID();
     await getAdminDb()
       .prepare(
-        "INSERT INTO gallery_images (id, object_key, title, alt_text, status) VALUES (?, ?, ?, ?, ?)",
+        "INSERT INTO gallery_images (id, object_key, title, alt_text, status, description, category, tags, is_featured, sort_order, size, width, height) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
       )
       .bind(
         id,
@@ -41,6 +41,8 @@ export async function POST(request: NextRequest) {
         body.title,
         typeof body.alt_text === "string" ? body.alt_text : "",
         typeof body.status === "string" ? body.status : "published",
+        body.description || "", body.category || "other", JSON.stringify(body.tags || []), String(body.isFeatured ? 1 : 0),
+        String(Number(body.order || 0)), String(Number(body.size || 0)), String(Number(body.width || 0)), String(Number(body.height || 0)),
       )
       .run();
     return NextResponse.json({ id }, { status: 201 });

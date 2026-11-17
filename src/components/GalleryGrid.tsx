@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import { Maximize2, Heart, Download, Share2 } from "lucide-react";
 
 interface GalleryImage {
-  id: number;
+  id: string | number;
   src: string;
   alt: string;
   title: string;
