@@ -1,5 +1,7 @@
-import { getCloudflareContext } from "@opennextjs/cloudflare";
 import GalleryClient, { type GalleryImage } from "@/components/GalleryClient";
+import { getD1Client } from "@/lib/d1-client";
+
+export const dynamic = "force-dynamic";
 
 type GalleryRow = {
   id: string;
@@ -9,12 +11,6 @@ type GalleryRow = {
   description: string | null;
   category: string | null;
   tags: string | null;
-};
-
-type GalleryDb = {
-  prepare: (sql: string) => {
-    all: <T>() => Promise<{ results: T[] }>;
-  };
 };
 
 function parseTags(value: string | null): string[] {
@@ -28,8 +24,7 @@ function parseTags(value: string | null): string[] {
 }
 
 async function getGalleryImages(): Promise<GalleryImage[]> {
-  const { env } = await getCloudflareContext({ async: true });
-  const db = (env as unknown as { GALLERY_DB: GalleryDb }).GALLERY_DB;
+  const db = getD1Client();
   const { results } = await db
     // Keep the public gallery compatible with databases that have not yet
     // received the optional gallery metadata migration (0004).

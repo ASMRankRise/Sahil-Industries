@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getCloudflareContext } from '@opennextjs/cloudflare';
+import { getD1Client } from '@/lib/d1-client';
 import { escapeHtml, getMailConfig, getMailer, renderSubmissionEmail } from '@/lib/mail';
 import { clean, clientAddress, emailPattern, rateLimited, verifyMathCaptcha } from '@/lib/form-security';
 
@@ -27,8 +27,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid security verification' }, { status: 400 });
     }
 
-    const { env } = getCloudflareContext();
-    const db = (env as unknown as { GALLERY_DB: { prepare: (query: string) => { bind: (...values: string[]) => { run: () => Promise<unknown> } } } }).GALLERY_DB;
+    const db = getD1Client();
     await db.prepare(`INSERT INTO form_submissions (id, form_type, name, email, phone, subject, message) VALUES (?, ?, ?, ?, ?, ?, ?)`)
       .bind(crypto.randomUUID(), formType === 'enquiry' ? 'enquiry' : 'contact', name, email, phone || '', subject || '', message).run();
 

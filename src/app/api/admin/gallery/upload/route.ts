@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAdminDb, requireAdmin } from "@/lib/admin-auth";
 import { extensionForImage, MAX_IMAGE_BYTES, MAX_IMAGE_DIMENSION, readImageDimensions } from "@/lib/image-validation";
-import { getCloudflareContext } from "@opennextjs/cloudflare";
+import { r2Client } from "@/lib/r2-client";
 
-type ImageBucket = { put: (key: string, value: Uint8Array, options?: { httpMetadata?: { contentType: string } }) => Promise<unknown>; delete: (key: string) => Promise<unknown> };
 
-export const runtime = "edge";
+// Keep this route in the Worker server bundle. OpenNext requires edge-runtime
+// routes to be configured as separate functions, which is not needed here.
+export const runtime = "nodejs";
 
 export async function POST(request: NextRequest) {
   let objectKey: string | undefined;
@@ -23,16 +24,14 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Invalid or oversized image dimensions" }, { status: 400 });
     const id = crypto.randomUUID();
     objectKey = `gallery/${id}.${extension}`;
-    const { env } = getCloudflareContext();
-    const bucket = (env as unknown as { GALLERY_IMAGES: ImageBucket }).GALLERY_IMAGES;
-    await bucket.put(objectKey, bytes, { httpMetadata: { contentType: value.type } });
+    await r2Client.upload(objectKey, bytes, value.type);
     const title = String(form.get("title") || value.name.replace(/\.[^.]+$/, "")).slice(0, 200);
     const altText = String(form.get("alt_text") || title).slice(0, 500);
     const status = String(form.get("status") || "published");
     await getAdminDb().prepare("INSERT INTO gallery_images (id, object_key, title, alt_text, status) VALUES (?, ?, ?, ?, ?)").bind(id, objectKey, title, altText, status).run();
     return NextResponse.json({ id, objectKey, title, altText, width: dimensions.width, height: dimensions.height, url: `/api/gallery/${encodeURIComponent(objectKey)}` }, { status: 201 });
   } catch (error) {
-    if (objectKey) { try { const { env } = getCloudflareContext(); await (env as unknown as { GALLERY_IMAGES: ImageBucket }).GALLERY_IMAGES.delete(objectKey); } catch {} }
+    if (objectKey) { try { await r2Client.delete(objectKey); } catch {} }
     if (error instanceof Error && error.message === "ADMIN_UNAUTHORIZED") return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     return NextResponse.json({ error: "Unable to upload image" }, { status: 500 });
   }

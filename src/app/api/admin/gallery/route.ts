@@ -4,19 +4,20 @@ import { getAdminDb, requireAdmin } from "@/lib/admin-auth";
 export async function GET(request: NextRequest) {
   try {
     await requireAdmin(request);
-    const rows = await getAdminDb()
+    const result = await getAdminDb()
       .prepare(
         "SELECT *, '/api/gallery/' || object_key AS url FROM gallery_images ORDER BY COALESCE(sort_order, 999999), created_at DESC",
       )
       .bind()
-      .all?.();
-    return NextResponse.json({ images: rows });
+      .all<{ id: string; [key: string]: unknown }>();
+    return NextResponse.json({ images: result.results });
   } catch (error) {
     if (error instanceof Error && error.message === "ADMIN_UNAUTHORIZED")
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    console.error("Unable to load gallery", error);
     return NextResponse.json(
-      { error: "Unable to load gallery" },
-      { status: 500 },
+      { error: "Gallery database is not configured" },
+      { status: 503 },
     );
   }
 }

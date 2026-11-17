@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { escapeHtml, getMailConfig, getMailer, renderSubmissionEmail } from '@/lib/mail';
-import { getCloudflareContext } from '@opennextjs/cloudflare';
+import { getD1Client } from '@/lib/d1-client';
+import { r2Client } from '@/lib/r2-client';
 import { clean, clientAddress, emailPattern, rateLimited, verifyMathCaptcha } from '@/lib/form-security';
 
 export const runtime = 'nodejs';
@@ -65,10 +66,11 @@ export async function POST(request: NextRequest) {
       if (!resume.name || /[\\/\0]/.test(resume.name)) return NextResponse.json({ error: 'Invalid file name' }, { status: 400 });
     }
 
-    const { env } = getCloudflareContext();
-    const db = (env as any).GALLERY_DB;
+    const db = getD1Client();
+    const resumeKey = resume ? `resumes/${crypto.randomUUID()}-${resume.name.replace(/[^a-zA-Z0-9._-]/g, '_').slice(0, 180)}` : null;
+    if (resume && resumeKey) await r2Client.upload(resumeKey, new Uint8Array(await resume.arrayBuffer()), resume.type);
     await db.prepare('INSERT INTO career_applications (id, fullname, email, mobile, city, message, resume_key) VALUES (?, ?, ?, ?, ?, ?, ?)')
-      .bind(crypto.randomUUID(), fullname, email, mobile, city, message, resume ? resume.name.replace(/[^a-zA-Z0-9._-]/g, '_').slice(0, 180) : null).run();
+      .bind(crypto.randomUUID(), fullname, email, mobile, city, message, resumeKey).run();
 
     // Prepare email content
     const htmlContent = renderSubmissionEmail({

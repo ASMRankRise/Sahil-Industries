@@ -18,7 +18,7 @@ const sql = `INSERT INTO admin_users (id, email, password_hash, name) VALUES ('$
 const wrangler = process.platform === "win32" ? "npx.cmd" : "npx";
 const remote = process.argv.includes("--remote");
 try {
-  execFileSync(wrangler, ["wrangler", "d1", "execute", "sahil-industries-db", remote ? "--remote" : "--local", "--command", sql], { stdio: "inherit" });
+  execFileSync(wrangler, ["wrangler", "d1", "execute", "sahil-industries-gallery", remote ? "--remote" : "--local", "--command", sql], { stdio: "inherit" });
   console.log(`Admin account created in ${remote ? "remote" : "local"} D1.`);
 } catch {
   console.error(`Could not write to ${remote ? "remote" : "local"} D1. Run this SQL manually:\n` + sql);

@@ -1,22 +1,10 @@
-import { getCloudflareContext } from "@opennextjs/cloudflare";
 import bcrypt from "bcryptjs";
+import { getD1Client } from "@/lib/d1-client";
 
 export const ADMIN_SESSION_COOKIE = "admin_session";
 export const SESSION_TTL_SECONDS = 60 * 60 * 8;
 
-type DB = {
-  prepare: (sql: string) => {
-    bind: (...values: string[]) => {
-      first: <T>() => Promise<T | null>;
-      all: <T>() => Promise<{ results: T[] }>;
-      run: () => Promise<unknown>;
-    };
-  };
-};
-export function getAdminDb(): DB {
-  const { env } = getCloudflareContext();
-  return (env as unknown as { GALLERY_DB: DB }).GALLERY_DB;
-}
+export const getAdminDb = getD1Client;
 
 async function tokenHash(token: string) {
   const bytes = await crypto.subtle.digest(
