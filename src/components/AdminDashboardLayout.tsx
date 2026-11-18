@@ -49,7 +49,7 @@ const asset = (path: string) => `/sahilcrane/${path}`;
 
 const navItems = [
   { label: "Dashboard", href: "/admin", icon: LayoutDashboard },
-  { label: "Enquiries", href: "/admin/enquiries", icon: Mail, badge: 8 },
+  { label: "Enquiries", href: "/admin/enquiries", icon: Mail },
   { label: "Gallery", href: "/admin/gallery", icon: Image },
   { label: "Analytics", href: "/admin/analytics", icon: BarChart3 },
 ];
@@ -71,6 +71,7 @@ export function AdminDashboardLayout({ children, activeNav, pageTitle, pageDescr
 
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
+  const [enquiryCount, setEnquiryCount] = useState(0);
 
   useEffect(() => {
     const handleResize = () => {
@@ -85,6 +86,13 @@ export function AdminDashboardLayout({ children, activeNav, pageTitle, pageDescr
     handleResize();
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  useEffect(() => {
+    fetch("/api/admin/enquiries", { cache: "no-store" })
+      .then((response) => response.ok ? response.json() : { enquiries: [] })
+      .then((data) => setEnquiryCount(Array.isArray(data.enquiries) ? data.enquiries.length : 0))
+      .catch(() => setEnquiryCount(0));
   }, []);
 
   if (loading) return <AdminPageSkeleton />;
@@ -153,9 +161,9 @@ export function AdminDashboardLayout({ children, activeNav, pageTitle, pageDescr
                   <Icon size={19} />
                 </div>
                 <span className="flex-1 truncate">{item.label}</span>
-                {item.badge && (
+                {item.label === "Enquiries" && enquiryCount > 0 && (
                   <span className="flex h-5 min-w-[20px] items-center justify-center px-1.5 text-[10px] font-bold text-ink bg-safety rounded-full">
-                    {item.badge}
+                    {enquiryCount}
                   </span>
                 )}
               </Link>
@@ -164,14 +172,7 @@ export function AdminDashboardLayout({ children, activeNav, pageTitle, pageDescr
         </nav>
 
         {/* Sidebar Footer */}
-        <div className="mt-auto flex-shrink-0 border-t border-white/10 p-4 space-y-2">
-          <button
-            onClick={() => {}}
-            className="flex w-full items-center gap-3 px-3 py-2.5 text-sm font-medium text-slate-400 rounded-xl hover:bg-white/5 hover:text-white transition-colors group"
-          >
-            <User size={17} className="group-hover:text-blue-400 transition-colors" />
-            <span>Profile</span>
-          </button>
+        <div className="mt-auto flex-shrink-0 border-t border-white/10 p-4">
           <button
            onClick={async () => {
               await logout();
@@ -179,14 +180,11 @@ export function AdminDashboardLayout({ children, activeNav, pageTitle, pageDescr
               // rendering once more while the auth context is updating.
               window.location.replace("/admin");
             }}
-            className="flex w-full items-center gap-3 px-3 py-2.5 text-sm font-medium text-slate-400 rounded-xl hover:bg-white/5 hover:text-white transition-colors group"
+            className={`flex w-full items-center gap-3 rounded-xl border px-3 py-2.5 text-sm font-medium transition-all group hover:shadow-lg ${theme === "light" ? "border-red-300 bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700 hover:shadow-red-200" : "border-red-500/20 bg-red-500/5 text-red-300 hover:bg-red-500/15 hover:text-red-200 hover:shadow-red-950/30"}`}
           >
             <LogOut size={17} className="group-hover:text-red-400 transition-colors" />
             <span>Sign Out</span>
           </button>
-          <div className="pt-3 border-t border-white/5 text-center">
-            <p className="text-[11px] text-slate-500">v2.1.0 • Sahil Industries</p>
-          </div>
         </div>
       </aside>
 
@@ -242,15 +240,7 @@ export function AdminDashboardLayout({ children, activeNav, pageTitle, pageDescr
 
         {/* Dashboard Body */}
         <main className={`flex-1 px-4 sm:px-6 md:px-8 py-6 space-y-6 max-w-[1600px] w-full mx-auto ${theme === "dark" ? "bg-ink" : "bg-slate-100"}`}>
-          <section className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div>
-              <h2 className="text-2xl sm:text-3xl font-bold tracking-tight bg-gradient-to-r from-white to-safety bg-clip-text text-transparent">
-                {pageTitle}
-              </h2>
-              <p className="text-sm text-slate-400 mt-1">{pageDescription}</p>
-            </div>
-          </section>
-
+          <h2 className="text-2xl sm:text-3xl font-bold tracking-tight bg-gradient-to-r from-white to-safety bg-clip-text text-transparent">{pageTitle}</h2>
           {children}
         </main>
       </div>
