@@ -93,8 +93,8 @@ export function GalleryGrid({ images, onImageClick, activeCategory }: GalleryGri
                 </div>
 
                 {/* Overlay Actions */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
-                  <div className="w-full flex items-center justify-between transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
+                <div className="absolute inset-0 flex items-end bg-gradient-to-t from-black/80 via-black/20 to-transparent p-4 opacity-0 transition-opacity duration-300 group-hover:opacity-100 group-focus-within:opacity-100 [@media(hover:none)]:opacity-100">
+                  <div className="flex w-full translate-y-4 flex-wrap items-center justify-between gap-2 transition-transform duration-300 group-hover:translate-y-0 group-focus-within:translate-y-0 [@media(hover:none)]:translate-y-0">
                     <div className="flex gap-2">
                       <motion.button
                         whileHover={{ scale: 1.15 }}
@@ -136,7 +136,7 @@ export function GalleryGrid({ images, onImageClick, activeCategory }: GalleryGri
               </div>
 
               {/* Image Info */}
-              <div className="p-5">
+              <div className="p-5 [overflow-wrap:anywhere]">
                 <h3 className="font-semibold text-lg mb-1 group-hover:text-safety transition-colors">
                   {image.title}
                 </h3>

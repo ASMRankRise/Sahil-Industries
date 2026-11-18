@@ -575,7 +575,7 @@ export function CareerForm({ onSuccess }: CareerFormProps) {
         )}
       </AnimatePresence>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
         <CareerField
           name="fullname"
           label="Full Name"
@@ -606,7 +606,7 @@ export function CareerForm({ onSuccess }: CareerFormProps) {
         />
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
         <CareerField
           name="mobile"
           label="Mobile Number"

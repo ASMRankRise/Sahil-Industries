@@ -35,8 +35,7 @@ const HERO_TYPED_FIRST_LINE = "Precision lifting.";
 
 const CONTAINER_MAX_WIDTH = "w-[min(1240px,calc(100%-64px))]";
 const CONTAINER_MAX_WIDTH_MD = "max-md:w-[calc(100%-36px)]";
-const SECTION_PY_DESKTOP = "py-28";
-const SECTION_PY_MD = "max-md:py-20";
+const SECTION_PY_DESKTOP = "py-16 md:py-20 lg:py-28";
 const REVEAL_GROUP_STAGGER = 0.1;
 const REVEAL_GROUP_DELAY = 0.1;
 const EYEBROW_MB = "mb-[18px]";
@@ -47,9 +46,9 @@ const HEADING_MAX_W = "max-w-[690px]";
 const HEADING_TITLE = "m-0 text-[clamp(34px,4vw,55px)] font-bold leading-[1.05] tracking-[-.052em]";
 const HEADING_COPY = "mt-4 text-base text-steel";
 const HERO_MIN_H = "min-h-[710px]";
-const HERO_MIN_H_MD = "max-md:min-h-[650px]";
+const HERO_MIN_H_MD = "max-md:min-h-0";
 const HERO_CONTENT_PY = "py-[114px] pb-[158px]";
-const HERO_CONTENT_PY_MD = "max-md:py-[88px] max-md:pb-[180px]";
+const HERO_CONTENT_PY_MD = "max-md:pt-16 max-md:pb-8";
 const HERO_EYEBROW_ANIM_DURATION = 0.5;
 const HERO_EYEBROW_BAR_DURATION = 0.6;
 const HERO_HEADLINE_DURATION = 0.8;
@@ -64,7 +63,6 @@ const HERO_CTA_MD = "max-md:grid max-md:grid-cols-1";
 const STATS_GRID_COLS = "grid-cols-3";
 const STATS_GAP = "gap-4";
 const STATS_BORDER = "border-l border-white/20";
-const STATS_MD_BOTTOM = "max-md:bottom-5";
 const STATS_MD_GRID = "max-md:grid-cols-1";
 const STATS_MD_GAP = "max-md:gap-3";
 const STATS_CARD_PADDING = "px-7 py-5";
@@ -82,8 +80,8 @@ const HIGHLIGHTS_ICON_WRAPPER = "inline-flex h-12 w-12 items-center justify-cent
 const HIGHLIGHTS_ICON_SIZE = "h-8 w-8";
 const HIGHLIGHTS_TITLE = "text-xl font-bold text-ink mb-2";
 const HIGHLIGHTS_COPY = "text-steel";
-const ABOUT_GRID_COLS = "grid-cols-[minmax(320px,.88fr)_minmax(340px,1fr)]";
-const ABOUT_GAP = "gap-[clamp(50px,9vw,150px)]";
+const ABOUT_GRID_COLS = "grid-cols-1 md:grid-cols-[minmax(0,.88fr)_minmax(0,1fr)]";
+const ABOUT_GAP = "gap-10 lg:gap-[clamp(50px,9vw,150px)]";
 const ABOUT_IMG_PB = "pb-[88px]";
 const ABOUT_IMG_PR = "pr-[18px]";
 const ABOUT_IMG_MAIN_H = "h-[410px]";
@@ -235,7 +233,7 @@ export default function ModernHomePage() {
         <SiteHeader />
 
         {/* Hero Section */}
-      <section className={`relative flex ${HERO_MIN_H} items-center overflow-hidden bg-ink text-white ${HERO_MIN_H_MD}`}>
+      <section className={`relative flex flex-col justify-center overflow-hidden bg-ink text-white ${HERO_MIN_H} ${HERO_MIN_H_MD}`}>
         {/* Background slider with enhanced transitions */}
         <HeroSliderBackdrop />
         
@@ -369,7 +367,7 @@ export default function ModernHomePage() {
         </motion.div>
 
         {/* Enhanced Stats Bar - Animated Counters */}
-        <div className={`absolute bottom-0 left-1/2 z-10 grid ${CONTAINER_MAX_WIDTH} -translate-x-1/2 ${STATS_GRID_COLS} ${STATS_GAP} ${STATS_BORDER} ${STATS_MD_BOTTOM} ${CONTAINER_MAX_WIDTH_MD} ${STATS_MD_GRID} ${STATS_MD_GAP}`}>
+         <div className={`relative z-10 mx-auto mb-5 grid md:absolute md:bottom-0 md:left-1/2 md:mb-0 md:-translate-x-1/2 ${CONTAINER_MAX_WIDTH} ${STATS_GRID_COLS} ${STATS_GAP} ${STATS_BORDER} ${CONTAINER_MAX_WIDTH_MD} ${STATS_MD_GRID} ${STATS_MD_GAP}`}>
           <Reveal variant="itemReveal" delay={0.1}>
             <motion.div
               className={`group flex items-center gap-4 border border-white/20 border-l-0 bg-ink/80 ${STATS_CARD_PADDING} ${STATS_CARD_PADDING_MD} ${STATS_CARD_HOVER}`}
@@ -489,11 +487,11 @@ export default function ModernHomePage() {
       </section>
 
       {/* About Section - Side by side layout with background separation */}
-      <section className={`${SECTION_PY_DESKTOP} ${SECTION_PY_MD} bg-mist`}>
+      <section className={`${SECTION_PY_DESKTOP} bg-mist`}>
         <RevealGroup
           staggerChildren={REVEAL_GROUP_STAGGER}
           delayChildren={REVEAL_GROUP_DELAY}
-          className={`mx-auto grid ${CONTAINER_MAX_WIDTH} ${ABOUT_GRID_COLS} items-center ${ABOUT_GAP} ${CONTAINER_MAX_WIDTH_MD} max-md:grid-cols-1`}>
+           className={`mx-auto grid ${CONTAINER_MAX_WIDTH} ${ABOUT_GRID_COLS} items-center ${ABOUT_GAP} ${CONTAINER_MAX_WIDTH_MD}`}>
           {/* Image - Left Side */}
           <RevealItem variant="itemReveal">
             <div className="relative min-h-[520px] overflow-hidden bg-[#f4f4f4] max-md:min-h-[430px]">
@@ -593,7 +591,7 @@ export default function ModernHomePage() {
         </RevealGroup>
       </section>
 
-                        <section className={`bg-white ${SECTION_PY_DESKTOP} ${SECTION_PY_MD}`}>
+                        <section className={`bg-white ${SECTION_PY_DESKTOP}`}>
                           <div className={`mx-auto ${CONTAINER_MAX_WIDTH} ${CONTAINER_MAX_WIDTH_MD}`}>
                             <RevealGroup staggerChildren={REVEAL_GROUP_STAGGER} delayChildren={REVEAL_GROUP_DELAY}>
             <RevealItem variant="quickEnter">
@@ -659,7 +657,7 @@ export default function ModernHomePage() {
         </div>
       </section>
 
-                        <WhySahilTimeline /><section className={`${SECTION_PY_DESKTOP} ${SECTION_PY_MD}`}>
+                        <WhySahilTimeline /><section className={SECTION_PY_DESKTOP}>
                           <div className={`mx-auto ${CONTAINER_MAX_WIDTH} ${CONTAINER_MAX_WIDTH_MD}`}>
                             <RevealGroup staggerChildren={REVEAL_GROUP_STAGGER} delayChildren={REVEAL_GROUP_DELAY}>
             <RevealItem variant="quickEnter">
@@ -675,7 +673,7 @@ export default function ModernHomePage() {
         </div>
       </section>
 
-                        <section className={`bg-mist ${SECTION_PY_DESKTOP} ${SECTION_PY_MD}`}>
+                        <section className={`bg-mist ${SECTION_PY_DESKTOP}`}>
                           <div className={`mx-auto ${CONTAINER_MAX_WIDTH} ${CONTAINER_MAX_WIDTH_MD}`}>
                             <RevealGroup staggerChildren={REVEAL_GROUP_STAGGER} delayChildren={REVEAL_GROUP_DELAY}>
             <RevealItem variant="quickEnter">

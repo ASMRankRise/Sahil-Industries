@@ -10,7 +10,7 @@ export default function EnquiryPage() {
   return (
     <ModernPageShell eyebrow="Get in touch" title="Send us an Enquiry">
       <section className="py-28 max-md:py-20">
-        <div className="mx-auto w-[min(1240px,calc(100%-64px))] max-md:w-[calc(100%-36px)] grid grid-cols-[minmax(260px,.72fr)_minmax(360px,1fr)] items-start gap-[clamp(45px,8vw,130px)] max-md:grid-cols-1 relative">
+        <div className="relative mx-auto grid w-[calc(100%-36px)] grid-cols-1 items-start gap-10 md:w-[min(1240px,calc(100%-64px))] md:grid-cols-[minmax(0,.72fr)_minmax(0,1fr)] lg:gap-[clamp(45px,8vw,130px)]">
           {/* Vertical divider between columns - only on desktop */}
           <div className="hidden lg:block absolute left-[calc(45%-2px)] top-[-20px] bottom-[-20px] w-0.5 bg-gradient-to-b from-transparent via-ink/20 to-transparent" aria-hidden="true" />
           

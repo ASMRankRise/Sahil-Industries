@@ -74,18 +74,14 @@ export function AdminDashboardLayout({ children, activeNav, pageTitle, pageDescr
   const [enquiryCount, setEnquiryCount] = useState(0);
 
   useEffect(() => {
-    const handleResize = () => {
-      const mobile = window.innerWidth < 1024;
-      setIsMobile(mobile);
-      if (mobile) {
-        setSidebarOpen(false);
-      } else {
-        setSidebarOpen(true);
-      }
+    const desktop = window.matchMedia("(min-width: 1024px)");
+    const syncSidebar = () => {
+      setIsMobile(!desktop.matches);
+      setSidebarOpen(desktop.matches);
     };
-    handleResize();
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
+    syncSidebar();
+    desktop.addEventListener("change", syncSidebar);
+    return () => desktop.removeEventListener("change", syncSidebar);
   }, []);
 
   useEffect(() => {
@@ -118,24 +114,26 @@ export function AdminDashboardLayout({ children, activeNav, pageTitle, pageDescr
 
       {/* Sidebar */}
       <aside
-        className={`fixed inset-y-0 left-0 z-50 w-64 bg-surface border-r border-white/10 flex flex-col transition-transform duration-300 ease-in-out shadow-2xl lg:shadow-none ${
+        id="admin-sidebar"
+        inert={!sidebarOpen}
+        className={`fixed inset-y-0 left-0 z-50 flex w-64 max-w-[85vw] flex-col border-r border-white/10 bg-surface shadow-2xl transition-transform duration-300 ease-in-out lg:shadow-none ${
           sidebarOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
         {/* Sidebar Header - exactly h-16 to match topbar */}
-        <div className="flex h-16 items-center justify-between px-6 border-b border-white/10 flex-shrink-0">
-          <Link href="/" className="flex w-full translate-y-1 flex-col items-center justify-center gap-1 group">
-            <div className="flex h-9 w-11 items-center justify-center rounded-lg border border-safety/50 bg-safety/10 shadow-md shadow-safety/10 transition-transform group-hover:scale-105">
-              <img src="/media/logo/logo%20svg.svg" alt="Sahil Industries" className="h-7 w-9 object-contain" />
+        <div className="flex h-16 shrink-0 items-center justify-between gap-2 border-b border-white/10 px-4 sm:px-6">
+          <Link href="/" className="group flex items-center gap-3">
+            <div className="flex h-9 w-11 shrink-0 items-center justify-center rounded-lg border border-safety/50 bg-safety/10 shadow-md shadow-safety/10 transition-transform group-hover:scale-105">
+              <img src={theme === "dark" ? "/media/logo/logo%20svg1.svg" : "/media/logo/logo%20svg.svg"} alt="" className="h-7 w-9 object-contain" />
             </div>
-            <div className="text-center">
+            <div className="flex flex-col text-left leading-tight">
               <span className="text-xs font-extrabold uppercase tracking-widest text-white">SAHIL</span>
               <span className="text-[10px] font-medium text-safety uppercase tracking-wider block">INDUSTRIES</span>
             </div>
           </Link>
           <button
             onClick={() => setSidebarOpen(false)}
-            className="lg:hidden p-1.5 text-white/60 hover:text-white rounded-lg hover:bg-white/10 transition-colors"
+            className="grid size-11 shrink-0 place-items-center rounded-lg text-white/60 transition-colors hover:bg-white/10 hover:text-white lg:hidden"
             aria-label="Close sidebar"
           >
             <X size={18} />
@@ -192,16 +190,18 @@ export function AdminDashboardLayout({ children, activeNav, pageTitle, pageDescr
       <div className={`min-h-screen flex flex-col transition-all duration-300 ${sidebarOpen ? "lg:pl-64" : "lg:pl-0"}`}>
         {/* Top Header Bar */}
         <header className="sticky top-0 z-30 flex h-16 w-full items-center justify-between px-4 sm:px-6 md:px-8 border-b border-white/10 bg-ink/95 backdrop-blur-md">
-          <div className="flex items-center gap-3 sm:gap-4">
+          <div className="flex min-w-0 items-center gap-2 sm:gap-4">
             <button
               onClick={() => setSidebarOpen(!sidebarOpen)}
-              className="p-2 text-white/70 hover:text-white rounded-lg hover:bg-white/10 transition-colors focus:outline-none"
+              className="grid size-11 shrink-0 place-items-center rounded-lg text-white/70 transition-colors hover:bg-white/10 hover:text-white"
               aria-label="Toggle sidebar"
+              aria-controls="admin-sidebar"
+              aria-expanded={sidebarOpen}
               title={sidebarOpen ? "Collapse sidebar" : "Expand sidebar"}
             >
               <Menu size={20} />
             </button>
-            <div>
+            <div className="min-w-0 [overflow-wrap:anywhere]">
               <h1 className="text-base sm:text-lg font-bold tracking-tight bg-gradient-to-r from-white to-safety bg-clip-text text-transparent leading-none">
                 {pageTitle}
               </h1>
@@ -209,11 +209,11 @@ export function AdminDashboardLayout({ children, activeNav, pageTitle, pageDescr
             </div>
           </div>
 
-          <div className="flex items-center gap-2 sm:gap-3">
+          <div className="flex shrink-0 items-center gap-1 sm:gap-3">
             {/* Theme Toggle */}
             <button
               onClick={toggleTheme}
-              className={`p-2 rounded-lg transition-colors ${
+              className={`grid size-11 place-items-center rounded-lg transition-colors ${
                 theme === "dark"
                   ? "text-amber-400 hover:text-amber-300 hover:bg-white/10"
                   : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
@@ -239,7 +239,7 @@ export function AdminDashboardLayout({ children, activeNav, pageTitle, pageDescr
         </header>
 
         {/* Dashboard Body */}
-        <main className={`flex-1 px-4 sm:px-6 md:px-8 py-6 space-y-6 max-w-[1600px] w-full mx-auto ${theme === "dark" ? "bg-ink" : "bg-slate-100"}`}>
+        <main className={`mx-auto w-full min-w-0 max-w-[1600px] flex-1 space-y-6 px-4 py-6 sm:px-6 md:px-8 ${theme === "dark" ? "bg-ink" : "bg-slate-100"}`}>
           <h2 className="text-2xl sm:text-3xl font-bold tracking-tight bg-gradient-to-r from-white to-safety bg-clip-text text-transparent">{pageTitle}</h2>
           {children}
         </main>

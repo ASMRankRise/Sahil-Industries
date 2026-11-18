@@ -452,7 +452,7 @@ export function ContactForm({ formType = "contact", onSuccess }: ContactFormProp
         )}
       </AnimatePresence>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
         <Field
           name="name"
           label="Full Name"
@@ -483,7 +483,7 @@ export function ContactForm({ formType = "contact", onSuccess }: ContactFormProp
         />
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
         <Field
           name="phone"
           label="Phone Number"

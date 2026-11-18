@@ -12,7 +12,7 @@ import {
   X,
 } from "lucide-react";
 import { FaInstagram, FaFacebookF, FaWhatsapp } from "react-icons/fa";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
 import { primaryNavigation, siteContact } from "@/data/site";
 import { MagneticElement } from "@/components/ui/MagneticButton";
@@ -21,26 +21,22 @@ import { useReducedMotion } from "@/components/animations/hooks/useReducedMotion
 const MotionLink = motion.create(Link);
 
 // Standardized spacing constants for header
-const HEADER_HEIGHT_DESKTOP = "min-h-[88px]";
-const HEADER_HEIGHT_MOBILE = "min-h-[74px]";
+const HEADER_HEIGHT = "min-h-[74px] lg:min-h-[88px]";
 const LOGO_PADDING_X = "px-[34px]";
 const TOP_BAR_HEIGHT = "h-[31px]";
 const NAV_HEIGHT = "h-[57px]";
-const NAV_GAP_DESKTOP = "gap-7";
-const NAV_GAP_LG = "max-lg:gap-4";
-const NAV_PR_DESKTOP = "pr-[38px]";
-const NAV_PR_LG = "max-lg:pr-5";
+const NAV_SPACING = "gap-5 pr-5 xl:gap-7 xl:pr-[38px]";
 const CONTACT_ICON_SIZE = 20;
 const CONTACT_ICON_SIZE_MOBILE = 22;
 const TOOLTIP_OFFSET = "mb-2";
 const TOOLTIP_PADDING = "px-3 py-2";
-const MOBILE_MENU_BUTTON_SIZE = "h-[42px]";
 const DIVIDER_WIDTH = "w-px";
 
 export function SiteHeader() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [productsOpen, setProductsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const drawerRef = useRef<HTMLDialogElement>(null);
   const pathname = usePathname();
   const prefersReduced = useReducedMotion();
 
@@ -54,15 +50,24 @@ export function SiteHeader() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, [prefersReduced]);
 
-  // Close the mobile drawer when switching back to a desktop viewport.
   useEffect(() => {
-    const closeOnDesktop = () => {
-      if (window.innerWidth > 767) setMenuOpen(false);
-    };
-    window.addEventListener("resize", closeOnDesktop);
-    closeOnDesktop();
-    return () => window.removeEventListener("resize", closeOnDesktop);
+    const desktop = window.matchMedia("(min-width: 1024px)");
+    const closeOnDesktop = () => { if (desktop.matches) setMenuOpen(false); };
+    desktop.addEventListener("change", closeOnDesktop);
+    return () => desktop.removeEventListener("change", closeOnDesktop);
   }, []);
+
+  useEffect(() => {
+    const drawer = drawerRef.current;
+    if (!menuOpen || !drawer) return;
+    drawer.showModal();
+    const overflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      drawer.close();
+      document.body.style.overflow = overflow;
+    };
+  }, [menuOpen]);
 
   const productItem = primaryNavigation.find(
     (item) => item.label === "Products",
@@ -77,12 +82,12 @@ export function SiteHeader() {
         className={`fixed inset-x-0 top-0 z-50 border-b border-white/10 bg-surface text-white transition-all duration-300 ${
           scrolled ? "shadow-xl bg-surface/95 backdrop-blur-sm" : ""
         }`}>
-        <div className={`mx-auto grid max-w-[1440px] grid-cols-[252px_1fr_auto] ${HEADER_HEIGHT_DESKTOP} max-lg:grid-cols-[220px_1fr] max-md:flex ${HEADER_HEIGHT_MOBILE} max-md:items-center max-md:justify-between max-md:px-[18px]`}>
+        <div className={`mx-auto flex max-w-[1440px] items-center justify-between px-[18px] lg:grid lg:grid-cols-[220px_minmax(0,1fr)] lg:items-stretch lg:px-0 xl:grid-cols-[252px_minmax(0,1fr)_auto] ${HEADER_HEIGHT}`}>
           {/* Logo with magnetic effect */}
           <MagneticElement strength={0.15} area={120}>
             <Link
               href="/"
-              className="flex items-center bg-safety px-[34px] [clip-path:polygon(0_0,100%_0,88%_100%,0_100%)] max-md:bg-transparent max-md:px-0 max-md:[clip-path:none] transition-transform duration-300"
+              className="flex items-center transition-transform duration-300 lg:bg-safety lg:px-[26px] lg:[clip-path:polygon(0_0,100%_0,88%_100%,0_100%)] xl:px-[34px]"
               aria-label="Sahil Industries - Home">
                <Image
                  src="/media/logo/logo.png"
@@ -90,7 +95,7 @@ export function SiteHeader() {
                  width={183}
                  height={72}
                  priority
-                 className="h-auto w-[164px] max-md:hidden"
+                 className="hidden h-auto w-[164px] lg:block"
                />
                <Image
                  src="/media/logo/logo-footer.png"
@@ -98,15 +103,16 @@ export function SiteHeader() {
                  width={183}
                  height={72}
                  priority
-                 className="hidden h-auto w-[148px] max-md:block"
+                 className="h-auto w-[148px] lg:hidden"
                />
             </Link>
           </MagneticElement>
 
-          <div className="min-w-0 max-md:hidden">
+          <div className="hidden min-w-0 lg:block">
             <div className={`flex items-center justify-between border-b border-white/10 ${TOP_BAR_HEIGHT} ${LOGO_PADDING_X} text-[10px] uppercase tracking-industrial text-white`}>
               <span>An ISO 9001:2008 Certified Company</span>
               <div className="flex items-center gap-3">
+                <a href={siteContact.phoneHref} className="xl:hidden" aria-label={`Call ${siteContact.phone}`}><Phone size={15} className="text-safety" aria-hidden="true" /></a>
                 <motion.a
                   href={`mailto:${siteContact.email}`}
                   className="flex items-center gap-2 text-white"
@@ -122,7 +128,7 @@ export function SiteHeader() {
               </div>
             </div>
             <nav
-              className={`flex items-center justify-end ${NAV_GAP_DESKTOP} ${NAV_PR_DESKTOP} ${NAV_GAP_LG} ${NAV_PR_LG} ${NAV_HEIGHT}`}
+              className={`flex items-center justify-end ${NAV_SPACING} ${NAV_HEIGHT}`}
               aria-label="Primary navigation">
               {primaryItems.slice(0, 2).map((item) => (
                       <MotionLink
@@ -197,15 +203,16 @@ export function SiteHeader() {
           </div>
 
           {/* Contact section - Phone & WhatsApp */}
-          <div className="flex items-center h-[57px] max-lg:hidden">
+          <div className="hidden h-[57px] items-center xl:flex">
             <motion.a
               className={`flex items-center gap-3 border-l border-white/10 ${LOGO_PADDING_X} py-2 group relative h-full`}
               href={siteContact.phoneHref}
+              aria-label={`Call ${siteContact.phone}`}
               whileHover={{ x: 4 }}
               whileTap={{ scale: 0.98 }}
               transition={{ duration: 0.15 }}>
               <Phone className="text-safety group-hover:scale-110 transition-transform duration-300" size={CONTACT_ICON_SIZE} aria-hidden="true" />
-              <span className={`absolute bottom-full left-1/2 -translate-x-1/2 ${TOOLTIP_OFFSET} opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 ease-out whitespace-nowrap pointer-events-none bg-ink/95 backdrop-blur-sm border border-white/10 rounded-lg ${TOOLTIP_PADDING} shadow-xl z-10`}>
+              <span className={`absolute top-full right-0 ${TOOLTIP_OFFSET} opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 ease-out whitespace-nowrap pointer-events-none bg-ink/95 backdrop-blur-sm border border-white/10 rounded-lg ${TOOLTIP_PADDING} shadow-xl z-10`}>
                 <small className="block text-xs text-slate-400">Make a Call</small>
                 <b className="block text-[15px] text-safety">{siteContact.phone}</b>
               </span>
@@ -216,13 +223,14 @@ export function SiteHeader() {
             <motion.a
               className={`flex items-center gap-2 border-l border-white/10 ${LOGO_PADDING_X} py-2 group relative h-full`}
               href={siteContact.whatsappHref}
+              aria-label="Chat on WhatsApp"
               target="_blank"
               rel="noopener noreferrer"
               whileHover={{ x: 4, scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               transition={{ duration: 0.15 }}>
               <FaWhatsapp className="text-green-500 group-hover:scale-110 transition-transform duration-300" size={CONTACT_ICON_SIZE_MOBILE} aria-hidden="true" />
-              <span className={`absolute bottom-full left-1/2 -translate-x-1/2 ${TOOLTIP_OFFSET} opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 ease-out whitespace-nowrap pointer-events-none bg-ink/95 backdrop-blur-sm border border-white/10 rounded-lg ${TOOLTIP_PADDING} shadow-xl z-10`}>
+              <span className={`absolute top-full right-0 ${TOOLTIP_OFFSET} opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 ease-out whitespace-nowrap pointer-events-none bg-ink/95 backdrop-blur-sm border border-white/10 rounded-lg ${TOOLTIP_PADDING} shadow-xl z-10`}>
                 <small className="block text-xs text-slate-400">Chat on WhatsApp</small>
                 <b className="block text-[13px] text-green-500 font-medium">WhatsApp</b>
               </span>
@@ -230,8 +238,12 @@ export function SiteHeader() {
           </div>
 
           <motion.button
-            className={`hidden ${MOBILE_MENU_BUTTON_SIZE} border-0 bg-safety p-2.5 text-ink max-md:block`}
+            type="button"
+            className="grid size-11 place-items-center border-0 bg-safety text-ink lg:hidden"
             aria-label="Open navigation"
+            aria-expanded={menuOpen}
+            aria-controls="mobile-navigation"
+            aria-haspopup="dialog"
             onClick={() => setMenuOpen(true)}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
@@ -241,27 +253,21 @@ export function SiteHeader() {
         </div>
       </header>
       {/* Reserve the fixed header's space so page content never sits underneath it. */}
-      <div className={`${HEADER_HEIGHT_DESKTOP} max-md:${HEADER_HEIGHT_MOBILE}`} aria-hidden="true" />
+      <div className={HEADER_HEIGHT} aria-hidden="true" />
 
-      <AnimatePresence>
-        {menuOpen && (
-          <motion.aside
-            initial={{ x: "100%" }}
-            animate={{ x: 0 }}
-            exit={{ x: "100%" }}
-            transition={{
-              type: "tween",
-              duration: 0.3,
-              ease: [0.22, 1, 0.36, 1],
-            }}
-            className="fixed inset-y-0 right-0 z-50 flex w-[min(88vw,360px)] flex-col gap-1 bg-ink p-7 text-white shadow-2xl"
-            role="dialog"
-            aria-modal="true"
-            aria-label="Navigation menu">
+      <dialog
+        id="mobile-navigation"
+        ref={drawerRef}
+        onCancel={(event) => { event.preventDefault(); setMenuOpen(false); }}
+        onClick={(event) => { if (event.target === event.currentTarget) setMenuOpen(false); }}
+        className="fixed inset-0 m-0 ml-auto h-dvh max-h-none w-[min(88vw,360px)] max-w-none overflow-y-auto overscroll-contain bg-ink text-white shadow-2xl backdrop:bg-black/60"
+        aria-label="Navigation menu">
+          <div className="flex min-h-full flex-col gap-1 p-5 sm:p-7">
             <motion.button
+              type="button"
               onClick={() => setMenuOpen(false)}
               aria-label="Close navigation"
-              className="ml-auto text-safety"
+              className="ml-auto grid size-11 place-items-center text-safety"
               whileHover={{ rotate: 90, scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
               transition={{ duration: 0.2 }}>
@@ -281,7 +287,8 @@ export function SiteHeader() {
               />
             </motion.div>
 
-            <motion.nav
+             <motion.nav
+               aria-label="Primary navigation"
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.15, duration: 0.3 }}>
@@ -303,14 +310,14 @@ export function SiteHeader() {
                  <motion.summary className="cursor-pointer text-sm font-bold uppercase tracking-industrial" whileHover={{ color: "#F6C515" }}>Products</motion.summary>
                  <motion.div className="mt-3 grid gap-2">
                    {productItem?.children?.map((item) => (
-                     <MotionLink href={item.href} onClick={() => setMenuOpen(false)} key={item.href} className="block w-full text-sm text-slate-300" whileHover={{ x: 4, color: "#F6C515" }}>
+                      <MotionLink href={item.href} onClick={() => setMenuOpen(false)} key={item.href} className="flex min-h-11 items-center text-sm text-slate-300" whileHover={{ x: 4, color: "#F6C515" }}>
                        {item.label}
                      </MotionLink>
                    ))}
                  </motion.div>
                </motion.details>
 
-               {primaryItems.slice(2).map((item, index) => (
+                {primaryItems.slice(2).map((item) => (
                  <MotionLink href={item.href} onClick={() => setMenuOpen(false)} key={item.href} className={`block w-full border-b border-white/10 py-3 text-sm font-bold uppercase tracking-industrial${pathname === item.href ? " !text-safety" : " text-white"}`} whileHover={{ x: 8, color: "#F6C515" }}>
                    {item.label}
                  </MotionLink>
@@ -341,9 +348,8 @@ export function SiteHeader() {
               </motion.a>
 
             </motion.nav>
-          </motion.aside>
-        )}
-      </AnimatePresence>
+          </div>
+      </dialog>
       <AnimatePresence>
         {scrolled && (
           <motion.button

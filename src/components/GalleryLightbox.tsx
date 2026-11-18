@@ -31,6 +31,18 @@ export function GalleryLightbox({ image, onClose, onNext, onPrev, images = [] }:
   const [pan, setPan] = useState({ x: 0, y: 0 });
   const imgRef = useRef<HTMLImageElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const closeRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    const previousFocus = document.activeElement;
+    const overflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    closeRef.current?.focus({ preventScroll: true });
+    return () => {
+      document.body.style.overflow = overflow;
+      if (previousFocus instanceof HTMLElement) previousFocus.focus({ preventScroll: true });
+    };
+  }, []);
 
   // Normalize incoming image prop to handle both object and string inputs safely
   const isObj = Boolean(image && typeof image === "object");
@@ -47,6 +59,24 @@ export function GalleryLightbox({ image, onClose, onNext, onPrev, images = [] }:
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       switch (e.key) {
+        case "Tab": {
+          const buttons = Array.from(containerRef.current?.querySelectorAll<HTMLButtonElement>("button:not(:disabled)") ?? [])
+            .filter((button) => button.getClientRects().length > 0);
+          if (!buttons.length) break;
+          const first = buttons[0];
+          const last = buttons[buttons.length - 1];
+          if (!containerRef.current?.contains(document.activeElement)) {
+            e.preventDefault();
+            (e.shiftKey ? last : first).focus();
+          } else if (e.shiftKey && document.activeElement === first) {
+            e.preventDefault();
+            last.focus();
+          } else if (!e.shiftKey && document.activeElement === last) {
+            e.preventDefault();
+            first.focus();
+          }
+          break;
+        }
         case "Escape":
           onClose();
           break;
@@ -57,6 +87,7 @@ export function GalleryLightbox({ image, onClose, onNext, onPrev, images = [] }:
           onPrev();
           break;
         case " ":
+          if (e.target instanceof HTMLButtonElement) break;
           e.preventDefault();
           onNext();
           break;
@@ -181,7 +212,7 @@ export function GalleryLightbox({ image, onClose, onNext, onPrev, images = [] }:
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.2 }}
-      className="fixed inset-0 z-[99999] backdrop-blur-md flex items-center justify-center select-none"
+      className="fixed inset-0 z-[99999] flex items-center justify-center overflow-hidden overscroll-contain select-none backdrop-blur-md"
       style={{ backgroundColor: "rgba(7, 11, 20, 0.96)" }}
       role="dialog"
       aria-modal="true"
@@ -191,7 +222,6 @@ export function GalleryLightbox({ image, onClose, onNext, onPrev, images = [] }:
       onMouseMove={handleMouseMove}
       onMouseUp={handleMouseUp}
       onMouseLeave={handleMouseUp}
-      onWheel={handleWheel}
     >
       {/* Background click to close */}
       <div
@@ -213,7 +243,7 @@ export function GalleryLightbox({ image, onClose, onNext, onPrev, images = [] }:
           onClick={(e) => { e.stopPropagation(); onPrev(); }}
           whileHover={{ scale: 1.08, x: -2 }}
           whileTap={{ scale: 0.92 }}
-          className="absolute left-4 sm:left-6 top-1/2 -translate-y-1/2 z-30 p-3.5 bg-slate-900/90 hover:bg-safety border border-white/20 rounded-full text-white shadow-2xl transition-all cursor-pointer group"
+           className="absolute left-6 top-1/2 z-30 hidden -translate-y-1/2 cursor-pointer rounded-full border border-white/20 bg-slate-900/90 p-3.5 text-white shadow-2xl transition-all hover:bg-safety sm:block group"
           aria-label="Previous image"
           title="Previous (?)"
         >
@@ -227,7 +257,7 @@ export function GalleryLightbox({ image, onClose, onNext, onPrev, images = [] }:
           onClick={(e) => { e.stopPropagation(); onNext(); }}
           whileHover={{ scale: 1.08, x: 2 }}
           whileTap={{ scale: 0.92 }}
-          className="absolute right-4 sm:right-6 top-1/2 -translate-y-1/2 z-30 p-3.5 bg-slate-900/90 hover:bg-safety border border-white/20 rounded-full text-white shadow-2xl transition-all cursor-pointer group"
+           className="absolute right-6 top-1/2 z-30 hidden -translate-y-1/2 cursor-pointer rounded-full border border-white/20 bg-slate-900/90 p-3.5 text-white shadow-2xl transition-all hover:bg-safety sm:block group"
           aria-label="Next image"
           title="Next (?)"
         >
@@ -237,6 +267,7 @@ export function GalleryLightbox({ image, onClose, onNext, onPrev, images = [] }:
 
       {/* Close Button */}
       <motion.button
+        ref={closeRef}
         onClick={(e) => { e.stopPropagation(); onClose(); }}
         whileHover={{ scale: 1.08 }}
         whileTap={{ scale: 0.92 }}
@@ -261,11 +292,12 @@ export function GalleryLightbox({ image, onClose, onNext, onPrev, images = [] }:
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 1.05 }}
           transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-          className="relative max-w-[90vw] max-h-[85vh] flex items-center justify-center"
-          style={{
-            transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`,
-            cursor: zoom > 1 ? "grabbing" : isDragging ? "grabbing" : "default",
-          }}
+           className="relative flex max-h-[min(85dvh,calc(100dvh-9rem))] max-w-[90vw] items-center justify-center"
+           style={{
+             transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`,
+             cursor: zoom > 1 ? "grabbing" : isDragging ? "grabbing" : "default",
+           }}
+           onWheel={handleWheel}
         >
           {imageSrc ? (
             <Image
@@ -275,7 +307,7 @@ export function GalleryLightbox({ image, onClose, onNext, onPrev, images = [] }:
               width={1920}
               height={1080}
               onLoad={handleLoad}
-              className="max-w-[90vw] max-h-[85vh] w-auto h-auto object-contain select-none rounded-lg shadow-2xl"
+               className="h-auto max-h-[min(85dvh,calc(100dvh-9rem))] w-auto max-w-[90vw] select-none rounded-lg object-contain shadow-2xl"
               priority
               sizes="90vw"
             />
@@ -294,7 +326,7 @@ export function GalleryLightbox({ image, onClose, onNext, onPrev, images = [] }:
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.15, duration: 0.3 }}
-        className="absolute bottom-5 sm:bottom-6 left-1/2 -translate-x-1/2 z-30 flex items-center gap-1.5 sm:gap-2.5 bg-slate-900/95 border border-white/20 rounded-2xl px-4 py-2 sm:px-5 sm:py-2.5 shadow-2xl backdrop-blur-lg"
+        className="absolute inset-x-0 bottom-3 z-30 mx-auto flex w-fit items-center gap-0.5 rounded-2xl border border-white/20 bg-slate-900/95 px-2 py-2 shadow-2xl backdrop-blur-lg [&>button]:grid [&>button]:size-11 [&>button]:shrink-0 [&>button]:place-items-center sm:bottom-6 sm:gap-2.5 sm:px-5 sm:py-2.5"
       >
         <button
           onClick={(e) => { e.stopPropagation(); onPrev(); }}
@@ -365,7 +397,7 @@ export function GalleryLightbox({ image, onClose, onNext, onPrev, images = [] }:
             animate={{ opacity: 1, x: 0, scale: 1 }}
             exit={{ opacity: 0, x: -20, scale: 0.95 }}
             transition={{ duration: 0.25 }}
-            className="absolute bottom-20 sm:bottom-24 left-4 right-4 sm:left-6 sm:right-auto sm:w-96 z-30 border border-white/20 rounded-2xl p-6 shadow-2xl backdrop-blur-xl max-h-[70vh] overflow-y-auto"
+             className="absolute bottom-20 left-3 right-3 z-30 max-h-[min(50dvh,calc(100dvh-10rem))] overflow-y-auto overscroll-contain rounded-2xl border border-white/20 p-4 shadow-2xl backdrop-blur-xl [overflow-wrap:anywhere] sm:bottom-[6.5rem] sm:left-6 sm:right-auto sm:w-96 sm:max-h-[min(70dvh,calc(100dvh-12rem))] sm:p-6"
             style={{ backgroundColor: "rgba(15, 23, 42, 0.98)" }}
           >
             <div className="flex items-start justify-between gap-4 mb-4">
@@ -401,7 +433,7 @@ export function GalleryLightbox({ image, onClose, onNext, onPrev, images = [] }:
             )}
 
             {/* Action Buttons */}
-            <div className="flex items-center gap-3">
+            <div className="flex flex-wrap items-center gap-3">
               <button
                 onClick={(e) => { e.stopPropagation(); handleDownload(); }}
                 className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-safety text-ink font-bold rounded-xl hover:brightness-110 shadow-lg shadow-safety/20 transition-all text-sm cursor-pointer"
@@ -421,7 +453,7 @@ export function GalleryLightbox({ image, onClose, onNext, onPrev, images = [] }:
             {/* Keyboard Shortcuts Hint */}
             <div className="mt-5 pt-4 border-t border-white/15">
               <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2.5">Keyboard Shortcuts</p>
-              <div className="grid grid-cols-2 gap-2 text-[11px] text-slate-300">
+               <div className="grid grid-cols-2 gap-2 text-[11px] text-slate-300">
                 <div className="flex justify-between items-center bg-slate-800/60 px-2 py-1 rounded border border-white/5"><kbd className="px-1.5 py-0.5 bg-slate-700 rounded text-safety font-bold font-mono">?</kbd><span>Previous</span></div>
                 <div className="flex justify-between items-center bg-slate-800/60 px-2 py-1 rounded border border-white/5"><kbd className="px-1.5 py-0.5 bg-slate-700 rounded text-safety font-bold font-mono">?</kbd><span>Next</span></div>
                 <div className="flex justify-between items-center bg-slate-800/60 px-2 py-1 rounded border border-white/5"><kbd className="px-1.5 py-0.5 bg-slate-700 rounded text-safety font-bold font-mono">Esc</kbd><span>Close</span></div>

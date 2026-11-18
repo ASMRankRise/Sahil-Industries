@@ -12,15 +12,14 @@ import { useReducedMotion } from "@/components/animations/hooks/useReducedMotion
 const MotionLink = motion.create(Link);
 
 // Standardized spacing constants for footer
-const FOOTER_GRID_COLS = "grid-cols-[1.15fr_.75fr_1fr_1.4fr]";
-const FOOTER_GAP = "gap-x-10 gap-y-12 max-md:gap-y-10";
+const FOOTER_GRID_COLS = "grid-cols-2 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,.75fr)_minmax(0,1fr)_minmax(0,1.4fr)]";
+const FOOTER_GAP = "gap-x-5 gap-y-10 md:gap-x-8 lg:gap-x-10 lg:gap-y-12";
 const FOOTER_PY = "py-20 max-md:py-14";
 const FOOTER_MAX_WIDTH = "w-[min(1240px,calc(100%-64px))]";
-const FOOTER_MD_GRID = "max-md:grid-cols-2";
-const FOOTER_SM_WIDTH = "max-sm:w-[calc(100%-36px)]";
+const FOOTER_SM_WIDTH = "max-md:w-[calc(100%-36px)]";
 // Keep the navigation columns side-by-side on phones; the brand and contact
 // sections still span the full width.
-const FOOTER_SM_GRID = "max-sm:grid-cols-2 max-sm:[&>div:first-child]:col-span-2 max-sm:[&>div:last-child]:col-span-2";
+const FOOTER_SM_GRID = "max-md:[&>div:first-child]:col-span-2 max-md:[&>div:last-child]:col-span-2";
 const HEADING_STYLE = "mb-5 text-base font-bold text-white";
 const LINK_STYLE = "block py-1.5 text-sm text-slate-300 transition-colors hover:text-safety";
 const ICON_SIZE = 17;
@@ -41,7 +40,7 @@ export function SiteFooter() {
   if (prefersReduced) {
     return (
        <footer className="bg-[#0c131a] bg-cover bg-center text-slate-300" style={{ backgroundImage: "linear-gradient(rgba(6,10,14,.58), rgba(6,10,14,.72)), url('/media/theme-images/footer/footer-style3-bg.jpg')" }}>
-        <div className={`mx-auto grid ${FOOTER_MAX_WIDTH} ${FOOTER_GRID_COLS} ${FOOTER_GAP} ${FOOTER_PY} ${FOOTER_MD_GRID} ${FOOTER_SM_WIDTH} ${FOOTER_SM_GRID}`}>
+        <div className={`mx-auto grid [overflow-wrap:anywhere] ${FOOTER_MAX_WIDTH} ${FOOTER_GRID_COLS} ${FOOTER_GAP} ${FOOTER_PY} ${FOOTER_SM_WIDTH} ${FOOTER_SM_GRID}`}>
           <div>
             <Image
               src="/media/logo/logo-footer.png"
@@ -117,7 +116,7 @@ export function SiteFooter() {
       <RevealGroup
         staggerChildren={0.1}
         delayChildren={0.1}
-        className={`mx-auto grid ${FOOTER_MAX_WIDTH} ${FOOTER_GRID_COLS} ${FOOTER_GAP} ${FOOTER_PY} ${FOOTER_MD_GRID} ${FOOTER_SM_WIDTH} ${FOOTER_SM_GRID}`}>
+        className={`mx-auto grid [overflow-wrap:anywhere] ${FOOTER_MAX_WIDTH} ${FOOTER_GRID_COLS} ${FOOTER_GAP} ${FOOTER_PY} ${FOOTER_SM_WIDTH} ${FOOTER_SM_GRID}`}>
         {/* Column 1 - Company Info */}
         <RevealItem variant="itemReveal">
           <div>
