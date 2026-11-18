@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { escapeHtml, getMailConfig, getMailer, renderSubmissionEmail } from '@/lib/mail';
 import { getD1Client } from '@/lib/d1-client';
-import { r2Client } from '@/lib/r2-client';
 import { clean, clientAddress, emailPattern, rateLimited, verifyMathCaptcha } from '@/lib/form-security';
 
 export const runtime = 'nodejs';
@@ -67,8 +66,10 @@ export async function POST(request: NextRequest) {
     }
 
     const db = getD1Client();
-    const resumeKey = resume ? `resumes/${crypto.randomUUID()}-${resume.name.replace(/[^a-zA-Z0-9._-]/g, '_').slice(0, 180)}` : null;
-    if (resume && resumeKey) await r2Client.upload(resumeKey, new Uint8Array(await resume.arrayBuffer()), resume.type);
+    // Resume uploads are intentionally not persisted to R2 for now. The file
+    // can still be attached to the notification email below.
+    const resumeBytes = resume ? new Uint8Array(await resume.arrayBuffer()) : null;
+    const resumeKey: string | null = null;
     await db.prepare('INSERT INTO career_applications (id, fullname, email, mobile, city, message, resume_key) VALUES (?, ?, ?, ?, ?, ?, ?)')
       .bind(crypto.randomUUID(), fullname, email, mobile, city, message, resumeKey).run();
 
@@ -85,33 +86,28 @@ export async function POST(request: NextRequest) {
       message,
     });
 
-    // Send email to admin
-    const mailOptions: any = {
-      from: getMailConfig().from,
-      to: getMailConfig().to,
-      subject: `New Career Application: ${fullname}`,
-      html: htmlContent,
-      replyTo: email,
-    };
+    try {
+      // Send email to admin
+      const mailOptions: any = {
+        from: getMailConfig().from,
+        to: getMailConfig().to,
+        subject: `New Career Application: ${fullname}`,
+        html: htmlContent,
+        replyTo: email,
+      };
 
-    // Attach resume if provided
-    if (resume) {
-      const buffer = Buffer.from(await resume.arrayBuffer());
-      mailOptions.attachments = [{
-        filename: resume.name,
-        content: buffer,
-        contentType: resume.type,
-      }];
-    }
+      if (resume && resumeBytes) {
+        mailOptions.attachments = [{ filename: resume.name, content: Buffer.from(resumeBytes), contentType: resume.type }];
+      }
 
-    await getMailer().sendMail(mailOptions);
+      await getMailer().sendMail(mailOptions);
 
-    // Send confirmation email to applicant
-    await getMailer().sendMail({
-      from: getMailConfig().from,
-      to: email,
-      subject: 'Thank you for your application - Sahil Industries',
-      html: `
+      // Send confirmation email to applicant
+      await getMailer().sendMail({
+        from: getMailConfig().from,
+        to: email,
+        subject: 'Thank you for your application - Sahil Industries',
+        html: `
         <!DOCTYPE html>
         <html>
         <head>
@@ -139,8 +135,13 @@ export async function POST(request: NextRequest) {
           </div>
         </body>
         </html>
-      `,
-    });
+        `,
+      });
+    } catch (error) {
+      // The application is already persisted; an SMTP outage should not make
+      // the applicant submit the same application repeatedly.
+      console.error('Career notification email error:', error);
+    }
 
     return NextResponse.json(
       { message: 'Application submitted successfully' },

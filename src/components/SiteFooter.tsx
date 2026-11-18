@@ -9,7 +9,7 @@ import { primaryNavigation, siteContact } from "@/data/site";
 import { Reveal, RevealGroup, RevealItem } from "@/components/ui/Reveal";
 import { useReducedMotion } from "@/components/animations/hooks/useReducedMotion";
 
-const MotionLink = motion(Link);
+const MotionLink = motion.create(Link);
 
 // Standardized spacing constants for footer
 const FOOTER_GRID_COLS = "grid-cols-[1.15fr_.75fr_1fr_1.4fr]";

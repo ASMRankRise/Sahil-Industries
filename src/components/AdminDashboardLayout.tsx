@@ -30,7 +30,6 @@ import {
   Search,
   Download,
   Upload,
-  Bell,
   Moon,
   Sun,
   HelpCircle,
@@ -72,7 +71,6 @@ export function AdminDashboardLayout({ children, activeNav, pageTitle, pageDescr
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
   const [theme, setTheme] = useState<"light" | "dark">("dark");
-  const [showNotifications, setShowNotifications] = useState(false);
 
   useEffect(() => {
     const handleResize = () => {
@@ -218,50 +216,6 @@ export function AdminDashboardLayout({ children, activeNav, pageTitle, pageDescr
             >
               {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
             </button>
-
-            {/* Notifications */}
-            <div className="relative">
-              <button
-                onClick={() => setShowNotifications(!showNotifications)}
-                className="relative p-2 text-white/70 hover:text-white rounded-lg hover:bg-white/10 transition-colors"
-                aria-label="Notifications"
-              >
-                <Bell size={18} />
-                <span className="absolute 1.5 top-1.5 right-1.5 h-2 w-2 rounded-full bg-safety ring-2 ring-ink" />
-              </button>
-              {showNotifications && (
-                <div className="absolute right-0 top-full mt-2 w-80 bg-surface border border-white/10 rounded-xl shadow-2xl py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
-                  <div className="px-4 py-3 border-b border-white/10 flex items-center justify-between">
-                    <h4 className="font-semibold text-sm text-white">Notifications</h4>
-                    <button
-                      onClick={() => setShowNotifications(false)}
-                      className="text-slate-400 hover:text-white text-xs"
-                    >
-                      Close
-                    </button>
-                  </div>
-                  <div className="max-h-64 overflow-y-auto">
-                    {[
-                      { title: "New Order Received", desc: "ORD-006 from Rajesh Kumar", time: "2 min ago", unread: true },
-                      { title: "Enquiry Response", desc: "Priya Sharma replied to your message", time: "15 min ago", unread: true },
-                      { title: "Payment Received", desc: "₹2,45,000 for ORD-001", time: "1 hour ago", unread: false },
-                      { title: "Low Stock Alert", desc: "Wire Rope Hoist stock below threshold", time: "3 hours ago", unread: false },
-                    ].map((notif, i) => (
-                      <div
-                        key={i}
-                        className={`px-4 py-3 hover:bg-white/5 transition-colors border-b border-white/5 last:border-0 ${
-                          notif.unread ? "bg-white/[0.03]" : ""
-                        }`}
-                      >
-                        <p className="font-medium text-xs text-white">{notif.title}</p>
-                        <p className="text-[11px] text-slate-400 mt-0.5">{notif.desc}</p>
-                        <p className="text-[10px] text-slate-500 mt-1">{notif.time}</p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
 
             {/* User Profile */}
             <div className="flex items-center gap-3 pl-2 sm:pl-3 border-l border-white/10 ml-1">

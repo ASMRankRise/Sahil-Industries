@@ -76,7 +76,7 @@ export default function GalleryClient({ images: galleryImages }: GalleryClientPr
       {/* Page Hero */}
       <section className="relative min-h-[40vh] flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-ink via-slate-900 to-ink z-0" />
-        <div className="absolute inset-0 bg-[url('/media/theme-images/pattern.png')] opacity-5 z-10" />
+        <div className="absolute inset-0 bg-[url('/media/theme-images/pattern/thm-pattern-7.png')] opacity-5 z-10" />
         
         <div className="relative z-20 mx-auto max-w-7xl px-6 py-20 text-center">
           <motion.div

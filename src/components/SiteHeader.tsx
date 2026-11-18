@@ -18,7 +18,7 @@ import { primaryNavigation, siteContact } from "@/data/site";
 import { MagneticElement } from "@/components/ui/MagneticButton";
 import { useReducedMotion } from "@/components/animations/hooks/useReducedMotion";
 
-const MotionLink = motion(Link);
+const MotionLink = motion.create(Link);
 
 // Standardized spacing constants for header
 const HEADER_HEIGHT_DESKTOP = "min-h-[88px]";
