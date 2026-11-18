@@ -29,8 +29,8 @@ export function GSAPEnhancements() {
     if (prefersReducedMotion()) return;
 
     contextRef.current = gsap.context(() => {
-      // 1. Section fade-up animations with ScrollTrigger
-      const sections = document.querySelectorAll("section:not(.hero-section)");
+      // 1. Section fade-up animations with ScrollTrigger (skips hero and pinned timeline sections)
+      const sections = document.querySelectorAll("section:not(.hero-section):not([data-pinned-section])");
       sections.forEach((section) => {
         gsap.fromTo(
           section,
