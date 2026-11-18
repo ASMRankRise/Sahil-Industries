@@ -27,11 +27,18 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid security verification' }, { status: 400 });
     }
 
-    const db = getD1Client();
-    await db.prepare(`INSERT INTO form_submissions (id, form_type, name, email, phone, subject, message) VALUES (?, ?, ?, ?, ?, ?, ?)`)
-      .bind(crypto.randomUUID(), formType === 'enquiry' ? 'enquiry' : 'contact', name, email, phone || '', subject || '', message).run();
-
     const isEnquiry = formType === 'enquiry';
+    const db = getD1Client();
+    if (isEnquiry) {
+      // The admin enquiry screens read from this table. Keep public enquiries
+      // in the same table so a successful submission is visible to admins.
+      await db.prepare(`INSERT INTO enquiries (id, name, email, phone, subject, message) VALUES (?, ?, ?, ?, ?, ?)`)
+        .bind(crypto.randomUUID(), name, email, phone || '', subject || '', message).run();
+    } else {
+      await db.prepare(`INSERT INTO form_submissions (id, form_type, name, email, phone, subject, message) VALUES (?, ?, ?, ?, ?, ?, ?)`)
+        .bind(crypto.randomUUID(), 'contact', name, email, phone || '', subject || '', message).run();
+    }
+
     await getMailer().sendMail({
       from: getMailConfig().from,
       to: getMailConfig().to,
