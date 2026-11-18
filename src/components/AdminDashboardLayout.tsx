@@ -63,7 +63,7 @@ interface AdminDashboardLayoutProps {
 
 export function AdminDashboardLayout({ children, activeNav, pageTitle, pageDescription }: AdminDashboardLayoutProps) {
   const router = useRouter();
-  const { logout, isAuthenticated, loading, theme, toggleTheme } = useAdminData();
+  const { logout, isAuthenticated, loading, theme, toggleTheme, user } = useAdminData();
 
   useEffect(() => {
     if (!loading && !isAuthenticated) router.replace("/admin");
@@ -124,11 +124,11 @@ export function AdminDashboardLayout({ children, activeNav, pageTitle, pageDescr
       >
         {/* Sidebar Header - exactly h-16 to match topbar */}
         <div className="flex h-16 items-center justify-between px-6 border-b border-white/10 flex-shrink-0">
-          <Link href="/" className="flex items-center gap-3 group">
-            <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-safety to-yellow-400 flex items-center justify-center shadow-md shadow-safety/20 group-hover:scale-105 transition-transform">
-              <Zap size={18} className="text-ink" />
+          <Link href="/" className="flex w-full translate-y-1 flex-col items-center justify-center gap-1 group">
+            <div className="flex h-9 w-11 items-center justify-center rounded-lg border border-safety/50 bg-safety/10 shadow-md shadow-safety/10 transition-transform group-hover:scale-105">
+              <img src="/media/logo/logo%20svg.svg" alt="Sahil Industries" className="h-7 w-9 object-contain" />
             </div>
-            <div>
+            <div className="text-center">
               <span className="text-xs font-extrabold uppercase tracking-widest text-white">SAHIL</span>
               <span className="text-[10px] font-medium text-safety uppercase tracking-wider block">INDUSTRIES</span>
             </div>
@@ -227,12 +227,12 @@ export function AdminDashboardLayout({ children, activeNav, pageTitle, pageDescr
             {/* User Profile */}
             <div className="flex items-center gap-3 pl-2 sm:pl-3 border-l border-white/10 ml-1">
               <div className="relative h-8 w-8 rounded-full bg-gradient-to-br from-safety to-yellow-400 flex items-center justify-center overflow-hidden flex-shrink-0">
-                <img src={asset("home/about-01.jpg")} alt="Admin" className="h-full w-full object-cover" />
+                <User size={17} className="text-ink" aria-hidden="true" />
                 <span className="absolute bottom-0 right-0 h-2 w-2 rounded-full bg-green-500 border border-ink" />
               </div>
               <div className="text-left hidden sm:block">
-                <p className="text-xs font-semibold leading-tight text-white">Admin User</p>
-                <p className="text-[10px] text-slate-400 leading-tight">sahilcranes@gmail.com</p>
+                <p className="text-xs font-semibold leading-tight text-white">{user?.name || "Admin User"}</p>
+                <p className="text-[10px] text-slate-400 leading-tight">{user?.email || "Admin account"}</p>
               </div>
             </div>
           </div>

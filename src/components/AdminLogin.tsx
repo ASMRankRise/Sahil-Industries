@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Mail, Lock, Zap, ArrowRight, AlertCircle } from "lucide-react";
+import { Mail, Lock, ArrowRight, AlertCircle } from "lucide-react";
 import { useAdminData } from "@/context/AdminDataContext";
 
 export default function AdminLogin() {
@@ -10,6 +10,13 @@ export default function AdminLogin() {
   const { login, isAuthenticated } = useAdminData();
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [email, setEmail] = useState("");
+  const [rememberMe, setRememberMe] = useState(false);
+
+  useEffect(() => {
+    const savedEmail = window.localStorage.getItem("admin_remembered_email");
+    if (savedEmail) { setEmail(savedEmail); setRememberMe(true); }
+  }, []);
 
   if (isAuthenticated) {
     router.push("/admin");
@@ -22,8 +29,11 @@ export default function AdminLogin() {
     setIsLoading(true);
     try {
       const formData = new FormData(e.currentTarget as HTMLFormElement);
+      const submittedEmail = formData.get("email") as string;
+      if (rememberMe) window.localStorage.setItem("admin_remembered_email", submittedEmail);
+      else window.localStorage.removeItem("admin_remembered_email");
       await login({
-        email: formData.get("email") as string,
+        email: submittedEmail,
         password: formData.get("password") as string,
       });
       router.push("/admin");
@@ -39,11 +49,11 @@ export default function AdminLogin() {
     <div className="min-h-screen bg-ink flex items-center justify-center px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full">
         {/* Brand */}
-        <div className="flex items-center gap-3 mb-8">
-          <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-safety to-yellow-400 flex items-center justify-center shadow-md shadow-safety/25">
-            <Zap size={20} className="text-ink" />
+        <div className="mb-8 flex translate-y-2 flex-col items-center justify-center">
+          <div className="flex h-16 w-20 items-center justify-center rounded-xl border border-safety/50 bg-safety/10 shadow-lg shadow-safety/10">
+            <img src="/media/logo/logo%20svg1.svg" alt="Sahil Industries" className="h-12 w-16 object-contain" />
           </div>
-          <div>
+          <div className="mt-2 text-center">
             <span className="text-xs font-extrabold uppercase tracking-widest text-white">SAHIL</span>
             <span className="text-[10px] font-medium text-safety uppercase tracking-wider block">INDUSTRIES</span>
           </div>
@@ -69,6 +79,8 @@ export default function AdminLogin() {
                 <input
                   name="email"
                   type="email"
+                  value={email}
+                  onChange={(event) => setEmail(event.target.value)}
                   autoComplete="email"
                   required
                   placeholder="admin@sahilcranes.in"
@@ -94,7 +106,7 @@ export default function AdminLogin() {
 
             <div className="flex items-center justify-between">
               <label className="flex items-center gap-2 text-sm text-slate-300 cursor-pointer select-none">
-                <input type="checkbox" className="rounded bg-white/5 border border-white/10 text-safety focus:ring-safety" />
+                <input type="checkbox" checked={rememberMe} onChange={(event) => setRememberMe(event.target.checked)} className="rounded bg-white/5 border border-white/10 text-safety focus:ring-safety" />
                 <span>Remember me</span>
               </label>
               <a href="/" className="text-xs text-safety hover:text-safety/80 underline underline-offset-4">Back to website</a>
@@ -127,7 +139,7 @@ export default function AdminLogin() {
         </div>
 
         <p className="mt-6 text-center text-[11px] text-slate-500">
-          Sahil Industries &copy; {new Date().getFullYear()} &bull; Management Portal (Demo)
+          Sahil Industries &copy; {new Date().getFullYear()} &bull; Management Portal
         </p>
       </div>
     </div>
