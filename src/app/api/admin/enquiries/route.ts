@@ -4,6 +4,7 @@ import { getAdminDb, requireAdmin } from "@/lib/admin-auth";
 function unauthorized(error: unknown) {
   return error instanceof Error && error.message === "ADMIN_UNAUTHORIZED";
 }
+const ENQUIRY_STATUSES = new Set(["new", "in progress", "replied", "closed"]);
 export async function GET(request: NextRequest) {
   try {
     await requireAdmin(request);
@@ -34,11 +35,16 @@ export async function PATCH(request: NextRequest) {
         { error: "id and status are required" },
         { status: 400 },
       );
+    if (!ENQUIRY_STATUSES.has(status.toLowerCase()))
+      return NextResponse.json(
+        { error: "Invalid enquiry status" },
+        { status: 400 },
+      );
     await getAdminDb()
       .prepare(
         "UPDATE enquiries SET status = ?, updated_at = datetime('now') WHERE id = ?",
       )
-      .bind(status, id)
+      .bind(status.toLowerCase(), id)
       .run();
     return NextResponse.json({ ok: true });
   } catch (error) {
