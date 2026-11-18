@@ -1211,3 +1211,17 @@ svg {
   background: #fff1a8 !important;
   border-color: #e7c84b !important;
 }
+
+/* Keep custom filter menus readable in the light admin theme. */
+.admin-dashboard[data-admin-theme="light"] [role="listbox"] {
+  background-color: #ffffff !important;
+  border-color: #e5c84b !important;
+}
+.admin-dashboard[data-admin-theme="light"] [role="listbox"] [role="option"] {
+  color: #475569 !important;
+}
+.admin-dashboard[data-admin-theme="light"] [role="listbox"] [role="option"]:hover,
+.admin-dashboard[data-admin-theme="light"] [role="listbox"] [role="option"][aria-selected="true"] {
+  background-color: #60a5fa !important;
+  color: #17202a !important;
+}

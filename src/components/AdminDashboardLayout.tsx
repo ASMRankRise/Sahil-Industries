@@ -116,24 +116,24 @@ export function AdminDashboardLayout({ children, activeNav, pageTitle, pageDescr
       <aside
         id="admin-sidebar"
         inert={!sidebarOpen}
-        className={`fixed inset-y-0 left-0 z-50 flex w-64 max-w-[85vw] flex-col border-r border-white/10 bg-surface shadow-2xl transition-transform duration-300 ease-in-out lg:shadow-none ${
+         className={`fixed inset-y-0 left-0 z-50 flex w-64 max-w-[85vw] flex-col border-r shadow-2xl transition-transform duration-300 ease-in-out lg:shadow-none ${theme === "light" ? "border-amber-200 bg-[#fff8d6]" : "border-white/10 bg-surface"} ${
           sidebarOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
         {/* Sidebar Header - exactly h-16 to match topbar */}
-        <div className="flex h-16 shrink-0 items-center justify-between gap-2 border-b border-white/10 px-4 sm:px-6">
+         <div className={`flex h-16 shrink-0 items-center justify-between gap-2 border-b px-4 sm:px-6 ${theme === "light" ? "border-amber-200" : "border-white/10"}`}>
           <Link href="/" className="group flex items-center gap-3">
             <div className="flex h-9 w-11 shrink-0 items-center justify-center rounded-lg border border-safety/50 bg-safety/10 shadow-md shadow-safety/10 transition-transform group-hover:scale-105">
               <img src={theme === "dark" ? "/media/logo/logo%20svg1.svg" : "/media/logo/logo%20svg.svg"} alt="" className="h-7 w-9 object-contain" />
             </div>
             <div className="flex flex-col text-left leading-tight">
-              <span className="text-xs font-extrabold uppercase tracking-widest text-white">SAHIL</span>
-              <span className="text-[10px] font-medium text-safety uppercase tracking-wider block">INDUSTRIES</span>
+               <span className={`text-xs font-extrabold uppercase tracking-widest ${theme === "light" ? "text-slate-900" : "text-white"}`}>SAHIL</span>
+               <span className={`text-[10px] font-medium uppercase tracking-wider block ${theme === "light" ? "text-amber-700" : "text-safety"}`}>INDUSTRIES</span>
             </div>
           </Link>
           <button
             onClick={() => setSidebarOpen(false)}
-            className="grid size-11 shrink-0 place-items-center rounded-lg text-white/60 transition-colors hover:bg-white/10 hover:text-white lg:hidden"
+             className={`grid size-11 shrink-0 place-items-center rounded-lg transition-colors lg:hidden ${theme === "light" ? "text-slate-600 hover:bg-amber-100 hover:text-slate-900" : "text-white/60 hover:bg-white/10 hover:text-white"}`}
             aria-label="Close sidebar"
           >
             <X size={18} />
@@ -141,7 +141,7 @@ export function AdminDashboardLayout({ children, activeNav, pageTitle, pageDescr
         </div>
 
         {/* Sidebar Navigation */}
-        <nav className="min-h-0 flex-1 overflow-y-auto px-3 py-4 space-y-1">
+         <nav className="min-h-0 flex-1 overflow-y-auto px-3 py-4 space-y-1">
           {navItems.map((item, index) => {
             const Icon = item.icon;
             const isActive = activeNav === item.href;
@@ -151,11 +151,11 @@ export function AdminDashboardLayout({ children, activeNav, pageTitle, pageDescr
                 href={item.href}
                 className={`flex w-full items-center gap-3 px-3.5 py-3 text-sm font-medium rounded-xl transition-all duration-200 relative group text-left ${
                   isActive
-                    ? "bg-safety/10 text-safety border-l-4 border-safety shadow-sm shadow-safety/10"
-                    : "text-slate-300 hover:bg-white/5 hover:text-white border-l-4 border-transparent"
+                     ? theme === "light" ? "bg-amber-200/70 text-amber-950 border-l-4 border-amber-600 shadow-sm shadow-amber-200" : "bg-safety/10 text-safety border-l-4 border-safety shadow-sm shadow-safety/10"
+                     : theme === "light" ? "text-slate-700 hover:bg-amber-100 hover:text-slate-950 border-l-4 border-transparent" : "text-slate-300 hover:bg-white/5 hover:text-white border-l-4 border-transparent"
                 }`}
               >
-                <div className={`flex-shrink-0 transition-colors duration-200 ${isActive ? "text-safety" : "text-slate-400 group-hover:text-white"}`}>
+                 <div className={`flex-shrink-0 transition-colors duration-200 ${isActive ? (theme === "light" ? "text-amber-700" : "text-safety") : (theme === "light" ? "text-slate-500 group-hover:text-amber-800" : "text-slate-400 group-hover:text-white")}`}>
                   <Icon size={19} />
                 </div>
                 <span className="flex-1 truncate">{item.label}</span>
@@ -170,7 +170,7 @@ export function AdminDashboardLayout({ children, activeNav, pageTitle, pageDescr
         </nav>
 
         {/* Sidebar Footer */}
-        <div className="mt-auto flex-shrink-0 border-t border-white/10 p-4">
+         <div className={`mt-auto flex-shrink-0 border-t p-4 ${theme === "light" ? "border-amber-200" : "border-white/10"}`}>
           <button
            onClick={async () => {
               await logout();
