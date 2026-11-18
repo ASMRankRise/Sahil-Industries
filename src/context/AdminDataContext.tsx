@@ -149,6 +149,11 @@ interface AdminDataContextType {
   // Settings
   settings: Record<string, string>;
   updateSettings: (settings: Record<string, string>) => void;
+
+  // Theme
+  theme: "dark" | "light";
+  setTheme: (theme: "dark" | "light") => void;
+  toggleTheme: () => void;
   
   // Auth (server session; credentials never persist in the browser)
   isAuthenticated: boolean;
@@ -404,6 +409,43 @@ export function AdminDataProvider({ children }: { children: ReactNode }) {
 
   const [loading, setLoading] = useState(true);
 
+  // Theme management with localStorage persistence and DOM synchronization
+  const [theme, setThemeState] = useState<"dark" | "light">("dark");
+
+  useEffect(() => {
+    try {
+      const savedTheme = localStorage.getItem("admin_theme") as "dark" | "light" | null;
+      const initial = savedTheme === "light" || savedTheme === "dark" ? savedTheme : "dark";
+      setThemeState(initial);
+      document.documentElement.setAttribute("data-admin-theme", initial);
+      document.documentElement.classList.toggle("dark", initial === "dark");
+    } catch {
+      document.documentElement.setAttribute("data-admin-theme", "dark");
+      document.documentElement.classList.add("dark");
+    }
+  }, []);
+
+  const setTheme = useCallback((newTheme: "dark" | "light") => {
+    setThemeState(newTheme);
+    try {
+      localStorage.setItem("admin_theme", newTheme);
+    } catch {}
+    document.documentElement.setAttribute("data-admin-theme", newTheme);
+    document.documentElement.classList.toggle("dark", newTheme === "dark");
+  }, []);
+
+  const toggleTheme = useCallback(() => {
+    setThemeState((prev) => {
+      const next = prev === "dark" ? "light" : "dark";
+      try {
+        localStorage.setItem("admin_theme", next);
+      } catch {}
+      document.documentElement.setAttribute("data-admin-theme", next);
+      document.documentElement.classList.toggle("dark", next === "dark");
+      return next;
+    });
+  }, []);
+
   // Business data is server-backed. Remove keys created by the former
   // localStorage-based admin implementation so stale temporary data cannot
   // remain in a browser after upgrading.
@@ -612,6 +654,9 @@ export function AdminDataProvider({ children }: { children: ReactNode }) {
           analytics,
           settings,
           updateSettings,
+          theme,
+          setTheme,
+          toggleTheme,
           isAuthenticated,
           user,
           login,

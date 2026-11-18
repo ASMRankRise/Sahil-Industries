@@ -9,5 +9,14 @@ export const metadata = {
 };
 
 export default function AdminLayout({ children }: { children: ReactNode }) {
-  return <AdminDataProvider>{children}</AdminDataProvider>;
+  return (
+    <AdminDataProvider>
+      <script
+        dangerouslySetInnerHTML={{
+          __html: `(function(){try{var t=localStorage.getItem("admin_theme")||"dark";document.documentElement.setAttribute("data-admin-theme",t);if(t==="dark"){document.documentElement.classList.add("dark");}else{document.documentElement.classList.remove("dark");}}catch(e){}})();`,
+        }}
+      />
+      {children}
+    </AdminDataProvider>
+  );
 }

@@ -41,6 +41,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { AdminPageSkeleton } from "@/components/AdminSkeleton";
 import { ReactNode } from "react";
 import { AdminDataProvider, useAdminData } from "@/context/AdminDataContext";
 
@@ -62,7 +63,7 @@ interface AdminDashboardLayoutProps {
 
 export function AdminDashboardLayout({ children, activeNav, pageTitle, pageDescription }: AdminDashboardLayoutProps) {
   const router = useRouter();
-  const { logout, isAuthenticated, loading } = useAdminData();
+  const { logout, isAuthenticated, loading, theme, toggleTheme } = useAdminData();
 
   useEffect(() => {
     if (!loading && !isAuthenticated) router.replace("/admin");
@@ -70,7 +71,6 @@ export function AdminDashboardLayout({ children, activeNav, pageTitle, pageDescr
 
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
-  const [theme, setTheme] = useState<"light" | "dark">("dark");
 
   useEffect(() => {
     const handleResize = () => {
@@ -87,10 +87,14 @@ export function AdminDashboardLayout({ children, activeNav, pageTitle, pageDescr
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  if (loading || !isAuthenticated) return null;
+  if (loading) return <AdminPageSkeleton />;
+  if (!isAuthenticated) return null;
 
   return (
-    <div className={`min-h-screen bg-ink text-slate-100 ${theme === "light" ? "bg-slate-50 text-slate-900" : ""}`}>
+    <div
+      data-admin-theme={theme}
+      className={`admin-dashboard min-h-screen ${theme === "dark" ? "bg-ink text-slate-100" : "bg-slate-100 text-slate-900"}`}
+    >
       {/* Mobile sidebar overlay */}
       <AnimatePresence>
         {sidebarOpen && isMobile && (
@@ -210,9 +214,14 @@ export function AdminDashboardLayout({ children, activeNav, pageTitle, pageDescr
           <div className="flex items-center gap-2 sm:gap-3">
             {/* Theme Toggle */}
             <button
-              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-              className="p-2 text-white/70 hover:text-white rounded-lg hover:bg-white/10 transition-colors"
-              aria-label="Toggle theme"
+              onClick={toggleTheme}
+              className={`p-2 rounded-lg transition-colors ${
+                theme === "dark"
+                  ? "text-amber-400 hover:text-amber-300 hover:bg-white/10"
+                  : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
+              }`}
+              aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+              title={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
             >
               {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
             </button>
@@ -232,7 +241,7 @@ export function AdminDashboardLayout({ children, activeNav, pageTitle, pageDescr
         </header>
 
         {/* Dashboard Body */}
-        <main className="flex-1 px-4 sm:px-6 md:px-8 py-6 space-y-6 max-w-[1600px] w-full mx-auto">
+        <main className={`flex-1 px-4 sm:px-6 md:px-8 py-6 space-y-6 max-w-[1600px] w-full mx-auto ${theme === "dark" ? "bg-ink" : "bg-slate-100"}`}>
           <section className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
               <h2 className="text-2xl sm:text-3xl font-bold tracking-tight bg-gradient-to-r from-white to-safety bg-clip-text text-transparent">
@@ -249,12 +258,10 @@ export function AdminDashboardLayout({ children, activeNav, pageTitle, pageDescr
   );
 }
 
-          export function AdminDashboardLayoutWrapper({ children, activeNav, pageTitle, pageDescription }: AdminDashboardLayoutProps) {
-            return (
-              <AdminDataProvider>
-                <AdminDashboardLayout activeNav={activeNav} pageTitle={pageTitle} pageDescription={pageDescription}>
-                  {children}
-                </AdminDashboardLayout>
-              </AdminDataProvider>
-            );
-          }
+export function AdminDashboardLayoutWrapper({ children, activeNav, pageTitle, pageDescription }: AdminDashboardLayoutProps) {
+  return (
+    <AdminDashboardLayout activeNav={activeNav} pageTitle={pageTitle} pageDescription={pageDescription}>
+      {children}
+    </AdminDashboardLayout>
+  );
+}

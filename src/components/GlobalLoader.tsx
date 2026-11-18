@@ -8,11 +8,22 @@ export function GlobalLoader() {
   const [visible, setVisible] = useState(true);
   const pathname = usePathname();
 
+  // Admin pages use contextual skeletons instead of a blocking full-screen
+  // loader. This also prevents the overlay from appearing on every admin
+  // navigation and making the dashboard feel like it is reloading.
+  const isAdminRoute = pathname === "/admin" || pathname.startsWith("/admin/");
+
   useEffect(() => {
+    if (isAdminRoute) {
+      setVisible(false);
+      return;
+    }
     setVisible(true);
     const timer = window.setTimeout(() => setVisible(false), 850);
     return () => window.clearTimeout(timer);
-  }, [pathname]);
+  }, [pathname, isAdminRoute]);
+
+  if (isAdminRoute) return null;
 
   return (
     <AnimatePresence>

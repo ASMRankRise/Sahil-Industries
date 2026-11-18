@@ -207,7 +207,7 @@ const statusConfig = {
 
 export default function AdminDashboard() {
   const router = useRouter();
-  const { logout } = useAdminData();
+  const { logout, theme, toggleTheme } = useAdminData();
 
   const handleSignOut = () => {
     logout();
@@ -218,7 +218,6 @@ export default function AdminDashboard() {
   const [isMobile, setIsMobile] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
-  const [theme, setTheme] = useState<"light" | "dark">("dark");
 
   useEffect(() => {
     const handleResize = () => {
@@ -248,7 +247,7 @@ export default function AdminDashboard() {
     statusConfig[status as keyof typeof statusConfig] || statusConfig.Pending;
 
   return (
-    <div className={`min-h-screen bg-ink text-slate-100 ${theme === "light" ? "bg-slate-50 text-slate-900" : ""}`}>
+    <div className={`admin-dashboard min-h-screen ${theme === "dark" ? "bg-ink text-slate-100" : "bg-slate-100 text-slate-900"}`} data-admin-theme={theme}>
       {/* Mobile sidebar overlay */}
       <AnimatePresence>
         {sidebarOpen && isMobile && (
@@ -357,31 +356,40 @@ export default function AdminDashboard() {
               <Menu size={20} />
             </button>
             <div>
-              <h1 className="text-base sm:text-lg font-bold tracking-tight bg-gradient-to-r from-white to-safety bg-clip-text text-transparent leading-none">
+              <h1 className={`text-base sm:text-lg font-bold tracking-tight bg-gradient-to-r ${theme === "dark" ? "from-white to-safety" : "from-slate-900 to-amber-600"} bg-clip-text text-transparent leading-none`}>
                 Dashboard
               </h1>
-              <p className="text-[11px] text-slate-400 hidden sm:block mt-0.5">Welcome back, Admin User</p>
+              <p className={`text-[11px] ${theme === "dark" ? "text-slate-400" : "text-slate-500"} hidden sm:block mt-0.5`}>Welcome back, Admin User</p>
             </div>
           </div>
 
           <div className="flex items-center gap-2 sm:gap-3">
             {/* Search */}
             <div className="relative hidden md:block">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
+              <Search className={`absolute left-3 top-1/2 -translate-y-1/2 ${theme === "dark" ? "text-slate-400" : "text-slate-500"}`} size={16} />
               <input
                 type="search"
                 placeholder="Search orders, customers..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="h-9 w-56 lg:w-64 pl-9 pr-4 bg-white/5 border border-white/10 rounded-lg text-xs text-white placeholder:text-slate-400 focus:outline-none focus:border-safety/50 focus:bg-white/10 transition-all"
+                className={`h-9 w-56 lg:w-64 pl-9 pr-4 rounded-lg text-xs transition-all focus:outline-none ${
+                  theme === "dark"
+                    ? "bg-white/5 border border-white/10 text-white placeholder:text-slate-400 focus:border-safety/50 focus:bg-white/10"
+                    : "bg-slate-100 border border-slate-200 text-slate-900 placeholder:text-slate-400 focus:border-amber-500/50 focus:bg-white"
+                }`}
               />
             </div>
 
             {/* Theme Toggle */}
             <button
-              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-              className="p-2 text-white/70 hover:text-white rounded-lg hover:bg-white/10 transition-colors"
-              aria-label="Toggle theme"
+              onClick={toggleTheme}
+              className={`p-2 rounded-lg transition-colors ${
+                theme === "dark"
+                  ? "text-amber-400 hover:text-amber-300 hover:bg-white/10"
+                  : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
+              }`}
+              aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+              title={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
             >
               {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
             </button>
@@ -405,15 +413,17 @@ export default function AdminDashboard() {
           {/* Welcome / Header Section */}
           <section className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-              <h2 className="text-2xl sm:text-3xl font-bold tracking-tight bg-gradient-to-r from-white to-safety bg-clip-text text-transparent">
+              <h2 className={`text-2xl sm:text-3xl font-bold tracking-tight bg-gradient-to-r ${theme === "dark" ? "from-white to-safety" : "from-slate-900 via-slate-800 to-amber-600"} bg-clip-text text-transparent`}>
                 Overview
               </h2>
-              <p className="text-sm text-slate-400 mt-1">
+              <p className={`text-sm ${theme === "dark" ? "text-slate-400" : "text-slate-600"} mt-1`}>
                 Welcome to Sahil Industries management console. Here is your operational summary today.
               </p>
             </div>
             <div className="flex flex-wrap items-center gap-2.5">
-              <button className="flex items-center gap-2 px-3.5 py-2 border border-white/10 rounded-lg text-xs font-medium hover:bg-white/5 transition-colors group">
+              <button className={`flex items-center gap-2 px-3.5 py-2 border rounded-lg text-xs font-medium transition-colors group ${
+                theme === "dark" ? "border-white/10 hover:bg-white/5 text-slate-300" : "border-slate-300 bg-white hover:bg-slate-50 text-slate-700 shadow-sm"
+              }`}>
                 <Download size={14} className="group-hover:text-safety transition-colors" />
                 Export Report
               </button>
@@ -421,7 +431,9 @@ export default function AdminDashboard() {
                 <Plus size={14} />
                 New Entry
               </button>
-              <button className="flex items-center gap-2 px-3.5 py-2 border border-white/10 rounded-lg text-xs font-medium hover:bg-white/5 transition-colors group">
+              <button className={`flex items-center gap-2 px-3.5 py-2 border rounded-lg text-xs font-medium transition-colors group ${
+                theme === "dark" ? "border-white/10 hover:bg-white/5 text-slate-300" : "border-slate-300 bg-white hover:bg-slate-50 text-slate-700 shadow-sm"
+              }`}>
                 <RefreshCw size={14} className="group-hover:text-blue-400 transition-colors" />
                 Refresh
               </button>
