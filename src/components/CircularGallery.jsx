@@ -1,7 +1,11 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { gsap } from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import './CircularGallery.css';
+
+gsap.registerPlugin(ScrollTrigger);
 
 const DEFAULT_FONT = 'bold 30px Figtree';
 const DEFAULT_FONT_URL = 'https://fonts.googleapis.com/css2?family=Figtree:wght@400;700&display=swap';
@@ -246,6 +250,7 @@ const CircularGallery = ({
   autoScroll = 0,
   openOnClick = true,
   intro = true,
+  pageScrollPinRef,
   onItemClick,
   onActiveChange,
   dpr,
@@ -369,6 +374,11 @@ const CircularGallery = ({
     };
 
     const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
+    const pin = !reduce ? pageScrollPinRef?.current : null;
+    const endHold = 100;
+    let pageTrigger;
+    let pendingPageProgress = null;
+    let hasSyncedPageScroll = false;
     const textures = new Map();
     const view = { width: 1, height: 1, ratio: 1 };
     const state = {
@@ -688,6 +698,18 @@ const CircularGallery = ({
       const s = settingsRef.current;
       const dt = last ? clamp((now - last) / 1000, 0.0005, 0.05) : 1 / 60;
       last = now;
+      if (pendingPageProgress !== null) {
+        if (state.openTarget) {
+          state.openTarget = 0;
+          setOpen(false);
+        }
+        const { progress, atBoundary } = pendingPageProgress;
+        state.target = progress * (s.items.length - 1) * state.spacing;
+        // Start at the restored scroll position and finish before the pin releases.
+        if (!hasSyncedPageScroll || atBoundary) state.scroll = state.target;
+        hasSyncedPageScroll = true;
+        pendingPageProgress = null;
+      }
       if (s.items !== lastItems) {
         lastItems = s.items;
         prune(s.items);
@@ -695,6 +717,7 @@ const CircularGallery = ({
       }
       const idle = now - state.lastInput > 1800;
       const auto =
+        !pin &&
         s.autoScroll &&
         !reduce &&
         !state.drag &&
@@ -703,7 +726,8 @@ const CircularGallery = ({
         !state.keyboard &&
         idle;
       if (auto) state.target += s.autoScroll * state.spacing * 0.25 * dt;
-      const follow = reduce ? 1 : 1 - Math.pow(1 - s.scrollEase, dt * 60);
+      const scrollEase = pin && !state.openTarget ? Math.max(s.scrollEase, 0.18) : s.scrollEase;
+      const follow = reduce ? 1 : 1 - Math.pow(1 - scrollEase, dt * 60);
       const before = state.scroll;
       state.scroll += (state.target - state.scroll) * follow;
       if (Math.abs(state.target - state.scroll) < 0.05) state.scroll = state.target;
@@ -746,7 +770,9 @@ const CircularGallery = ({
         entry.ready = reduce ? 1 : Math.min(1, entry.ready + dt / 0.45);
         settling = true;
       });
-      const slot = auto ? Math.round(state.scroll / Math.max(state.spacing, 1)) : nearest();
+      const slot = auto || (pin && !state.openTarget)
+        ? Math.round(state.scroll / Math.max(state.spacing, 1))
+        : nearest();
       if (slot !== state.active && !state.drag) {
         state.active = slot;
         const index = wrap(slot, s.items.length);
@@ -757,7 +783,7 @@ const CircularGallery = ({
       draw(metrics);
       placeLabels(metrics);
       const moving =
-        (s.autoScroll && !reduce) ||
+        (s.autoScroll && !reduce && !pin) ||
         state.scroll !== state.target ||
         state.velocity !== 0 ||
         state.open !== state.openTarget ||
@@ -853,7 +879,7 @@ const CircularGallery = ({
         const dx = event.clientX - drag.x0;
         const dy = event.clientY - drag.y0;
         if (!drag.moved && Math.hypot(dx, dy) > 6) {
-          if (Math.abs(dy) > Math.abs(dx) && event.pointerType !== 'mouse') {
+          if (pin || (Math.abs(dy) > Math.abs(dx) && event.pointerType !== 'mouse')) {
             state.drag = null;
             return;
           }
@@ -935,6 +961,16 @@ const CircularGallery = ({
       const s = settingsRef.current;
       const step = STEPS[event.key];
       state.lastInput = performance.now();
+      if (pageTrigger && (step || event.key === 'Home' || event.key === 'End')) {
+        const lastIndex = s.items.length - 1;
+        const index = event.key === 'Home' ? 0 : event.key === 'End' ? lastIndex : wrap(state.active, s.items.length) + step;
+        if (index < 0 || index > lastIndex) return;
+        event.preventDefault();
+        const distance = pageTrigger.end - pageTrigger.start - endHold;
+        window.scrollTo({ top: pageTrigger.start + distance * index / Math.max(lastIndex, 1), behavior: 'smooth' });
+        buttonsRef.current[index]?.focus({ preventScroll: true });
+        return;
+      }
       if (step) {
         event.preventDefault();
         if (container.contains(document.activeElement) && document.activeElement !== container) state.keyboard = true;
@@ -995,7 +1031,7 @@ const CircularGallery = ({
     container.addEventListener('pointerup', onPointerUp);
     container.addEventListener('pointercancel', onPointerCancel);
     container.addEventListener('pointerleave', onPointerLeave);
-    container.addEventListener('wheel', onWheel, { passive: false });
+    if (!pageScrollPinRef) container.addEventListener('wheel', onWheel, { passive: false });
     container.addEventListener('keydown', onKeyDown);
     container.addEventListener('focusin', onFocusIn);
     container.addEventListener('focusout', onFocusOut);
@@ -1005,6 +1041,28 @@ const CircularGallery = ({
     lastItems = settingsRef.current.items;
     lastItems.forEach(item => textureFor(item.image));
     resize();
+
+    if (pin) {
+      const syncPageScroll = trigger => {
+        // Reserve a short final beat so the last card is visible before unpinning.
+        const distance = Math.max(1, trigger.end - trigger.start - endHold);
+        pendingPageProgress = {
+          progress: clamp((trigger.scroll() - trigger.start) / distance, 0, 1),
+          atBoundary: trigger.progress === 0 || trigger.progress === 1
+        };
+        wake();
+      };
+      pageTrigger = ScrollTrigger.create({
+        trigger: pin,
+        pin: true,
+        start: () => `top ${window.innerWidth >= 1024 ? 96 : 82}px`,
+        end: () => `+=${Math.max(1, settingsRef.current.items.length - 1) * clamp(pin.clientWidth * 0.19, 145, 225) + endHold}`,
+        anticipatePin: 1,
+        refreshPriority: 1,
+        onUpdate: syncPageScroll,
+        onRefresh: syncPageScroll
+      });
+    }
 
     const slotFor = index => {
       const count = settingsRef.current.items.length;
@@ -1018,11 +1076,12 @@ const CircularGallery = ({
     engineRef.current = {
       wake,
       open: index => openSlot(slotFor(index)),
-      focus: index => setSlot(slotFor(index), false),
+      focus: index => { if (!pin) setSlot(slotFor(index), false); },
       close
     };
 
     return () => {
+      pageTrigger?.kill();
       cancelAnimationFrame(raf);
       clearTimeout(snapTimer);
       engineRef.current = null;

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import {
   ArrowRight,
@@ -154,6 +154,7 @@ export default function ModernHomePage() {
   const prefersReduced = useReducedMotion();
   const [activeProductIndex, setActiveProductIndex] = useState(0);
   const activeProduct = homeProducts[activeProductIndex];
+  const productGalleryPinRef = useRef<HTMLDivElement>(null);
   const [typedFirstCharacters, setTypedFirstCharacters] = useState(prefersReduced ? HERO_TYPED_FIRST_LINE.length : 0);
   const [typedHeroCharacters, setTypedHeroCharacters] = useState(prefersReduced ? HERO_TYPED_LINE.length : 0);
 
@@ -583,7 +584,7 @@ export default function ModernHomePage() {
         </RevealGroup>
       </section>
 
-                        <section className={`bg-white ${SECTION_PY_DESKTOP}`}>
+                        <section data-pinned-section="true" className={`bg-white ${SECTION_PY_DESKTOP}`}>
                           <div className={`mx-auto ${CONTAINER_MAX_WIDTH} ${CONTAINER_MAX_WIDTH_MD}`}>
                             <RevealGroup staggerChildren={REVEAL_GROUP_STAGGER} delayChildren={REVEAL_GROUP_DELAY}>
             <RevealItem variant="quickEnter">
@@ -593,21 +594,22 @@ export default function ModernHomePage() {
                 copy="Purpose-engineered equipment for demanding industrial environments."
               />
             </RevealItem>
-            <RevealItem variant="quickEnter">
-              <div className="relative h-[380px] overflow-hidden rounded-2xl bg-ink md:h-[600px]">
+          </RevealGroup>
+          <div ref={productGalleryPinRef} className="relative bg-white">
+              <div className="relative h-[min(380px,62svh)] overflow-hidden rounded-2xl bg-white md:h-[min(600px,72svh)]">
                 <CircularGallery
                   items={productGalleryItems}
                   bend={3}
                   borderRadius={0.05}
-                  textColor="#ffffff"
+                  textColor="#101820"
                   scrollEase={0.05}
+                  pageScrollPinRef={productGalleryPinRef}
+                  intro={false}
                   onActiveChange={setActiveProductIndex}
                   aria-label="Product range"
                 />
               </div>
-            </RevealItem>
-            <RevealItem variant="quickEnter">
-              <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
+              <div className="mt-4 flex flex-wrap items-center justify-center gap-3 md:mt-6">
                 {activeProduct?.href && (
                   <Link
                     href={activeProduct.href}
@@ -626,8 +628,7 @@ export default function ModernHomePage() {
                   <ArrowRight size={17} className="group-hover:translate-x-1 transition-transform duration-300" />
                 </MagneticLink>
               </div>
-            </RevealItem>
-          </RevealGroup>
+          </div>
         </div>
       </section>
 
