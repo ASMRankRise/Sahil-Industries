@@ -353,7 +353,7 @@ export default function ModernHomePage() {
         </motion.div>
 
         {/* Enhanced Stats Bar - Animated Counters */}
-         <div className={`absolute bottom-3 left-1/2 z-30 mb-0 grid -translate-x-1/2 ${CONTAINER_MAX_WIDTH} ${STATS_GRID_COLS} ${STATS_GAP} ${STATS_BORDER} ${CONTAINER_MAX_WIDTH_MD} ${STATS_MD_GRID} ${STATS_MD_GAP}`}>
+          <div className={`absolute bottom-3 left-1/2 z-30 mb-0 grid -translate-x-1/2 ${CONTAINER_MAX_WIDTH} ${STATS_GRID_COLS} ${STATS_GAP} ${STATS_BORDER} ${CONTAINER_MAX_WIDTH_MD} ${STATS_MD_GRID} ${STATS_MD_GAP} max-md:relative max-md:bottom-auto max-md:left-auto max-md:mx-auto max-md:mt-3 max-md:mb-6 max-md:translate-x-0`}>
           <Reveal variant="itemReveal" delay={0.1}>
             <motion.div
               className={`group flex items-center gap-4 border border-white/20 border-l-0 bg-ink/80 ${STATS_CARD_PADDING} ${STATS_CARD_PADDING_MD} ${STATS_CARD_HOVER}`}
