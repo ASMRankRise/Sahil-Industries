@@ -5,7 +5,6 @@ import { ArrowRight, Phone } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
-import { PageHero } from "@/components/PageHero";
 import { Reveal, RevealGroup, RevealItem } from "@/components/ui/Reveal";
 import { MagneticButton, MagneticLink } from "@/components/ui/MagneticButton";
 import { siteContact } from "@/data/site";
@@ -32,13 +31,57 @@ export function ModernPageShell({
           exit={prefersReduced ? undefined : { opacity: 0, y: -20 }}
           transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}>
           <SiteHeader />
-          <PageHero eyebrow={eyebrow} title={title} />
+          <PremiumPageHero eyebrow={eyebrow} title={title} />
           {children}
           <ModernContactBand />
           <SiteFooter />
         </motion.div>
       </AnimatePresence>
     </main>
+  );
+}
+
+function PremiumPageHero({ eyebrow, title }: { eyebrow: string; title: string }) {
+  const prefersReduced = useReducedMotion();
+
+  return (
+    <section
+      className="relative isolate flex h-[390px] items-center overflow-hidden bg-cover bg-center py-10 text-white max-md:h-[430px] max-md:py-8"
+      style={{ backgroundImage: "url('/sahilcrane/about/about-img.jpg')" }}>
+      <div className="absolute inset-0 -z-10 bg-[linear-gradient(90deg,rgba(5,12,20,.94)_0%,rgba(5,12,20,.72)_42%,rgba(5,12,20,.25)_100%)]" />
+      <div className="absolute inset-x-0 bottom-0 -z-10 h-24 bg-gradient-to-t from-ink/40 to-transparent" />
+
+      <div className="mx-auto w-[calc(100%-36px)] md:w-[min(1240px,calc(100%-64px))]">
+        <div className="mb-5 flex items-center gap-2 text-[10px] font-bold uppercase tracking-[.18em] text-white/55">
+          <Link href="/" className="transition-colors hover:text-safety">Home</Link>
+          <span>/</span>
+          <span className="text-white/80">{eyebrow}</span>
+        </div>
+        <motion.div
+          initial={prefersReduced ? undefined : { opacity: 0, y: 24 }}
+          animate={prefersReduced ? undefined : { opacity: 1, y: 0 }}
+          transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}>
+          <p className="mb-3 flex items-center gap-3 text-[11px] font-extrabold uppercase tracking-[.17em] text-safety">
+            <span className="h-0.5 w-8 bg-safety" />
+            {eyebrow}
+          </p>
+          <h1 className="max-w-4xl text-[clamp(38px,5vw,64px)] font-bold leading-[.95] tracking-[-.06em] [overflow-wrap:anywhere]">
+            {title}
+          </h1>
+          <p className="mt-4 max-w-xl text-sm leading-6 text-white/70">
+            Engineered lifting solutions built for safety, reliability, and performance.
+          </p>
+          <div className="mt-5 flex flex-wrap gap-4">
+            <Link href="/contact" className="inline-flex items-center gap-2 border border-safety bg-safety px-5 py-4 text-xs font-extrabold uppercase tracking-industrial text-ink transition hover:-translate-y-1 hover:bg-yellow-300">
+              Explore our solutions <ArrowRight size={16} />
+            </Link>
+          </div>
+        </motion.div>
+      </div>
+      <div className="absolute bottom-5 right-8 hidden items-center gap-3 text-[10px] font-bold uppercase tracking-[.18em] text-white/50 md:flex">
+        <span className="h-px w-10 bg-safety" /> Scroll to explore
+      </div>
+    </section>
   );
 }
 
