@@ -27,9 +27,15 @@ import { clientLogos, homeProducts, industries } from "@/data/home";
 import { siteContact } from "@/data/site";
 import { useReducedMotion } from "@/components/animations/hooks/useReducedMotion";
 import { WhySahilTimeline } from "@/components/WhySahilTimeline";
+import CircularGallery from "@/components/CircularGallery";
 
 // Standardized spacing constants for ModernHomePage
 const asset = (path: string) => `/sahilcrane/${path}`;
+const productGalleryItems = homeProducts.map((product) => ({
+  image: asset(`products/${product.image}`),
+  text: product.title,
+  alt: product.title,
+}));
 const HERO_TYPED_LINE = "Built for industry.";
 const HERO_TYPED_FIRST_LINE = "Precision lifting.";
 
@@ -94,22 +100,6 @@ const ABOUT_LIST_GAP = "gap-3";
 const ABOUT_LIST_ITEM_GAP = "gap-2";
 const ABOUT_CHECK_SIZE = 16;
 const ABOUT_CHECK_COLOR = "text-[#b28a00]";
-const PRODUCTS_GRID = "grid grid-cols-3 gap-4 max-lg:grid-cols-2 max-md:grid-cols-1";
-const PRODUCTS_CARD_MIN_H = "min-h-[218px] max-md:min-h-[260px]";
-const PRODUCTS_CARD_BOTTOM = "bottom-5";
-const PRODUCTS_CARD_INSET = "inset-x-5";
-const PRODUCTS_NUMBER_STYLE = "text-[10px] font-extrabold text-safety";
-const PRODUCTS_TITLE_STYLE = "m-0 max-w-[180px] text-lg font-bold leading-[1.15]";
-const PRODUCTS_ARROW_SIZE = 19;
-const productTileLayout = (index: number) => [
-  "row-span-2 h-[450px] max-lg:col-span-2 max-md:col-span-1 max-md:row-span-1 max-md:h-[340px]",
-  "max-lg:col-span-1 max-md:col-span-1",
-  "max-lg:col-span-1 max-md:col-span-1",
-  "max-lg:col-span-1 max-md:col-span-1",
-  "max-lg:col-span-1 max-md:col-span-1",
-  "max-lg:col-span-1 max-md:col-span-1",
-  "max-lg:col-span-1 max-md:col-span-1",
-][index] ?? "max-md:col-span-1";
 const WHY_CHOOSE_GRID = "grid grid-cols-3 gap-5 max-md:grid-cols-1";
 const WHY_CHOOSE_CARD_H = "min-h-[285px]";
 const WHY_CHOOSE_CARD_PADDING = "p-9";
@@ -162,6 +152,8 @@ function Heading({
 
 export default function ModernHomePage() {
   const prefersReduced = useReducedMotion();
+  const [activeProductIndex, setActiveProductIndex] = useState(0);
+  const activeProduct = homeProducts[activeProductIndex];
   const [typedFirstCharacters, setTypedFirstCharacters] = useState(prefersReduced ? HERO_TYPED_FIRST_LINE.length : 0);
   const [typedHeroCharacters, setTypedHeroCharacters] = useState(prefersReduced ? HERO_TYPED_LINE.length : 0);
 
@@ -602,46 +594,28 @@ export default function ModernHomePage() {
               />
             </RevealItem>
             <RevealItem variant="quickEnter">
-              <RevealGroup
-                staggerChildren={0.06}
-                delayChildren={0.1}
-                                              className={`${PRODUCTS_GRID} stagger-grid`}>
-                {homeProducts.map((product, index) => (
-                  <RevealItem key={product.title} variant="itemReveal" className={productTileLayout(index)}>
-                    <Link
-                      href={product.href ?? "/"}
-                      className={`group relative block h-full ${PRODUCTS_CARD_MIN_H} overflow-hidden bg-ink text-white ${index === 0 ? "rounded-2xl" : "rounded-xl"} shadow-sm transition-shadow duration-300 group-hover:shadow-xl`}>
-                      <motion.img
-                        className="absolute inset-0 h-full w-full object-cover opacity-75 transition duration-500 group-hover:scale-110 group-hover:opacity-95"
-                        src={asset(`products/${product.image}`)}
-                        alt={product.title}
-                        initial={{ scale: 1 }}
-                        whileHover={{ scale: 1.1 }}
-                        transition={{ duration: 0.5 }}
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-ink/90 via-ink/10 to-transparent" />
-                                        <div className={`absolute ${PRODUCTS_CARD_INSET} ${PRODUCTS_CARD_BOTTOM} z-10 grid grid-cols-[1fr_auto] items-end gap-2`}>
-                                          <span className={PRODUCTS_NUMBER_STYLE}>
-                          0{index + 1}
-                        </span>
-                                          <h3 className={PRODUCTS_TITLE_STYLE}>
-                          {product.title}
-                        </h3>
-                        <motion.span
-                          className="col-start-2 row-span-2 row-start-1 text-safety"
-                          initial={{ x: 0 }}
-                          whileHover={{ x: 8 }}
-                          transition={{ duration: 0.2 }}>
-                                            <ArrowRight size={PRODUCTS_ARROW_SIZE} />
-                        </motion.span>
-                      </div>
-                    </Link>
-                  </RevealItem>
-                ))}
-              </RevealGroup>
+              <div className="relative h-[380px] overflow-hidden rounded-2xl bg-ink md:h-[600px]">
+                <CircularGallery
+                  items={productGalleryItems}
+                  bend={3}
+                  borderRadius={0.05}
+                  textColor="#ffffff"
+                  scrollEase={0.05}
+                  onActiveChange={setActiveProductIndex}
+                  aria-label="Product range"
+                />
+              </div>
             </RevealItem>
             <RevealItem variant="quickEnter">
-              <div className="mt-10 text-center">
+              <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
+                {activeProduct?.href && (
+                  <Link
+                    href={activeProduct.href}
+                    className="inline-flex items-center gap-2 border border-ink/15 px-6 py-5 text-xs font-extrabold uppercase tracking-industrial text-ink transition-colors hover:border-safety focus-visible:outline-safety"
+                  >
+                    Explore {activeProduct.title} <ArrowRight size={17} aria-hidden="true" />
+                  </Link>
+                )}
                 <MagneticLink
                   href="/products/single-girder-eot-crane"
                   strength={0.15}
