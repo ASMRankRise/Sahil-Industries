@@ -110,7 +110,7 @@ const CLIENTS_CARD_PADDING = "p-5";
 const CLIENTS_CARD_PADDING_MD = "max-md:p-3";
 const CLIENTS_IMG_MAX_H = "max-h-[65px]";
 const CTA_SECTION_PY = "py-[70px]";
-const CTA_LAYOUT = "flex items-center justify-between gap-8 max-md:flex-col max-md:items-start";
+const CTA_LAYOUT = "flex items-center justify-between gap-8 max-md:flex-col max-md:items-start max-sm:items-center";
 const CTA_EYEBROW_STYLE = "mb-3 flex items-center gap-2 text-[11px] font-extrabold uppercase tracking-[.15em] text-safety";
 const CTA_EYEBROW_BAR = "h-0.5 w-8 bg-safety";
 const CTA_TITLE = "max-w-2xl text-[clamp(30px,3vw,47px)] font-bold leading-[1.05] tracking-[-.05em]";
@@ -692,7 +692,7 @@ export default function ModernHomePage() {
                             delayChildren={REVEAL_GROUP_DELAY}
                             className={`mx-auto flex ${CONTAINER_MAX_WIDTH} items-center justify-between ${CTA_LAYOUT} ${CONTAINER_MAX_WIDTH_MD}`}>
           <RevealItem variant="quickEnter">
-            <div>
+            <div className="max-sm:text-center">
               <motion.p
                                   className={CTA_EYEBROW_STYLE}
                 initial={{ opacity: 0, x: -20 }}
@@ -711,13 +711,13 @@ export default function ModernHomePage() {
             </div>
           </RevealItem>
           <RevealItem variant="quickEnter">
-                               <div className={`flex flex-nowrap items-center ${CTA_BUTTONS_GAP} max-md:mx-auto max-md:grid max-md:w-fit max-md:min-w-0 max-md:grid-cols-[96px_auto_auto] max-md:justify-items-center max-md:gap-2 [&>*]:min-w-0`}>
+                               <div className={`flex flex-nowrap items-center ${CTA_BUTTONS_GAP} max-sm:mx-auto max-sm:flex-col max-sm:w-full max-sm:max-w-[280px] max-sm:min-w-0 max-sm:gap-3 [&>*]:min-w-0`}>
               <MagneticLink
                 href="/contact"
                 strength={0.2}
                 area={60}
                 variant="primary"
-                                  className={`inline-flex items-center justify-center gap-2 bg-safety ${CTA_PRIMARY_PADDING} text-xs font-extrabold uppercase tracking-industrial text-ink max-md:h-[70px] max-md:w-[96px] max-md:min-w-0 max-md:px-1 max-md:py-2 max-md:text-[8px] max-md:leading-3 max-md:whitespace-nowrap`}>
+                                  className={`inline-flex items-center justify-center gap-2 bg-safety ${CTA_PRIMARY_PADDING} text-xs font-extrabold uppercase tracking-industrial text-ink max-sm:h-12 max-sm:w-full max-sm:min-w-0 max-sm:px-4 max-sm:py-2 max-sm:text-[10px] max-sm:leading-4 max-sm:whitespace-nowrap`}>
                 <span className="relative z-10">Talk to our team</span>
                 <ArrowRight size={17} className="group-hover:translate-x-1 transition-transform duration-300" />
               </MagneticLink>
@@ -726,7 +726,7 @@ export default function ModernHomePage() {
                 strength={0.15}
                 area={50}
                 variant="ghost"
-                                  className={`inline-flex h-[70px] min-w-0 items-center justify-center gap-2 whitespace-nowrap ${CTA_GHOST_PADDING} text-xs font-extrabold hover:text-safety max-md:px-1 max-md:py-2 max-md:text-[9px]`}>
+                                  className={`inline-flex h-[70px] min-w-0 items-center justify-center gap-2 whitespace-nowrap ${CTA_GHOST_PADDING} text-xs font-extrabold hover:text-safety max-sm:h-12 max-sm:w-full max-sm:px-4 max-sm:py-2 max-sm:text-[11px]`}>
                  <span className="relative z-10 inline-flex items-center justify-center gap-2 whitespace-nowrap">
                    <Phone size={17} className="shrink-0" />
                    <span>{siteContact.phone}</span>
@@ -739,7 +739,7 @@ export default function ModernHomePage() {
                 strength={0.15}
                 area={50}
                 variant="ghost"
-                                  className={`inline-flex h-[70px] min-w-0 items-center justify-center gap-2 ${CTA_GHOST_PADDING} text-xs font-extrabold text-slate-300 hover:text-safety max-md:px-1 max-md:py-2 max-md:text-[9px]`}>
+                                  className={`inline-flex h-[70px] min-w-0 items-center justify-center gap-2 ${CTA_GHOST_PADDING} text-xs font-extrabold text-slate-300 hover:text-safety max-sm:h-12 max-sm:w-full max-sm:px-4 max-sm:py-2 max-sm:text-[11px]`}>
                  <span className="relative z-10 flex items-center justify-center gap-2">
                    <Download size={16} />
                    <span>Brochure</span>
