@@ -81,11 +81,6 @@ const STATS_LABEL_STYLE = "text-[10px] uppercase tracking-industrial text-slate-
 const HIGHLIGHTS_PY = "py-6";
 const HIGHLIGHTS_PY_MD = "max-md:py-20";
 const HIGHLIGHTS_GRID = "grid grid-cols-3 gap-8 max-md:grid-cols-1 max-md:gap-6";
-const HIGHLIGHTS_CARD_PADDING = "relative flex min-h-[178px] flex-col items-center justify-between overflow-hidden rounded-xl border border-ink/10 bg-white p-6 text-center shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-safety/60 hover:shadow-lg";
-const HIGHLIGHTS_ICON_WRAPPER = "inline-flex h-12 w-12 items-center justify-center rounded-lg bg-safety/15 text-safety transition-colors duration-300 group-hover:bg-safety group-hover:text-ink";
-const HIGHLIGHTS_ICON_SIZE = "h-8 w-8";
-const HIGHLIGHTS_TITLE = "text-xl font-bold text-ink mb-2";
-const HIGHLIGHTS_COPY = "text-steel";
 const ABOUT_GRID_COLS = "grid-cols-1 md:grid-cols-[minmax(0,.88fr)_minmax(0,1fr)]";
 const ABOUT_GAP = "gap-10 lg:gap-[clamp(50px,9vw,150px)]";
 const ABOUT_IMG_PB = "pb-[88px]";
@@ -438,41 +433,33 @@ export default function ModernHomePage() {
       </section>
 
       {/* Highlights Area */}
-      <section className={`${HIGHLIGHTS_PY} ${HIGHLIGHTS_PY_MD} bg-white`}>
+      <section className={`${HIGHLIGHTS_PY} ${HIGHLIGHTS_PY_MD} bg-[#f3f0e8]`}>
         <div className={`mx-auto ${CONTAINER_MAX_WIDTH} ${CONTAINER_MAX_WIDTH_MD}`}>
+          <div className="mb-7 text-center">
+            <p className="mb-2 flex items-center justify-center gap-2 text-[10px] font-extrabold uppercase tracking-[.18em] text-[#9b7800]">
+              <span className="h-px w-6 bg-[#c6a30a]" />
+              Why choose Sahil
+              <span className="h-px w-6 bg-[#c6a30a]" />
+            </p>
+          </div>
           <RevealGroup
             staggerChildren={REVEAL_GROUP_STAGGER}
             delayChildren={REVEAL_GROUP_DELAY}
-            className={HIGHLIGHTS_GRID}>
-            <RevealItem variant="itemReveal">
-               <div className={`group ${HIGHLIGHTS_CARD_PADDING}`}>
-                <div className={HIGHLIGHTS_ICON_WRAPPER}>
-                  <Shield className={HIGHLIGHTS_ICON_SIZE} />
-                </div>
-                <h3 className={HIGHLIGHTS_TITLE}>Reliability</h3>
-                <p className={HIGHLIGHTS_COPY}>Transparency Service</p>
-              </div>
-            </RevealItem>
-            <RevealItem variant="itemReveal">
-               <div className={`group ${HIGHLIGHTS_CARD_PADDING}`}>
-                <div className={HIGHLIGHTS_ICON_WRAPPER}>
-                  <Award className={HIGHLIGHTS_ICON_SIZE} />
-                </div>
-                <h3 className={HIGHLIGHTS_TITLE}>Materials</h3>
-                <p className={HIGHLIGHTS_COPY}>100% Quality Product</p>
-              </div>
-            </RevealItem>
-            <RevealItem variant="itemReveal">
-               <div className={`group ${HIGHLIGHTS_CARD_PADDING}`}>
-                <div className={HIGHLIGHTS_ICON_WRAPPER}>
-                  <Users className={HIGHLIGHTS_ICON_SIZE} />
-                </div>
-                <h3 className={HIGHLIGHTS_TITLE}>
-                  Expert Staff
-                </h3>
-                <p className={HIGHLIGHTS_COPY}>Trained & Experienced</p>
-              </div>
-            </RevealItem>
+            className="grid grid-cols-3 gap-5 max-md:grid-cols-1 max-md:gap-4">
+            {[
+              { title: "Reliability", copy: "Transparency Service", icon: Shield },
+              { title: "Materials", copy: "100% Quality Product", icon: Award },
+              { title: "Expert Staff", copy: "Trained & Experienced", icon: Users },
+            ].map(({ title, copy, icon: Icon }) => (
+              <RevealItem key={title} variant="itemReveal">
+                <article className="group relative flex min-h-[150px] flex-col items-center justify-center overflow-hidden rounded-2xl border border-[#d9cda9] bg-[radial-gradient(circle_at_50%_0%,rgba(246,197,21,.16),transparent_42%),linear-gradient(135deg,#0b1220_0%,#172235_58%,#241b08_100%)] p-5 text-center text-white shadow-[0_12px_28px_rgba(15,23,40,.12)] transition-all duration-300 hover:-translate-y-1 hover:border-[#d5ad16] hover:shadow-[0_18px_35px_rgba(15,23,40,.2)]">
+                  <span className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_var(--x,50%)_var(--y,0%),rgba(255,255,255,.14),transparent_32%)] opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+                  <Icon className="relative z-10 mb-3 h-8 w-8 text-safety" aria-hidden="true" />
+                  <h3 className="relative z-10 mb-1 text-lg font-bold tracking-[-.02em]">{title}</h3>
+                  <p className="relative z-10 text-sm text-white/65">{copy}</p>
+                </article>
+              </RevealItem>
+            ))}
           </RevealGroup>
         </div>
       </section>
