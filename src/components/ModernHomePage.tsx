@@ -51,7 +51,7 @@ const HEADING_MB = "mb-12";
 const HEADING_MAX_W = "max-w-[690px]";
 const HEADING_TITLE = "m-0 text-[clamp(34px,4vw,55px)] font-bold leading-[1.05] tracking-[-.052em]";
 const HEADING_COPY = "mt-4 text-base text-steel";
-const HERO_MIN_H = "min-h-[710px]";
+const HERO_MIN_H = "min-h-[calc(100dvh-74px)] lg:min-h-[calc(100dvh-88px)]";
 const HERO_MIN_H_MD = "max-md:min-h-0";
 const HERO_CONTENT_PY = "py-[114px] pb-[158px]";
 const HERO_CONTENT_PY_MD = "max-md:pt-16 max-md:pb-8";
@@ -236,12 +236,9 @@ export default function ModernHomePage() {
         {/* Radial gradient glow for depth */}
         <div className="absolute inset-0 bg-gradient-to-br from-safety/10 via-transparent to-transparent opacity-50" aria-hidden="true" />
         
-        {/* HeroMotion GSAP animations */}
-        <HeroMotion />
-
         {/* Main content */}
-        <div className={`relative z-10 mx-auto ${CONTAINER_MAX_WIDTH} ${HERO_CONTENT_PY} ${CONTAINER_MAX_WIDTH_MD} ${HERO_CONTENT_PY_MD}`}>
-          <RevealGroup staggerChildren={REVEAL_GROUP_STAGGER} delayChildren={REVEAL_GROUP_DELAY}>
+        <div className={`relative z-10 mx-auto grid flex-1 content-center items-center md:grid-cols-[minmax(0,1fr)_minmax(0,.55fr)] md:gap-8 ${CONTAINER_MAX_WIDTH} ${CONTAINER_MAX_WIDTH_MD} ${HERO_CONTENT_PY} ${HERO_CONTENT_PY_MD}`}>
+          <RevealGroup className="relative z-10 col-start-1 row-start-1 min-w-0" staggerChildren={REVEAL_GROUP_STAGGER} delayChildren={REVEAL_GROUP_DELAY}>
             {/* Eyebrow with enhanced animation */}
             <RevealItem variant="quickEnter">
               <motion.div
@@ -344,6 +341,7 @@ export default function ModernHomePage() {
               </div>
             </RevealItem>
           </RevealGroup>
+          <HeroMotion />
         </div>
 
         <motion.div
@@ -360,7 +358,7 @@ export default function ModernHomePage() {
         </motion.div>
 
         {/* Enhanced Stats Bar - Animated Counters */}
-         <div className={`relative z-10 mx-auto mb-5 grid md:absolute md:bottom-0 md:left-1/2 md:mb-0 md:-translate-x-1/2 ${CONTAINER_MAX_WIDTH} ${STATS_GRID_COLS} ${STATS_GAP} ${STATS_BORDER} ${CONTAINER_MAX_WIDTH_MD} ${STATS_MD_GRID} ${STATS_MD_GAP}`}>
+         <div className={`absolute bottom-3 left-1/2 z-30 mb-0 grid -translate-x-1/2 ${CONTAINER_MAX_WIDTH} ${STATS_GRID_COLS} ${STATS_GAP} ${STATS_BORDER} ${CONTAINER_MAX_WIDTH_MD} ${STATS_MD_GRID} ${STATS_MD_GAP}`}>
           <Reveal variant="itemReveal" delay={0.1}>
             <motion.div
               className={`group flex items-center gap-4 border border-white/20 border-l-0 bg-ink/80 ${STATS_CARD_PADDING} ${STATS_CARD_PADDING_MD} ${STATS_CARD_HOVER}`}

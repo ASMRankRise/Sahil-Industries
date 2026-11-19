@@ -4,10 +4,10 @@ import { useLayoutEffect, useRef } from 'react';
 import { gsap } from 'gsap';
 
 // Standardized constants for HeroMotion
-const ORB_CLASS = "hero-motion__orb absolute right-[12%] top-[17%] aspect-square w-[420px] rounded-full border-[3px] border-safety bg-safety/[0.06] shadow-[0_0_35px_rgba(246,197,21,.45),0_0_0_42px_rgba(246,197,21,.14),0_0_0_95px_rgba(246,197,21,.08)] max-md:right-[-50px] max-md:top-[12%] max-md:w-[230px]";
+const ORB_CLASS = "hero-motion__orb relative aspect-square w-[88%] rounded-full border border-safety bg-safety/[0.06] shadow-[0_0_10px_rgba(246,197,21,.35)] md:border-[3px] md:shadow-[0_0_32px_rgba(246,197,21,.42)]";
 const ORB_INNER_CLASS = "hero-motion__orb-inner absolute inset-[11%] rounded-full border border-safety/60 shadow-[inset_0_0_30px_rgba(246,197,21,.18)]";
-const ORB_RING_CLASS = "hero-motion__orb-ring absolute rounded-full border-2 border-solid border-safety";
-const ORB_CORE_CLASS = "hero-motion__orb-core absolute left-1/2 top-1/2 h-36 w-44 -translate-x-1/2 -translate-y-1/2 bg-transparent p-2 object-contain drop-shadow-[0_0_14px_rgba(246,197,21,.4)] max-md:h-28 max-md:w-36";
+const ORB_RING_CLASS = "hero-motion__orb-ring absolute rounded-full border border-solid border-safety md:border-2";
+const ORB_CORE_CLASS = "hero-motion__orb-core absolute left-1/2 top-1/2 h-[48%] w-[54%] -translate-x-1/2 -translate-y-1/2 object-contain drop-shadow-[0_0_14px_rgba(246,197,21,.4)]";
 const LINE_CLASS = "hero-motion__line absolute right-0 top-[35%] h-px w-[38%] bg-gradient-to-r from-transparent via-safety to-transparent opacity-65";
 const LINE_2_CLASS = "hero-motion__line absolute right-[9%] top-[49%] h-px w-[38%] bg-gradient-to-r from-transparent via-safety to-transparent opacity-65";
 const LINE_3_CLASS = "hero-motion__line absolute right-[2%] top-[63%] h-px w-[38%] bg-gradient-to-r from-transparent via-safety to-transparent opacity-65";
@@ -35,17 +35,20 @@ export function HeroMotion() {
   }, []);
 
   return (
-    <div ref={root} className="pointer-events-none absolute inset-0 z-[2] overflow-hidden" aria-hidden="true">
+    <div ref={root} className="pointer-events-none relative col-start-1 row-start-1 grid aspect-square w-14 place-items-center self-start justify-self-end md:col-start-2 md:w-[min(100%,520px,52svh)] md:self-center md:justify-self-center" aria-hidden="true">
+      <span className="absolute inset-0 rounded-full bg-[radial-gradient(circle,rgba(246,197,21,.16)_0%,rgba(246,197,21,.08)_54%,transparent_72%)]" />
+      <div className="absolute inset-0 hidden overflow-hidden md:block">
+        <i className={LINE_CLASS} />
+        <i className={LINE_2_CLASS} />
+        <i className={LINE_3_CLASS} />
+        <i className={DOT_CONNECTOR_CLASS} />
+      </div>
       <span className={ORB_CLASS}>
         <span className={ORB_INNER_CLASS} />
         <span className={`${ORB_RING_CLASS} hero-motion__orb-ring--outer -inset-[9%] opacity-80`} />
         <span className={`${ORB_RING_CLASS} hero-motion__orb-ring--inner inset-[23%] opacity-90`} />
-        <img className={ORB_CORE_CLASS} src="/media/logo/hero-center.svg?v=4" alt="Sahil Industries" />
+        <img className={ORB_CORE_CLASS} src="/media/logo/hero-center.svg?v=4" alt="" />
       </span>
-      <i className={LINE_CLASS} />
-      <i className={LINE_2_CLASS} />
-      <i className={LINE_3_CLASS} />
-      <i className={DOT_CONNECTOR_CLASS} />
     </div>
   );
 }
