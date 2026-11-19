@@ -79,7 +79,7 @@ export function WhySahilTimeline() {
     <section
       ref={sectionRef}
       data-pinned-section="true"
-      className="relative min-h-screen bg-ink text-white flex flex-col justify-center overflow-hidden py-16 md:py-24 max-md:min-h-0"
+      className="relative min-h-screen bg-ink text-white flex flex-col justify-center overflow-hidden py-16 md:py-24 max-md:min-h-0 max-md:py-12"
     >
       <div className="mx-auto w-[min(1240px,calc(100%-64px))] max-md:w-[calc(100%-36px)]">
         <p className="mb-4 flex items-center justify-center gap-2 text-xs font-semibold tracking-[.18em] text-safety">
@@ -87,14 +87,14 @@ export function WhySahilTimeline() {
           WHY SAHIL
           <span className="h-0.5 w-8 bg-safety" />
         </p>
-        <h2 className="mx-auto max-w-[850px] text-center text-[clamp(34px,4.5vw,60px)] font-bold leading-[1.05] tracking-[-.055em]">
+        <h2 className="mx-auto max-w-[850px] text-center text-[clamp(30px,4.5vw,60px)] font-bold leading-[1.02] tracking-[-.055em] max-md:max-w-[310px]">
           Built around operational confidence.
         </h2>
         <p className="mx-auto mt-4 max-w-[560px] text-center text-sm md:text-base leading-6 md:leading-7 text-slate-300">
           Engineering, support, and expertise that keep every lift moving forward.
         </p>
 
-        <div ref={containerRef} className="relative mt-16 md:mt-24 overflow-hidden max-md:overflow-visible">
+        <div ref={containerRef} className="relative mt-16 md:mt-24 overflow-hidden max-md:mt-10 max-md:overflow-visible">
           {/* Background line track */}
           <div className="absolute left-0 right-0 top-[24px] hidden h-px bg-white/20 md:block" />
 
@@ -115,15 +115,15 @@ export function WhySahilTimeline() {
               return (
                 <article
                   key={title}
-                  className="timeline-card relative shrink-0 w-[290px] sm:w-[330px] md:w-[360px] pt-14 max-md:w-full max-md:pt-0 max-md:pb-1"
+                  className="timeline-card relative shrink-0 w-[290px] sm:w-[330px] md:w-[360px] pt-14 max-md:w-full max-md:rounded-2xl max-md:border max-md:border-white/10 max-md:bg-gradient-to-br max-md:from-[#172235] max-md:to-[#0b1220] max-md:p-4 max-md:pt-4 max-md:pb-5 max-md:shadow-[0_10px_25px_rgba(0,0,0,.2)]"
                 >
-                  <span className="absolute left-0 top-0 flex h-12 w-12 items-center justify-center rounded-full bg-safety text-ink shadow-[0_0_24px_rgba(246,197,21,.35)] transition-transform duration-300 hover:scale-110 max-md:-top-3 max-md:h-10 max-md:w-10">
+                  <span className="absolute left-0 top-0 flex h-12 w-12 items-center justify-center rounded-full bg-safety text-ink shadow-[0_0_24px_rgba(246,197,21,.35)] transition-transform duration-300 hover:scale-110 max-md:left-4 max-md:top-2 max-md:h-9 max-md:w-9">
                     <Icon size={20} />
                   </span>
-                  <h3 className="mb-2 pl-14 text-xl md:text-2xl font-bold leading-tight max-md:text-[17px] max-md:leading-6">
+                  <h3 className="mb-2 pl-14 text-xl md:text-2xl font-bold leading-tight max-md:pl-12 max-md:text-[16px] max-md:leading-6">
                     {title}
                   </h3>
-                  <p className="text-sm md:text-base leading-6 md:leading-7 text-slate-300 max-md:text-[12px] max-md:leading-5">
+                  <p className="text-sm md:text-base leading-6 md:leading-7 text-slate-300 max-md:text-[11px] max-md:leading-5">
                     {description}
                   </p>
                 </article>

@@ -189,8 +189,8 @@ export function AdminDashboardLayout({ children, activeNav, pageTitle, pageDescr
       {/* Main Content Area */}
       <div className={`min-h-screen flex flex-col transition-all duration-300 ${sidebarOpen ? "lg:pl-64" : "lg:pl-0"}`}>
         {/* Top Header Bar */}
-        <header className="sticky top-0 z-30 flex h-16 w-full items-center justify-between px-4 sm:px-6 md:px-8 border-b border-white/10 bg-ink/95 backdrop-blur-md">
-          <div className="flex min-w-0 items-center gap-2 sm:gap-4">
+        <header className="sticky top-0 z-30 flex h-16 w-full items-center justify-between gap-2 px-2 sm:px-6 md:px-8 border-b border-white/10 bg-ink/95 backdrop-blur-md">
+          <div className="flex min-w-0 flex-1 items-center gap-1.5 sm:gap-4">
             <button
               onClick={() => setSidebarOpen(!sidebarOpen)}
               className="grid size-11 shrink-0 place-items-center rounded-lg text-white/70 transition-colors hover:bg-white/10 hover:text-white"
@@ -201,8 +201,8 @@ export function AdminDashboardLayout({ children, activeNav, pageTitle, pageDescr
             >
               <Menu size={20} />
             </button>
-            <div className="min-w-0 [overflow-wrap:anywhere]">
-              <h1 className="text-base sm:text-lg font-bold tracking-tight bg-gradient-to-r from-white to-safety bg-clip-text text-transparent leading-none">
+            <div className="min-w-0 flex-1">
+              <h1 className="whitespace-nowrap truncate text-[11px] font-bold tracking-tight bg-gradient-to-r from-white to-safety bg-clip-text text-transparent leading-none sm:text-base md:text-lg">
                 {pageTitle}
               </h1>
               <p className="text-[11px] text-slate-400 hidden sm:block mt-0.5">{pageDescription}</p>
