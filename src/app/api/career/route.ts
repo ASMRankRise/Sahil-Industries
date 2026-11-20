@@ -149,10 +149,10 @@ export async function POST(request: NextRequest) {
     );
   } catch (error) {
     console.error('Career form error:', error);
-    // Return more specific error message
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    // Keep implementation details (database, mail, and configuration errors)
+    // in server logs only. They must never be returned to the client.
     return NextResponse.json(
-      { error: `Failed to submit application: ${errorMessage}` },
+      { error: 'Failed to submit application. Please try again later.' },
       { status: 500 }
     );
   }
