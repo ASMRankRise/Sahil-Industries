@@ -4,6 +4,8 @@ import type { NextConfig } from 'next';
 // are currently required by the legacy runtime and React's inline styles; the
 // external origins are limited to services used by the site (Maps, Turnstile,
 // Google Fonts, and the legacy scrollbar dependency).
+const isDevelopment = process.env.NODE_ENV === 'development';
+
 const securityHeaders = [
   {
     key: 'Content-Security-Policy',
@@ -13,7 +15,7 @@ const securityHeaders = [
       "object-src 'none'",
       "form-action 'self'",
       "frame-ancestors 'none'",
-      "script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://challenges.cloudflare.com",
+      `script-src 'self' 'unsafe-inline'${isDevelopment ? " 'unsafe-eval'" : ''} https://cdnjs.cloudflare.com https://challenges.cloudflare.com`,
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
       "font-src 'self' data: https://fonts.gstatic.com",
       "img-src 'self' data: blob: https://picsum.photos https://*.googleusercontent.com https://maps.gstatic.com",
