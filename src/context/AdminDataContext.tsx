@@ -138,9 +138,9 @@ interface AdminDataContextType {
   
   // Gallery Images
   galleryImages: GalleryImage[];
-  addGalleryImage: (image: Omit<GalleryImage, "id">) => void;
-  updateGalleryImage: (id: string, updates: Partial<GalleryImage>) => void;
-  deleteGalleryImage: (id: string) => void;
+  addGalleryImage: (image: Omit<GalleryImage, "id">) => Promise<GalleryImage>;
+  updateGalleryImage: (id: string, updates: Partial<GalleryImage>) => Promise<void>;
+  deleteGalleryImage: (id: string) => Promise<void>;
   uploadImage: (file: File, metadata: Partial<GalleryImage>) => Promise<GalleryImage>;
   
   // Analytics
@@ -149,12 +149,17 @@ interface AdminDataContextType {
   // Settings
   settings: Record<string, string>;
   updateSettings: (settings: Record<string, string>) => void;
+
+  // Theme
+  theme: "dark" | "light";
+  setTheme: (theme: "dark" | "light") => void;
+  toggleTheme: () => void;
   
-  // Auth (simulated login)
+  // Auth (server session; credentials never persist in the browser)
   isAuthenticated: boolean;
   user: { name: string; email: string } | null;
   login: (credentials: { email: string; password: string }) => Promise<void>;
-  logout: () => void;
+  logout: () => Promise<void>;
   
   // Loading states
   loading: boolean;
@@ -389,108 +394,113 @@ const initialGalleryImages: GalleryImage[] = [
 const AdminDataContext = createContext<AdminDataContextType | undefined>(undefined);
 
 export function AdminDataProvider({ children }: { children: ReactNode }) {
-  const [customers, setCustomers] = useState<Customer[]>(() => {
-    if (typeof window !== "undefined") {
-      const stored = localStorage.getItem("admin_customers");
-      if (stored) return JSON.parse(stored);
-    }
-    return initialCustomers;
-  });
+  const [customers, setCustomers] = useState<Customer[]>(initialCustomers);
   
-  const [products, setProducts] = useState<Product[]>(() => {
-    if (typeof window !== "undefined") {
-      const stored = localStorage.getItem("admin_products");
-      if (stored) return JSON.parse(stored);
-    }
-    return initialProducts;
-  });
+  const [products, setProducts] = useState<Product[]>(initialProducts);
   
-  const [orders, setOrders] = useState<Order[]>(() => {
-    if (typeof window !== "undefined") {
-      const stored = localStorage.getItem("admin_orders");
-      if (stored) return JSON.parse(stored);
-    }
-    return initialOrders;
-  });
+  const [orders, setOrders] = useState<Order[]>(initialOrders);
   
-  const [enquiries, setEnquiries] = useState<Enquiry[]>(() => {
-    if (typeof window !== "undefined") {
-      const stored = localStorage.getItem("admin_enquiries");
-      if (stored) return JSON.parse(stored);
-    }
-    return initialEnquiries;
-  });
+  const [enquiries, setEnquiries] = useState<Enquiry[]>(initialEnquiries);
   
   const [analytics] = useState<AnalyticsData>(initialAnalytics);
-  const [settings, setSettings] = useState<Record<string, string>>(() => {
-    if (typeof window !== "undefined") {
-      const stored = localStorage.getItem("admin_settings");
-      if (stored) return JSON.parse(stored);
-    }
-    return initialSettings;
-  });
+  const [settings, setSettings] = useState<Record<string, string>>(initialSettings);
   
-    const [galleryImages, setGalleryImages] = useState<GalleryImage[]>(() => {
-      if (typeof window !== "undefined") {
-        const stored = localStorage.getItem("admin_gallery_images");
-        if (stored) return JSON.parse(stored);
-      }
-      return initialGalleryImages;
+  const [galleryImages, setGalleryImages] = useState<GalleryImage[]>(initialGalleryImages);
+
+  const [loading, setLoading] = useState(true);
+
+  // Theme management with localStorage persistence and DOM synchronization
+  const [theme, setThemeState] = useState<"dark" | "light">("dark");
+
+  useEffect(() => {
+    try {
+      const savedTheme = localStorage.getItem("admin_theme") as "dark" | "light" | null;
+      const initial = savedTheme === "light" || savedTheme === "dark" ? savedTheme : "dark";
+      setThemeState(initial);
+      document.documentElement.setAttribute("data-admin-theme", initial);
+      document.documentElement.classList.toggle("dark", initial === "dark");
+    } catch {
+      document.documentElement.setAttribute("data-admin-theme", "dark");
+      document.documentElement.classList.add("dark");
+    }
+  }, []);
+
+  const setTheme = useCallback((newTheme: "dark" | "light") => {
+    setThemeState(newTheme);
+    try {
+      localStorage.setItem("admin_theme", newTheme);
+    } catch {}
+    document.documentElement.setAttribute("data-admin-theme", newTheme);
+    document.documentElement.classList.toggle("dark", newTheme === "dark");
+  }, []);
+
+  const toggleTheme = useCallback(() => {
+    setThemeState((prev) => {
+      const next = prev === "dark" ? "light" : "dark";
+      try {
+        localStorage.setItem("admin_theme", next);
+      } catch {}
+      document.documentElement.setAttribute("data-admin-theme", next);
+      document.documentElement.classList.toggle("dark", next === "dark");
+      return next;
     });
-  
-    const [loading, setLoading] = useState(false);
+  }, []);
 
-  // Auth state (simulated login — persisted in localStorage)
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
-    if (typeof window !== "undefined") {
-      const stored = localStorage.getItem("admin_auth");
-      if (stored) {
-        try { return JSON.parse(stored).isAuthenticated === true; } catch { return false; }
-      }
-    }
-    return false;
-  });
-  const [user, setUser] = useState<{ name: string; email: string } | null>(() => {
-    if (typeof window !== "undefined") {
-      const stored = localStorage.getItem("admin_auth");
-      if (stored) {
-        try { return JSON.parse(stored).user ?? null; } catch { return null; }
-      }
-    }
-    return null;
-  });
+  // Business data is server-backed. Remove keys created by the former
+  // localStorage-based admin implementation so stale temporary data cannot
+  // remain in a browser after upgrading.
+  useEffect(() => {
+    [
+      "admin_auth",
+      "admin_customers",
+      "admin_products",
+      "admin_orders",
+      "admin_enquiries",
+      "admin_settings",
+      "admin_gallery_images",
+    ].forEach((key) => localStorage.removeItem(key));
 
-  const SIMULATED_CREDENTIALS = {
-    email: "admin@sahilcranes.in",
-    password: "admin123",
-  };
+    fetch("/api/admin/gallery").then(async (response) => {
+      if (!response.ok) throw new Error("Unable to load gallery");
+      const data = await response.json();
+      setGalleryImages((data.images || []).map((image: Record<string, unknown>, index: number) => ({
+        id: String(image.id), title: String(image.title || ""), description: String(image.description || ""),
+        url: String(image.url || `/api/gallery/${encodeURIComponent(String(image.object_key))}`),
+        thumbnailUrl: String(image.thumbnail_url || image.url || `/api/gallery/${encodeURIComponent(String(image.object_key))}`),
+        category: (image.category || "other") as GalleryImage["category"], status: (image.status === "published" ? "active" : image.status || "draft") as GalleryImage["status"],
+        tags: Array.isArray(image.tags) ? image.tags as string[] : typeof image.tags === "string" ? (() => { try { return JSON.parse(image.tags as string); } catch { return []; } })() : [], altText: String(image.alt_text || ""), isFeatured: Boolean(image.is_featured),
+        date: String(image.created_at || new Date().toISOString()), size: Number(image.size || 0), width: Number(image.width || 0), height: Number(image.height || 0), order: Number(image.order || index + 1),
+      })));
+    }).catch(() => setGalleryImages([]));
+  }, []);
+
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [user, setUser] = useState<{ name: string; email: string } | null>(null);
+
+  useEffect(() => {
+    fetch("/api/auth/session").then(async (response) => {
+      if (!response.ok) return;
+      const data = await response.json();
+      if (data.authenticated) {
+        setUser(data.user);
+        setIsAuthenticated(true);
+      }
+    }).catch(() => undefined).finally(() => setLoading(false));
+  }, []);
 
   const login = useCallback(async (credentials: { email: string; password: string }) => {
-    // Simulate network request
-    await new Promise(resolve => setTimeout(resolve, 800));
-    if (credentials.email === SIMULATED_CREDENTIALS.email && credentials.password === SIMULATED_CREDENTIALS.password) {
-      const authUser = { name: "Admin User", email: credentials.email };
-      setUser(authUser);
-      setIsAuthenticated(true);
-      localStorage.setItem("admin_auth", JSON.stringify({ isAuthenticated: true, user: authUser }));
-    } else {
-      throw new Error("Invalid email or password");
-    }
+    const response = await fetch("/api/auth/login", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(credentials) });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error || "Invalid email or password");
+    setUser(data.user);
+    setIsAuthenticated(true);
   }, []);
 
-  const logout = useCallback(() => {
+  const logout = useCallback(async () => {
+    await fetch("/api/auth/logout", { method: "POST" });
     setUser(null);
     setIsAuthenticated(false);
-    localStorage.removeItem("admin_auth");
   }, []);
-
-  // Persist to localStorage
-  useEffect(() => { localStorage.setItem("admin_customers", JSON.stringify(customers)); }, [customers]);
-  useEffect(() => { localStorage.setItem("admin_products", JSON.stringify(products)); }, [products]);
-  useEffect(() => { localStorage.setItem("admin_orders", JSON.stringify(orders)); }, [orders]);
-  useEffect(() => { localStorage.setItem("admin_enquiries", JSON.stringify(enquiries)); }, [enquiries]);
-  useEffect(() => { localStorage.setItem("admin_settings", JSON.stringify(settings)); }, [settings]);
-    useEffect(() => { localStorage.setItem("admin_gallery_images", JSON.stringify(galleryImages)); }, [galleryImages]);
 
   // Customer CRUD
   const addCustomer = useCallback((customer: Omit<Customer, "id">) => {
@@ -565,48 +575,52 @@ export function AdminDataProvider({ children }: { children: ReactNode }) {
   }, []);
 
     // Gallery Image CRUD
-    const addGalleryImage = useCallback((image: Omit<GalleryImage, "id">) => {
-      const maxOrder = galleryImages.length > 0 ? Math.max(...galleryImages.map(img => img.order || 0)) : 0;
-      const newImage: GalleryImage = {
-        ...image,
-        id: `GAL-${String(galleryImages.length + 1).padStart(3, "0")}`,
-        order: image.order || maxOrder + 1,
-      };
-      setGalleryImages(prev => [newImage, ...prev]);
-    }, [galleryImages.length]);
+    const addGalleryImage = useCallback(async (image: Omit<GalleryImage, "id">) => {
+      const response = await fetch("/api/admin/gallery", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...image, object_key: image.url }) });
+      const result = await response.json(); if (!response.ok) throw new Error(result.error || "Unable to create image");
+      const newImage = { ...image, id: result.id };
+      setGalleryImages(prev => [newImage, ...prev]); return newImage;
+    }, []);
 
-    const updateGalleryImage = useCallback((id: string, updates: Partial<GalleryImage>) => {
+    const updateGalleryImage = useCallback(async (id: string, updates: Partial<GalleryImage>) => {
+      const response = await fetch(`/api/admin/gallery/${encodeURIComponent(id)}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(updates) });
+      const result = await response.json(); if (!response.ok) throw new Error(result.error || "Unable to update image");
       setGalleryImages(prev => prev.map(img => img.id === id ? { ...img, ...updates } : img));
     }, []);
 
-    const deleteGalleryImage = useCallback((id: string) => {
+    const deleteGalleryImage = useCallback(async (id: string) => {
+      const response = await fetch(`/api/admin/gallery/${encodeURIComponent(id)}`, { method: "DELETE" });
+      if (!response.ok) throw new Error("Unable to delete image");
       setGalleryImages(prev => prev.filter(img => img.id !== id));
     }, []);
 
     const uploadImage = useCallback(async (file: File, metadata: Partial<GalleryImage>) => {
-      // Simulate upload delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
-    
-      // Create object URL for preview
-      const url = URL.createObjectURL(file);
-    
+      const form = new FormData();
+      form.append("file", file);
+      if (metadata.title) form.append("title", metadata.title);
+      if (metadata.altText) form.append("alt_text", metadata.altText);
+      form.append("status", metadata.status || "active");
+      const response = await fetch("/api/admin/gallery/upload", { method: "POST", body: form });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error || "Upload failed");
+
       const maxOrder = galleryImages.length > 0 ? Math.max(...galleryImages.map(img => img.order || 0)) : 0;
     
       const newImage: GalleryImage = {
-        id: `GAL-${String(galleryImages.length + 1).padStart(3, "0")}`,
-        title: metadata.title || file.name.replace(/\.[^/.]+$/, ""),
+        id: result.id,
+        title: result.title,
         description: metadata.description || "",
-        url: url,
-        thumbnailUrl: url,
+        url: result.url,
+        thumbnailUrl: result.url,
         category: metadata.category || "products",
-        status: metadata.status || "draft",
+        status: metadata.status || "active",
         tags: metadata.tags || [],
         altText: metadata.altText || "",
         isFeatured: metadata.isFeatured || false,
         date: new Date().toISOString().split("T")[0],
         size: file.size,
-        width: 1920,
-        height: 1080,
+        width: result.width,
+        height: result.height,
         order: metadata.order || maxOrder + 1,
       };
     
@@ -640,6 +654,9 @@ export function AdminDataProvider({ children }: { children: ReactNode }) {
           analytics,
           settings,
           updateSettings,
+          theme,
+          setTheme,
+          toggleTheme,
           isAuthenticated,
           user,
           login,

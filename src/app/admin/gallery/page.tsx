@@ -436,17 +436,8 @@ export default function GalleryPage() {
       pageTitle="Gallery Management"
       pageDescription="Upload, organize and manage gallery images for products, projects and factory">
       <div className="space-y-6">
-        {/* Header Actions */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div>
-            <h2 className="text-2xl font-bold tracking-tight bg-gradient-to-r from-white to-safety bg-clip-text text-transparent">
-              Gallery
-            </h2>
-            <p className="text-slate-400 mt-1">
-              Upload, organize and manage gallery images
-            </p>
-          </div>
-          <div className="flex flex-wrap items-center gap-3">
+         <div className="flex justify-end">
+           <div className="flex flex-wrap items-center gap-3">
             <button
               onClick={() => setShowUploadModal(true)}
               className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-safety to-yellow-400 text-ink rounded-lg text-sm font-semibold hover:brightness-105 transition-all shadow-sm shadow-safety/20">

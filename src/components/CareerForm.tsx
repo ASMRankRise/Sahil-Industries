@@ -254,14 +254,11 @@ export function CareerForm({ onSuccess }: CareerFormProps) {
           
           // Simulate API call
           setTimeout(() => {
-            const isTaken = asyncValidationCache.current[value.toLowerCase()] || false;
-            // For demo, mark common test emails as "taken"
-            if (value.toLowerCase().includes('test@') || value.toLowerCase().includes('admin@')) {
-              asyncValidationCache.current[value.toLowerCase()] = true;
-              resolve({ warning: "This email is already registered. Did you mean to log in?" });
-            } else {
-              resolve({});
-            }
+            // This form does not look up accounts or registrations. Keep the
+            // async check as a harmless debounce without making claims about
+            // whether an email address is already registered.
+            asyncValidationCache.current[value.toLowerCase()] = true;
+            resolve({});
             setFieldStates(prevState => ({
               ...prevState,
               [name]: { ...prevState[name], isValidating: false }
@@ -364,7 +361,7 @@ export function CareerForm({ onSuccess }: CareerFormProps) {
         [fieldName]: { ...prev[fieldName], error, warning }
       }));
     });
-  }, []);
+  }, [validateField]);
 
   // Format phone number
   const formatPhoneNumber = (value: string): string => {
@@ -575,7 +572,7 @@ export function CareerForm({ onSuccess }: CareerFormProps) {
         )}
       </AnimatePresence>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
         <CareerField
           name="fullname"
           label="Full Name"
@@ -606,7 +603,7 @@ export function CareerForm({ onSuccess }: CareerFormProps) {
         />
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
         <CareerField
           name="mobile"
           label="Mobile Number"

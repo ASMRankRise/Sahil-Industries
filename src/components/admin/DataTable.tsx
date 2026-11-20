@@ -93,7 +93,7 @@ export function DataTable<T>({
 
   return (
     <div className={`bg-surface border border-white/10 rounded-2xl overflow-hidden ${className}`}>
-      <div className="overflow-x-auto">
+      <div className="overflow-x-auto overscroll-x-contain focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-safety" role="region" aria-label="Data table" tabIndex={0}>
         <table className="w-full text-left text-sm leading-6 min-w-[720px]">
           <thead>
             <tr className="border-b border-white/10 text-slate-400 uppercase tracking-wider font-semibold bg-white/[0.02]">

@@ -10,7 +10,7 @@ export default function CareerPage() {
       eyebrow="Build your career"
       title="Career at Sahil Industries">
       <section className="py-28 max-md:py-20">
-        <div className="mx-auto w-[min(1240px,calc(100%-64px))] max-md:w-[calc(100%-36px)] grid grid-cols-[minmax(260px,.72fr)_minmax(360px,1fr)] items-start gap-[clamp(45px,8vw,130px)] max-md:grid-cols-1">
+        <div className="mx-auto grid w-[calc(100%-36px)] grid-cols-1 items-start gap-10 md:w-[min(1240px,calc(100%-64px))] md:grid-cols-[minmax(0,.72fr)_minmax(0,1fr)] lg:gap-[clamp(45px,8vw,130px)]">
           {/* Left Content - Staggered Reveal */}
           <RevealGroup staggerChildren={0.1} delayChildren={0.1}>
             <RevealItem variant="quickEnter">

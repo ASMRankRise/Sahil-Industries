@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { CheckCircle, AlertCircle, Loader2, Mail, Phone, User, MessageSquare, Check, X, Info } from "lucide-react";
+import { CheckCircle, AlertCircle, Loader2, Mail, Phone, User, MessageSquare, Check, X, Info, RefreshCw } from "lucide-react";
 
 interface FormData {
   name: string;
@@ -108,6 +108,11 @@ const validationRules: ValidationRules = {
   },
 };
 
+function captchaAnswer(question: string) {
+  const numbers = question.match(/\d+/g)?.map(Number) ?? [];
+  return (numbers[0] ?? 0) + (numbers[1] ?? 0);
+}
+
 export function ContactForm({ formType = "contact", onSuccess }: ContactFormProps) {
   const [formData, setFormData] = useState<FormData>(initialFormData);
   const [fieldStates, setFieldStates] = useState<Record<keyof FormData, FieldState>>({
@@ -120,7 +125,27 @@ export function ContactForm({ formType = "contact", onSuccess }: ContactFormProp
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<"idle" | "success" | "error">("idle");
   const [errorMessage, setErrorMessage] = useState("");
+  const [captchaError, setCaptchaError] = useState("");
   const [touchedFields, setTouchedFields] = useState<Set<keyof FormData>>(new Set());
+  // Keep the initial render deterministic. Randomizing during state
+  // initialization runs once on the server and again in the browser, which
+  // produces different captcha text and causes a hydration mismatch.
+  const [captcha, setCaptcha] = useState({ question: "2 + 2", answer: "" });
+
+  useEffect(() => {
+    setCaptcha({
+      question: `${Math.floor(Math.random() * 9) + 1} + ${Math.floor(Math.random() * 9) + 1}`,
+      answer: "",
+    });
+  }, []);
+
+  const refreshCaptcha = useCallback(() => {
+    setCaptcha({
+      question: `${Math.floor(Math.random() * 9) + 1} + ${Math.floor(Math.random() * 9) + 1}`,
+      answer: "",
+    });
+    setCaptchaError("");
+  }, []);
   
   const validationTimeouts = useRef<Record<string, NodeJS.Timeout>>({});
   const asyncValidationCache = useRef<Record<string, boolean>>({});
@@ -170,13 +195,11 @@ export function ContactForm({ formType = "contact", onSuccess }: ContactFormProp
           // Simulate API call
           setTimeout(() => {
             const isTaken = asyncValidationCache.current[value.toLowerCase()] || false;
-            // For demo, mark common test emails as "taken"
-            if (value.toLowerCase().includes('test@') || value.toLowerCase().includes('admin@')) {
-              asyncValidationCache.current[value.toLowerCase()] = true;
-              resolve({ warning: "This email is already registered. Did you mean to log in?" });
-            } else {
-              resolve({});
-            }
+            // This form does not look up accounts or registrations. Keep the
+            // async check as a harmless debounce without making claims about
+            // whether an email address is already registered.
+            asyncValidationCache.current[value.toLowerCase()] = true;
+            resolve({});
             setFieldStates(prev => ({
               ...prev,
               [name]: { ...prev[name], isValidating: false }
@@ -306,6 +329,12 @@ export function ContactForm({ formType = "contact", onSuccess }: ContactFormProp
 
     if (!validateForm()) return;
 
+    if (!/^\d+$/.test(captcha.answer.trim()) || Number(captcha.answer) !== captchaAnswer(captcha.question)) {
+      setCaptchaError("Please enter the correct answer to continue.");
+      document.getElementById("contact-captcha")?.focus();
+      return;
+    }
+
     setIsSubmitting(true);
     setSubmitStatus("idle");
     setErrorMessage("");
@@ -319,6 +348,8 @@ export function ContactForm({ formType = "contact", onSuccess }: ContactFormProp
         body: JSON.stringify({
           ...formData,
           formType,
+          captcha: captcha.answer,
+          captchaQuestion: captcha.question,
         }),
       });
 
@@ -338,6 +369,7 @@ export function ContactForm({ formType = "contact", onSuccess }: ContactFormProp
         message: initialFieldState,
       });
       setTouchedFields(new Set());
+       refreshCaptcha();
       onSuccess?.();
     } catch (error) {
       setSubmitStatus("error");
@@ -355,9 +387,11 @@ export function ContactForm({ formType = "contact", onSuccess }: ContactFormProp
       formData.email.trim().length > 0 &&
       validationRules.email.pattern?.test(formData.email) &&
       formData.subject &&
-      formData.message.trim().length >= (validationRules.message.minLength ?? 10)
+       formData.message.trim().length >= (validationRules.message.minLength ?? 10) &&
+       /^\d+$/.test(captcha.answer.trim()) &&
+       Number(captcha.answer) === captchaAnswer(captcha.question)
     );
-  }, [formData]);
+  }, [formData, captcha]);
 
   // Cleanup timeouts on unmount
   useEffect(() => {
@@ -416,7 +450,7 @@ export function ContactForm({ formType = "contact", onSuccess }: ContactFormProp
         )}
       </AnimatePresence>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
         <Field
           name="name"
           label="Full Name"
@@ -447,7 +481,7 @@ export function ContactForm({ formType = "contact", onSuccess }: ContactFormProp
         />
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
         <Field
           name="phone"
           label="Phone Number"
@@ -488,6 +522,32 @@ export function ContactForm({ formType = "contact", onSuccess }: ContactFormProp
         isSubmitting={isSubmitting}
         maxLength={validationRules.message.maxLength ?? 5000}
       />
+
+      <fieldset className="rounded-xl border border-ink/15 bg-slate-50 p-4">
+        <legend className="px-1 text-xs font-extrabold uppercase tracking-[.12em] text-steel">Spam protection</legend>
+        <div className="flex flex-wrap items-center gap-3">
+          <label htmlFor="contact-captcha" className="text-sm font-semibold text-ink">
+            What is <span className="rounded bg-white px-2 py-1 font-bold tracking-wide shadow-sm">{captcha.question}</span>?
+          </label>
+          <input
+            id="contact-captcha"
+            type="text"
+            inputMode="numeric"
+            pattern="[0-9]*"
+            value={captcha.answer}
+            onChange={(e) => { setCaptchaError(""); setCaptcha(prev => ({ ...prev, answer: e.target.value.replace(/\D/g, "") })); }}
+            className={`h-11 w-20 rounded-lg border bg-white px-3 text-center text-lg font-bold text-ink outline-none transition focus:border-safety focus:ring-2 focus:ring-safety/20 ${captchaError ? "border-red-500" : "border-ink/20"}`}
+            required
+            aria-label="Security check answer"
+            aria-describedby="captcha-help captcha-error"
+          />
+          <button type="button" onClick={refreshCaptcha} className="inline-flex h-11 items-center gap-2 rounded-lg px-3 text-xs font-bold text-steel transition hover:bg-white hover:text-ink" aria-label="Get a new security question">
+            <RefreshCw className="h-4 w-4" aria-hidden="true" /> New question
+          </button>
+        </div>
+        <p id="captcha-help" className="mt-2 text-xs text-steel">Enter the answer to verify you&apos;re human.</p>
+        {captchaError && <p id="captcha-error" className="mt-1 text-xs font-semibold text-red-600" role="alert">{captchaError}</p>}
+      </fieldset>
 
       <motion.button
         type="submit"

@@ -32,7 +32,7 @@ export const Modal = forwardRef<HTMLDivElement, ModalProps>(
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm p-4"
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-3 backdrop-blur-sm sm:p-4"
             onClick={closeOnOverlayClick ? onClose : undefined}
             role="dialog"
             aria-modal="true"
@@ -43,22 +43,22 @@ export const Modal = forwardRef<HTMLDivElement, ModalProps>(
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className={`bg-surface border border-white/20 rounded-2xl w-full ${sizeClasses[size]} max-h-[90vh] overflow-hidden ${className}`}
+              className={`flex max-h-full min-w-0 flex-col overflow-hidden rounded-2xl border border-white/20 bg-surface w-full ${sizeClasses[size]} ${className}`}
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="flex items-center justify-between p-5 border-b border-white/20">
-                <h3 id="modal-title" className="text-lg font-bold text-white">{title}</h3>
+              <div className="flex shrink-0 items-center justify-between gap-2 border-b border-white/20 p-3 sm:p-5">
+                <h3 id="modal-title" className="min-w-0 break-words text-lg font-bold text-white">{title}</h3>
                 {showCloseButton && (
                   <button
                     onClick={onClose}
-                    className="p-2 text-slate-300 hover:text-white rounded-lg hover:bg-white/10 transition-colors"
+                    className="grid size-11 shrink-0 place-items-center rounded-lg text-slate-300 transition-colors hover:bg-white/10 hover:text-white"
                     aria-label="Close modal"
                   >
                     <X size={20} className="text-white" strokeWidth={2.5} />
                   </button>
                 )}
               </div>
-              <div className="p-5 max-h-[calc(90vh-80px)] overflow-y-auto text-white">
+              <div className="min-h-0 overflow-y-auto overscroll-contain p-3 text-white sm:p-5">
                 {children}
               </div>
             </motion.div>
@@ -109,7 +109,7 @@ export function ConfirmModal({ isOpen, onClose, onConfirm, title, message, confi
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            className="bg-surface border border-white/20 rounded-2xl w-full max-w-md"
+            className="max-h-full w-full max-w-md overflow-y-auto overscroll-contain rounded-2xl border border-white/20 bg-surface"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="p-6 text-center">
@@ -120,7 +120,7 @@ export function ConfirmModal({ isOpen, onClose, onConfirm, title, message, confi
               </div>
               <h3 id="confirm-modal-title" className="text-lg font-bold text-white mb-2">{title}</h3>
               <p className="text-slate-300 mb-6">{message}</p>
-              <div className="flex gap-3 justify-center">
+              <div className="flex flex-wrap justify-center gap-3 [&>button]:min-h-11">
                 <button
                   onClick={onClose}
                   disabled={isLoading}

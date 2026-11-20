@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import {
   ArrowRight,
@@ -26,14 +26,22 @@ import { reasonsToChoose } from "@/data/about";
 import { clientLogos, homeProducts, industries } from "@/data/home";
 import { siteContact } from "@/data/site";
 import { useReducedMotion } from "@/components/animations/hooks/useReducedMotion";
+import { WhySahilTimeline } from "@/components/WhySahilTimeline";
+import CircularGallery from "@/components/CircularGallery";
 
 // Standardized spacing constants for ModernHomePage
 const asset = (path: string) => `/sahilcrane/${path}`;
+const productGalleryItems = homeProducts.map((product) => ({
+  image: asset(`products/${product.image}`),
+  text: product.title,
+  alt: product.title,
+}));
+const HERO_TYPED_LINE = "Built for industry.";
+const HERO_TYPED_FIRST_LINE = "Precision lifting.";
 
 const CONTAINER_MAX_WIDTH = "w-[min(1240px,calc(100%-64px))]";
 const CONTAINER_MAX_WIDTH_MD = "max-md:w-[calc(100%-36px)]";
-const SECTION_PY_DESKTOP = "py-28";
-const SECTION_PY_MD = "max-md:py-20";
+const SECTION_PY_DESKTOP = "py-16 md:py-20 lg:py-28";
 const REVEAL_GROUP_STAGGER = 0.1;
 const REVEAL_GROUP_DELAY = 0.1;
 const EYEBROW_MB = "mb-[18px]";
@@ -43,10 +51,10 @@ const HEADING_MB = "mb-12";
 const HEADING_MAX_W = "max-w-[690px]";
 const HEADING_TITLE = "m-0 text-[clamp(34px,4vw,55px)] font-bold leading-[1.05] tracking-[-.052em]";
 const HEADING_COPY = "mt-4 text-base text-steel";
-const HERO_MIN_H = "min-h-[710px]";
-const HERO_MIN_H_MD = "max-md:min-h-[650px]";
+const HERO_MIN_H = "min-h-[calc(100dvh-74px)] lg:min-h-[calc(100dvh-88px)]";
+const HERO_MIN_H_MD = "max-md:min-h-0";
 const HERO_CONTENT_PY = "py-[114px] pb-[158px]";
-const HERO_CONTENT_PY_MD = "max-md:py-[88px] max-md:pb-[180px]";
+const HERO_CONTENT_PY_MD = "max-md:pt-16 max-md:pb-8";
 const HERO_EYEBROW_ANIM_DURATION = 0.5;
 const HERO_EYEBROW_BAR_DURATION = 0.6;
 const HERO_HEADLINE_DURATION = 0.8;
@@ -61,7 +69,6 @@ const HERO_CTA_MD = "max-md:grid max-md:grid-cols-1";
 const STATS_GRID_COLS = "grid-cols-3";
 const STATS_GAP = "gap-4";
 const STATS_BORDER = "border-l border-white/20";
-const STATS_MD_BOTTOM = "max-md:bottom-5";
 const STATS_MD_GRID = "max-md:grid-cols-1";
 const STATS_MD_GAP = "max-md:gap-3";
 const STATS_CARD_PADDING = "px-7 py-5";
@@ -74,13 +81,8 @@ const STATS_LABEL_STYLE = "text-[10px] uppercase tracking-industrial text-slate-
 const HIGHLIGHTS_PY = "py-6";
 const HIGHLIGHTS_PY_MD = "max-md:py-20";
 const HIGHLIGHTS_GRID = "grid grid-cols-3 gap-8 max-md:grid-cols-1 max-md:gap-6";
-const HIGHLIGHTS_CARD_PADDING = "p-6 text-center";
-const HIGHLIGHTS_ICON_WRAPPER = "inline-flex h-16 w-16 items-center justify-center rounded-full bg-safety/10 text-safety mb-4";
-const HIGHLIGHTS_ICON_SIZE = "h-8 w-8";
-const HIGHLIGHTS_TITLE = "text-xl font-bold text-ink mb-2";
-const HIGHLIGHTS_COPY = "text-steel";
-const ABOUT_GRID_COLS = "grid-cols-[minmax(320px,.88fr)_minmax(340px,1fr)]";
-const ABOUT_GAP = "gap-[clamp(50px,9vw,150px)]";
+const ABOUT_GRID_COLS = "grid-cols-1 md:grid-cols-[minmax(0,.88fr)_minmax(0,1fr)]";
+const ABOUT_GAP = "gap-10 lg:gap-[clamp(50px,9vw,150px)]";
 const ABOUT_IMG_PB = "pb-[88px]";
 const ABOUT_IMG_PR = "pr-[18px]";
 const ABOUT_IMG_MAIN_H = "h-[410px]";
@@ -93,19 +95,13 @@ const ABOUT_LIST_GAP = "gap-3";
 const ABOUT_LIST_ITEM_GAP = "gap-2";
 const ABOUT_CHECK_SIZE = 16;
 const ABOUT_CHECK_COLOR = "text-[#b28a00]";
-const PRODUCTS_GRID = "grid grid-cols-4 gap-px border border-ink/15 bg-ink/15 max-lg:grid-cols-2 max-md:grid-cols-1";
-const PRODUCTS_CARD_MIN_H = "min-h-[300px]";
-const PRODUCTS_CARD_BOTTOM = "bottom-5";
-const PRODUCTS_CARD_INSET = "inset-x-5";
-const PRODUCTS_NUMBER_STYLE = "text-[10px] font-extrabold text-safety";
-const PRODUCTS_TITLE_STYLE = "m-0 max-w-[180px] text-lg font-bold leading-[1.15]";
-const PRODUCTS_ARROW_SIZE = 19;
-const WHY_CHOOSE_GRID = "grid grid-cols-3 gap-px border border-white/15 bg-white/15 max-md:grid-cols-1";
-const WHY_CHOOSE_CARD_H = "h-[230px]";
-const WHY_CHOOSE_CARD_PADDING = "p-7";
-const WHY_CHOOSE_NUMBER_STYLE = "text-xs font-extrabold text-safety";
-const WHY_CHOOSE_TITLE = "mb-2 mt-10 text-xl font-bold";
-const WHY_CHOOSE_COPY = "m-0 text-sm leading-6 text-slate-300";
+const WHY_CHOOSE_GRID = "grid grid-cols-3 gap-5 max-md:grid-cols-1";
+const WHY_CHOOSE_CARD_H = "min-h-[285px]";
+const WHY_CHOOSE_CARD_PADDING = "p-9";
+const WHY_CHOOSE_NUMBER_STYLE = "text-xs font-extrabold tracking-[.18em] text-safety";
+const WHY_CHOOSE_TITLE = "mb-3 mt-8 text-xl font-bold tracking-[-.02em]";
+const WHY_CHOOSE_COPY = "m-0 max-w-[300px] text-sm leading-6 text-slate-600";
+const WHY_CHOOSE_ICONS = [Shield, Award, Users];
 const INDUSTRIES_CAROUSEL_MT = "mt-8";
 const CLIENTS_GRID = "grid grid-cols-6 gap-px border border-ink/15 bg-ink/15 max-lg:grid-cols-4 max-md:grid-cols-3";
 const CLIENTS_CARD_H = "h-[120px]";
@@ -114,7 +110,7 @@ const CLIENTS_CARD_PADDING = "p-5";
 const CLIENTS_CARD_PADDING_MD = "max-md:p-3";
 const CLIENTS_IMG_MAX_H = "max-h-[65px]";
 const CTA_SECTION_PY = "py-[70px]";
-const CTA_LAYOUT = "flex items-center justify-between gap-8 max-md:flex-col max-md:items-start";
+const CTA_LAYOUT = "flex items-center justify-between gap-8 max-md:flex-col max-md:items-start max-sm:items-center";
 const CTA_EYEBROW_STYLE = "mb-3 flex items-center gap-2 text-[11px] font-extrabold uppercase tracking-[.15em] text-safety";
 const CTA_EYEBROW_BAR = "h-0.5 w-8 bg-safety";
 const CTA_TITLE = "max-w-2xl text-[clamp(30px,3vw,47px)] font-bold leading-[1.05] tracking-[-.05em]";
@@ -151,6 +147,50 @@ function Heading({
 
 export default function ModernHomePage() {
   const prefersReduced = useReducedMotion();
+  const [activeProductIndex, setActiveProductIndex] = useState(0);
+  const activeProduct = homeProducts[activeProductIndex];
+  const productGalleryPinRef = useRef<HTMLDivElement>(null);
+  const [typedFirstCharacters, setTypedFirstCharacters] = useState(prefersReduced ? HERO_TYPED_FIRST_LINE.length : 0);
+  const [typedHeroCharacters, setTypedHeroCharacters] = useState(prefersReduced ? HERO_TYPED_LINE.length : 0);
+
+  useEffect(() => {
+    if (prefersReduced) {
+      setTypedFirstCharacters(HERO_TYPED_FIRST_LINE.length);
+      return;
+    }
+    setTypedFirstCharacters(0);
+    let count = 0;
+    const timer = window.setInterval(() => {
+      count += 1;
+      setTypedFirstCharacters(count);
+      if (count >= HERO_TYPED_FIRST_LINE.length) window.clearInterval(timer);
+    }, 65);
+    return () => window.clearInterval(timer);
+  }, [prefersReduced]);
+
+  useEffect(() => {
+    if (prefersReduced) {
+      setTypedHeroCharacters(HERO_TYPED_LINE.length);
+      return;
+    }
+    setTypedHeroCharacters(0);
+    let typingTimer: number | undefined;
+    const startTimer = window.setTimeout(() => {
+      typingTimer = window.setInterval(() => {
+        setTypedHeroCharacters((count) => {
+          if (count >= HERO_TYPED_LINE.length) {
+            if (typingTimer) window.clearInterval(typingTimer);
+            return count;
+          }
+          return count + 1;
+        });
+      }, 65);
+    }, HERO_TYPED_FIRST_LINE.length * 65 + 280);
+    return () => {
+      window.clearTimeout(startTimer);
+      if (typingTimer) window.clearInterval(typingTimer);
+    };
+  }, [prefersReduced]);
 
   // About section image animation controls for continuous hover loop
   const aboutControls1 = useAnimation();
@@ -181,7 +221,7 @@ export default function ModernHomePage() {
         <SiteHeader />
 
         {/* Hero Section */}
-      <section className={`relative flex ${HERO_MIN_H} items-center overflow-hidden bg-ink text-white ${HERO_MIN_H_MD}`}>
+      <section className={`relative flex flex-col justify-center overflow-hidden bg-ink text-white ${HERO_MIN_H} ${HERO_MIN_H_MD}`}>
         {/* Background slider with enhanced transitions */}
         <HeroSliderBackdrop />
         
@@ -191,12 +231,9 @@ export default function ModernHomePage() {
         {/* Radial gradient glow for depth */}
         <div className="absolute inset-0 bg-gradient-to-br from-safety/10 via-transparent to-transparent opacity-50" aria-hidden="true" />
         
-        {/* HeroMotion GSAP animations */}
-        <HeroMotion />
-
         {/* Main content */}
-        <div className={`relative z-10 mx-auto ${CONTAINER_MAX_WIDTH} ${HERO_CONTENT_PY} ${CONTAINER_MAX_WIDTH_MD} ${HERO_CONTENT_PY_MD}`}>
-          <RevealGroup staggerChildren={REVEAL_GROUP_STAGGER} delayChildren={REVEAL_GROUP_DELAY}>
+        <div className={`relative z-10 mx-auto grid flex-1 content-center items-center md:grid-cols-[minmax(0,1fr)_minmax(0,.55fr)] md:gap-8 ${CONTAINER_MAX_WIDTH} ${CONTAINER_MAX_WIDTH_MD} ${HERO_CONTENT_PY} ${HERO_CONTENT_PY_MD}`}>
+          <RevealGroup className="relative z-10 col-start-1 row-start-1 min-w-0" staggerChildren={REVEAL_GROUP_STAGGER} delayChildren={REVEAL_GROUP_DELAY}>
             {/* Eyebrow with enhanced animation */}
             <RevealItem variant="quickEnter">
               <motion.div
@@ -216,88 +253,107 @@ export default function ModernHomePage() {
 
             {/* Headline with proper h1 and enhanced Framer Motion line-by-line animation */}
             <RevealItem variant="quickEnter">
-              <h1 className="m-0 max-w-[800px] text-[clamp(48px,6vw,88px)] font-bold leading-[.98] tracking-[-.065em]">
+               <h1 className="relative z-10 m-0 max-w-[800px] text-[clamp(48px,6vw,88px)] font-bold leading-[1.08] tracking-[-.065em] max-md:text-[clamp(34px,10.5vw,58px)]">
                 <motion.div
-                  className="block"
+                      className="block overflow-visible"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ duration: HERO_HEADLINE_DURATION, ease: [0.22, 1, 0.36, 1] }}>
                   <motion.span
-                    className="block"
-                    initial={{ opacity: 0, y: 40, filter: 'blur(8px)' }}
-                    animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-                    transition={{ duration: HERO_LINE_DURATION, ease: [0.22, 1, 0.36, 1] }}>
-                    Precision lifting.
+                      className="block overflow-visible"
+                     initial={{ opacity: 0, y: 28, filter: 'blur(8px)', clipPath: 'inset(0 100% 0 0)' }}
+                     animate={{ opacity: 1, y: 0, filter: 'blur(0px)', clipPath: 'inset(0 0% 0 0)' }}
+                     transition={{ duration: HERO_LINE_DURATION, delay: 0.22, ease: [0.22, 1, 0.36, 1] }}>
+                     {HERO_TYPED_FIRST_LINE.slice(0, typedFirstCharacters)}
+                     {!prefersReduced && typedFirstCharacters < HERO_TYPED_FIRST_LINE.length && (
+                       <motion.span
+                         aria-hidden="true"
+                         className="ml-1 inline-block h-[.82em] w-[3px] translate-y-[.08em] bg-white"
+                         animate={{ opacity: [1, 0, 1] }}
+                         transition={{ duration: 0.8, repeat: Infinity }}
+                       />
+                     )}
                   </motion.span>
                   <motion.span
-                    className="block not-italic text-safety relative"
-                    initial={{ opacity: 0, y: 40, filter: 'blur(8px)' }}
-                    animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+                      className="relative block overflow-visible not-italic text-safety"
+                     initial={{ opacity: 0, y: 28, filter: 'blur(8px)', clipPath: 'inset(0 100% 0 0)' }}
+                     animate={{ opacity: 1, y: 0, filter: 'blur(0px)', clipPath: 'inset(0 0% 0 0)' }}
                     transition={{ duration: HERO_LINE_DURATION, delay: HERO_LINE_DELAY, ease: [0.22, 1, 0.36, 1] }}>
-                    Built for industry.
-                    <motion.span
-                      className="absolute -bottom-1 left-0 right-0 h-1 bg-safety/30"
-                      initial={{ scaleX: 0 }}
-                      animate={{ scaleX: 1 }}
-                      transition={{ duration: HERO_UNDERLINE_DURATION, delay: HERO_UNDERLINE_DELAY, ease: [0.22, 1, 0.36, 1] }}
-                    />
-                  </motion.span>
-                </motion.div>
-              </h1>
-            </RevealItem>
+                     {HERO_TYPED_LINE.slice(0, typedHeroCharacters)}
+                     {!prefersReduced && typedHeroCharacters < HERO_TYPED_LINE.length && (
+                       <motion.span
+                         aria-hidden="true"
+                         className="ml-1 inline-block h-[.82em] w-[3px] translate-y-[.08em] bg-safety"
+                         animate={{ opacity: [1, 0, 1] }}
+                         transition={{ duration: 0.8, repeat: Infinity }}
+                       />
+                      )}
+                   </motion.span>
+                   </motion.div>
+               </h1>
+               <motion.div
+                 aria-hidden="true"
+                 className="mt-3 h-1 w-full max-w-[1024px] origin-left bg-safety/45 shadow-[0_0_12px_rgba(246,197,21,.22)]"
+                 initial={{ scaleX: 0, opacity: 0 }}
+                 animate={{ scaleX: 1, opacity: 1 }}
+                 transition={{ duration: HERO_UNDERLINE_DURATION, delay: 0.9, ease: [0.22, 1, 0.36, 1] }}
+               />
+             </RevealItem>
 
             {/* Description with enhanced animation */}
             <RevealItem variant="quickEnter">
               <motion.p
-                className="my-7 max-w-[520px] text-[17px] leading-7 text-slate-200 max-md:text-[15px]"
+                 className="relative z-10 mb-7 mt-9 max-w-[520px] text-[17px] leading-7 text-slate-200 max-md:mt-6 max-md:mb-5 max-md:text-[13px] max-md:leading-6"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: HERO_DESC_DURATION, delay: HERO_DESC_DELAY, ease: [0.22, 1, 0.36, 1] }}>
+                 transition={{ duration: HERO_DESC_DURATION, delay: 0.68, ease: [0.22, 1, 0.36, 1] }}>
                 Manufacturing EOT cranes and hoists for dependable, safe
                 material movement across India.
               </motion.p>
             </RevealItem>
 
             {/* CTA Buttons with enhanced styling */}
-            <RevealItem variant="quickEnter">
+             <RevealItem variant="quickEnter">
               <div className={`flex flex-wrap ${HERO_CTA_GAP} ${HERO_CTA_MD}`}>
                 <MagneticLink
                   href="/enquiry"
                   strength={0.25}
                   area={80}
                   variant="primary"
-                  className="group inline-flex items-center justify-center gap-3 border border-safety bg-safety px-6 py-1 text-xs font-extrabold uppercase tracking-industrial text-ink shadow-lg shadow-safety/25 hover:shadow-xl hover:shadow-safety/40 transition-all duration-300">
-                  <span className="relative z-10">Request a consultation</span>
-                  <motion.div
-                    className="absolute inset-0 bg-safety/20"
-                    initial={{ scaleX: 0 }}
-                    whileHover={{ scaleX: 1 }}
-                    transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-                  />
-                  <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform duration-300" />
+                    className="group relative inline-flex items-center justify-center gap-3 overflow-hidden border border-safety bg-safety px-6 py-3 text-xs font-extrabold uppercase tracking-industrial text-ink shadow-lg shadow-safety/25 transition-all duration-500 before:pointer-events-none before:absolute before:inset-0 before:z-0 before:origin-left before:scale-x-100 before:bg-transparent before:transition-transform before:duration-500 before:ease-[cubic-bezier(.22,1,.36,1)] hover:-translate-y-0.5 hover:bg-transparent hover:text-white hover:before:scale-x-0 hover:shadow-xl hover:shadow-safety/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-safety focus-visible:ring-offset-2 focus-visible:ring-offset-ink">
+                    <span className="relative z-10 transition-colors duration-500">Request a consultation</span>
+                     <ArrowRight size={18} className="relative z-10 transition-transform duration-300 group-hover:translate-x-1" />
                 </MagneticLink>
                 <MagneticLink
                   href="/products/single-girder-eot-crane"
                   strength={0.15}
                   area={60}
                   variant="secondary"
-                  className="group inline-flex items-center justify-center gap-3 border border-white/60 bg-white/5 px-7 py-3 text-xs font-extrabold uppercase tracking-industrial text-white backdrop-blur-sm hover:bg-white/10 hover:border-white/80 transition-all duration-300">
-                  <span className="relative z-10">Explore products</span>
-                  <motion.div
-                    className="absolute inset-0 bg-white/10"
-                    initial={{ scaleX: 0 }}
-                    whileHover={{ scaleX: 1 }}
-                    transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-                  />
-                  <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform duration-300" />
+                    className="group relative inline-flex items-center justify-center gap-3 overflow-hidden border border-white/60 bg-white/5 px-7 py-3 text-xs font-extrabold uppercase tracking-industrial text-white backdrop-blur-sm transition-all duration-300 before:pointer-events-none before:absolute before:inset-0 before:z-0 before:origin-left before:scale-x-0 before:bg-safety before:transition-transform before:duration-500 before:ease-[cubic-bezier(.22,1,.36,1)] hover:-translate-y-0.5 hover:border-safety hover:before:scale-x-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-safety focus-visible:ring-offset-2 focus-visible:ring-offset-ink">
+                   <span className="relative z-10 transition-colors duration-300 group-hover:text-ink">Explore products</span>
+                   <ArrowRight size={18} className="relative z-10 transition-transform duration-300 group-hover:translate-x-1" />
                 </MagneticLink>
               </div>
             </RevealItem>
           </RevealGroup>
+          <HeroMotion />
         </div>
 
+        <motion.div
+          className="absolute bottom-7 left-1/2 z-10 hidden -translate-x-1/2 flex-col items-center gap-2 text-[9px] font-bold uppercase tracking-[.24em] text-white/60 md:flex"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1.4, duration: 0.6 }}>
+          <span>Scroll to explore</span>
+          <motion.span
+            className="h-8 w-px bg-gradient-to-b from-safety to-transparent"
+            animate={prefersReduced ? undefined : { scaleY: [0.5, 1, 0.5], opacity: [0.5, 1, 0.5] }}
+            transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
+          />
+        </motion.div>
+
         {/* Enhanced Stats Bar - Animated Counters */}
-        <div className={`absolute bottom-0 left-1/2 z-10 grid ${CONTAINER_MAX_WIDTH} -translate-x-1/2 ${STATS_GRID_COLS} ${STATS_GAP} ${STATS_BORDER} ${STATS_MD_BOTTOM} ${CONTAINER_MAX_WIDTH_MD} ${STATS_MD_GRID} ${STATS_MD_GAP}`}>
+          <div className={`absolute bottom-3 left-1/2 z-30 mb-0 grid -translate-x-1/2 ${CONTAINER_MAX_WIDTH} ${STATS_GRID_COLS} ${STATS_GAP} ${STATS_BORDER} ${CONTAINER_MAX_WIDTH_MD} ${STATS_MD_GRID} ${STATS_MD_GAP} max-md:relative max-md:bottom-auto max-md:left-auto max-md:mx-auto max-md:mt-3 max-md:mb-6 max-md:translate-x-0`}>
           <Reveal variant="itemReveal" delay={0.1}>
             <motion.div
               className={`group flex items-center gap-4 border border-white/20 border-l-0 bg-ink/80 ${STATS_CARD_PADDING} ${STATS_CARD_PADDING_MD} ${STATS_CARD_HOVER}`}
@@ -377,57 +433,49 @@ export default function ModernHomePage() {
       </section>
 
       {/* Highlights Area */}
-      <section className={`${HIGHLIGHTS_PY} ${HIGHLIGHTS_PY_MD} bg-white`}>
+      <section className={`${HIGHLIGHTS_PY} ${HIGHLIGHTS_PY_MD} bg-[#f3f0e8]`}>
         <div className={`mx-auto ${CONTAINER_MAX_WIDTH} ${CONTAINER_MAX_WIDTH_MD}`}>
+          <div className="mb-7 text-center">
+            <p className="mb-2 flex items-center justify-center gap-2 text-[10px] font-extrabold uppercase tracking-[.18em] text-[#9b7800]">
+              <span className="h-px w-6 bg-[#c6a30a]" />
+              Why choose Sahil
+              <span className="h-px w-6 bg-[#c6a30a]" />
+            </p>
+          </div>
           <RevealGroup
             staggerChildren={REVEAL_GROUP_STAGGER}
             delayChildren={REVEAL_GROUP_DELAY}
-            className={HIGHLIGHTS_GRID}>
-            <RevealItem variant="itemReveal">
-              <div className={HIGHLIGHTS_CARD_PADDING}>
-                <div className={HIGHLIGHTS_ICON_WRAPPER}>
-                  <Shield className={HIGHLIGHTS_ICON_SIZE} />
-                </div>
-                <h3 className={HIGHLIGHTS_TITLE}>Reliability</h3>
-                <p className={HIGHLIGHTS_COPY}>Transparency Service</p>
-              </div>
-            </RevealItem>
-            <RevealItem variant="itemReveal">
-              <div className={HIGHLIGHTS_CARD_PADDING}>
-                <div className={HIGHLIGHTS_ICON_WRAPPER}>
-                  <Award className={HIGHLIGHTS_ICON_SIZE} />
-                </div>
-                <h3 className={HIGHLIGHTS_TITLE}>Materials</h3>
-                <p className={HIGHLIGHTS_COPY}>100% Quality Product</p>
-              </div>
-            </RevealItem>
-            <RevealItem variant="itemReveal">
-              <div className={HIGHLIGHTS_CARD_PADDING}>
-                <div className={HIGHLIGHTS_ICON_WRAPPER}>
-                  <Users className={HIGHLIGHTS_ICON_SIZE} />
-                </div>
-                <h3 className={HIGHLIGHTS_TITLE}>
-                  Expert Staff
-                </h3>
-                <p className={HIGHLIGHTS_COPY}>Trained & Experienced</p>
-              </div>
-            </RevealItem>
+            className="grid grid-cols-3 gap-5 max-md:grid-cols-1 max-md:gap-4">
+            {[
+              { title: "Reliability", copy: "Transparency Service", icon: Shield },
+              { title: "Materials", copy: "100% Quality Product", icon: Award },
+              { title: "Expert Staff", copy: "Trained & Experienced", icon: Users },
+            ].map(({ title, copy, icon: Icon }) => (
+              <RevealItem key={title} variant="itemReveal">
+                <article className="group relative flex min-h-[150px] flex-col items-center justify-center overflow-hidden rounded-2xl border border-[#d9cda9] bg-[radial-gradient(circle_at_50%_0%,rgba(246,197,21,.16),transparent_42%),linear-gradient(135deg,#0b1220_0%,#172235_58%,#241b08_100%)] p-5 text-center text-white shadow-[0_12px_28px_rgba(15,23,40,.12)] transition-all duration-300 hover:-translate-y-1 hover:border-[#d5ad16] hover:shadow-[0_18px_35px_rgba(15,23,40,.2)]">
+                  <span className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_var(--x,50%)_var(--y,0%),rgba(255,255,255,.14),transparent_32%)] opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+                  <Icon className="relative z-10 mb-3 h-8 w-8 text-safety" aria-hidden="true" />
+                  <h3 className="relative z-10 mb-1 text-lg font-bold tracking-[-.02em]">{title}</h3>
+                  <p className="relative z-10 text-sm text-white/65">{copy}</p>
+                </article>
+              </RevealItem>
+            ))}
           </RevealGroup>
         </div>
       </section>
 
       {/* About Section - Side by side layout with background separation */}
-      <section className={`${SECTION_PY_DESKTOP} ${SECTION_PY_MD} bg-mist`}>
+      <section className={`${SECTION_PY_DESKTOP} bg-mist`}>
         <RevealGroup
           staggerChildren={REVEAL_GROUP_STAGGER}
           delayChildren={REVEAL_GROUP_DELAY}
-          className={`mx-auto grid ${CONTAINER_MAX_WIDTH} ${ABOUT_GRID_COLS} items-center ${ABOUT_GAP} ${CONTAINER_MAX_WIDTH_MD} max-md:grid-cols-1`}>
+           className={`mx-auto grid ${CONTAINER_MAX_WIDTH} ${ABOUT_GRID_COLS} items-center ${ABOUT_GAP} ${CONTAINER_MAX_WIDTH_MD}`}>
           {/* Image - Left Side */}
           <RevealItem variant="itemReveal">
             <div className="relative min-h-[520px] overflow-hidden bg-[#f4f4f4] max-md:min-h-[430px]">
               <div className="absolute left-0 top-0 h-[62%] w-[58%] border border-safety bg-safety/10" />
               <motion.img
-                className="absolute left-0 top-0 z-10 h-[62%] w-[58%] object-cover grayscale-[.16]"
+                className="absolute left-0 top-0 z-10 h-[62%] w-[58%] rounded-[28px_28px_28px_0] object-cover grayscale-[.16]"
                 src="/media/home/about-01.jpg"
                 alt="Sahil Industries crane manufacturing"
                 animate={aboutControls1}
@@ -440,7 +488,7 @@ export default function ModernHomePage() {
                 transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
               />
               <motion.img
-                className="absolute bottom-5 left-[27%] z-20 h-[58%] w-[58%] border border-safety object-cover shadow-xl max-md:left-[18%] max-md:w-[58%]"
+                 className="absolute bottom-5 left-[27%] z-20 h-[58%] w-[58%] rounded-[0_28px_28px_28px] border border-safety object-cover shadow-xl max-md:left-[18%] max-md:w-[58%]"
                 src="/media/home/about-02.jpg"
                 alt="Sahil Industries manufacturing facility"
                 animate={aboutControls2}
@@ -470,14 +518,14 @@ export default function ModernHomePage() {
 
           {/* Text Content - Right Side */}
           <RevealItem variant="itemReveal">
-            <div>
+             <div className="relative border-l-2 border-safety/30 pl-8 max-md:border-l-0 max-md:pl-0">
               <Heading
                 eyebrow="Sahil Industries"
                 title="A capable partner for every lift."
                 copy="We are an ISO 9001:2008 certified manufacturer and solution partner for industrial EOT cranes and hoists."
               />
               <motion.p
-                className={ABOUT_COPY_STYLE}
+                 className={`${ABOUT_COPY_STYLE} max-w-[570px] text-[17px] leading-8`}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.1 }}>
@@ -498,11 +546,11 @@ export default function ModernHomePage() {
                 ].map((item, index) => (
                   <motion.li
                     key={item}
-                                      className={`flex items-center ${ABOUT_LIST_ITEM_GAP}`}
+                                      className={`group flex items-center ${ABOUT_LIST_ITEM_GAP} border-b border-ink/10 py-3 text-[15px] transition-colors hover:text-[#9b7800]`}
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ duration: 0.3 }}>
-                                      <Check size={ABOUT_CHECK_SIZE} className={ABOUT_CHECK_COLOR} />
+                                      <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-safety/15 transition-colors group-hover:bg-safety"><Check size={ABOUT_CHECK_SIZE} className={ABOUT_CHECK_COLOR} /></span>
                     {item}
                   </motion.li>
                 ))}
@@ -512,7 +560,7 @@ export default function ModernHomePage() {
                 strength={0.15}
                 area={50}
                 variant="ghost"
-                className="inline-flex items-center justify-center gap-2 px-4 py-3 border-b border-safety text-xs font-extrabold uppercase tracking-industrial">
+                 className="inline-flex items-center justify-center gap-2 border border-safety px-5 py-3 text-xs font-extrabold uppercase tracking-industrial transition-colors duration-300 hover:bg-safety hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-safety">
                 <span className="relative z-10">Discover our company</span>
                 <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform duration-300" />
               </MagneticLink>
@@ -521,7 +569,7 @@ export default function ModernHomePage() {
         </RevealGroup>
       </section>
 
-                        <section className={`bg-white ${SECTION_PY_DESKTOP} ${SECTION_PY_MD}`}>
+                        <section data-pinned-section="true" className={`bg-white ${SECTION_PY_DESKTOP}`}>
                           <div className={`mx-auto ${CONTAINER_MAX_WIDTH} ${CONTAINER_MAX_WIDTH_MD}`}>
                             <RevealGroup staggerChildren={REVEAL_GROUP_STAGGER} delayChildren={REVEAL_GROUP_DELAY}>
             <RevealItem variant="quickEnter">
@@ -531,98 +579,45 @@ export default function ModernHomePage() {
                 copy="Purpose-engineered equipment for demanding industrial environments."
               />
             </RevealItem>
-            <RevealItem variant="quickEnter">
-              <RevealGroup
-                staggerChildren={0.06}
-                delayChildren={0.1}
-                                              className={`${PRODUCTS_GRID} stagger-grid`}>
-                {homeProducts.map((product, index) => (
-                  <RevealItem key={product.title} variant="itemReveal">
-                    <Link
-                      href={product.href ?? "/"}
-                                        className={`group relative block ${PRODUCTS_CARD_MIN_H} overflow-hidden bg-ink text-white`}>
-                      <motion.img
-                        className="absolute inset-0 h-full w-full object-cover opacity-70 transition duration-500 group-hover:scale-110 group-hover:opacity-90"
-                        src={asset(`products/${product.image}`)}
-                        alt={product.title}
-                        initial={{ scale: 1 }}
-                        whileHover={{ scale: 1.1 }}
-                        transition={{ duration: 0.5 }}
-                      />
-                                        <div className={`absolute ${PRODUCTS_CARD_INSET} ${PRODUCTS_CARD_BOTTOM} z-10 grid grid-cols-[1fr_auto] items-end gap-2`}>
-                                          <span className={PRODUCTS_NUMBER_STYLE}>
-                          0{index + 1}
-                        </span>
-                                          <h3 className={PRODUCTS_TITLE_STYLE}>
-                          {product.title}
-                        </h3>
-                        <motion.span
-                          className="col-start-2 row-span-2 row-start-1 text-safety"
-                          initial={{ x: 0 }}
-                          whileHover={{ x: 8 }}
-                          transition={{ duration: 0.2 }}>
-                                            <ArrowRight size={PRODUCTS_ARROW_SIZE} />
-                        </motion.span>
-                      </div>
-                    </Link>
-                  </RevealItem>
-                ))}
-              </RevealGroup>
-            </RevealItem>
-            <RevealItem variant="quickEnter">
-              <div className="mt-10 text-center">
+          </RevealGroup>
+          <div ref={productGalleryPinRef} className="relative bg-white">
+              <div className="relative h-[min(380px,62svh)] overflow-hidden rounded-2xl bg-white md:h-[min(600px,72svh)]">
+                <CircularGallery
+                  items={productGalleryItems}
+                  bend={3}
+                  borderRadius={0.05}
+                  textColor="#101820"
+                  scrollEase={0.05}
+                  pageScrollPinRef={productGalleryPinRef}
+                  intro={false}
+                  onActiveChange={setActiveProductIndex}
+                  aria-label="Product range"
+                />
+              </div>
+              <div className="mt-4 flex flex-wrap items-center justify-center gap-3 md:mt-6">
+                {activeProduct?.href && (
+                  <Link
+                    href={activeProduct.href}
+                    className="inline-flex items-center gap-2 border border-ink/15 px-6 py-5 text-xs font-extrabold uppercase tracking-industrial text-ink transition-colors hover:border-safety focus-visible:outline-safety"
+                  >
+                    Explore {activeProduct.title} <ArrowRight size={17} aria-hidden="true" />
+                  </Link>
+                )}
                 <MagneticLink
                   href="/products/single-girder-eot-crane"
                   strength={0.15}
                   area={50}
                   variant="secondary"
-                  className="inline-flex items-center justify-center gap-2 bg-ink px-6 py-5 text-xs font-extrabold uppercase tracking-industrial text-white">
+                   className="group relative inline-flex items-center justify-center gap-2 overflow-hidden bg-ink px-6 py-5 text-xs font-extrabold uppercase tracking-industrial text-white before:pointer-events-none before:absolute before:inset-0 before:z-0 before:origin-left before:scale-x-0 before:bg-[rgba(246,197,21,0.9)] before:transition-transform before:duration-500 before:ease-[cubic-bezier(.22,1,.36,1)] hover:before:scale-x-100 hover:text-ink">
                   <span className="relative z-10">View all products</span>
                   <ArrowRight size={17} className="group-hover:translate-x-1 transition-transform duration-300" />
                 </MagneticLink>
               </div>
-            </RevealItem>
-          </RevealGroup>
+          </div>
         </div>
       </section>
 
-                        <section className={`bg-surface ${SECTION_PY_DESKTOP} text-white ${SECTION_PY_MD}`}>
-                          <div className={`mx-auto ${CONTAINER_MAX_WIDTH} ${CONTAINER_MAX_WIDTH_MD}`}>
-                            <RevealGroup staggerChildren={REVEAL_GROUP_STAGGER} delayChildren={REVEAL_GROUP_DELAY}>
-            <RevealItem variant="quickEnter">
-              <Heading
-                eyebrow="Why Sahil"
-                title="Built around operational confidence."
-              />
-            </RevealItem>
-            <RevealItem variant="quickEnter">
-              <RevealGroup
-                staggerChildren={0.08}
-                delayChildren={0.1}
-                                                className={`${WHY_CHOOSE_GRID} stagger-grid`}>
-                {reasonsToChoose.map(([title, copy], index) => (
-                  <RevealItem key={title} variant="itemReveal">
-                    <motion.article
-                                        className={`${WHY_CHOOSE_CARD_H} bg-surface ${WHY_CHOOSE_CARD_PADDING}`}
-                      whileHover={{ y: -4 }}
-                      transition={{ duration: 0.2 }}>
-                                        <span className={WHY_CHOOSE_NUMBER_STYLE}>
-                        0{index + 1}
-                      </span>
-                                        <h3 className={WHY_CHOOSE_TITLE}>{title}</h3>
-                                        <p className={WHY_CHOOSE_COPY}>
-                        {copy}
-                      </p>
-                    </motion.article>
-                  </RevealItem>
-                ))}
-              </RevealGroup>
-            </RevealItem>
-          </RevealGroup>
-        </div>
-      </section>
-
-                        <section className={`${SECTION_PY_DESKTOP} ${SECTION_PY_MD}`}>
+                        <WhySahilTimeline /><section className={SECTION_PY_DESKTOP}>
                           <div className={`mx-auto ${CONTAINER_MAX_WIDTH} ${CONTAINER_MAX_WIDTH_MD}`}>
                             <RevealGroup staggerChildren={REVEAL_GROUP_STAGGER} delayChildren={REVEAL_GROUP_DELAY}>
             <RevealItem variant="quickEnter">
@@ -638,7 +633,7 @@ export default function ModernHomePage() {
         </div>
       </section>
 
-                        <section className={`bg-mist ${SECTION_PY_DESKTOP} ${SECTION_PY_MD}`}>
+                        <section className={`bg-mist ${SECTION_PY_DESKTOP}`}>
                           <div className={`mx-auto ${CONTAINER_MAX_WIDTH} ${CONTAINER_MAX_WIDTH_MD}`}>
                             <RevealGroup staggerChildren={REVEAL_GROUP_STAGGER} delayChildren={REVEAL_GROUP_DELAY}>
             <RevealItem variant="quickEnter">
@@ -697,7 +692,7 @@ export default function ModernHomePage() {
                             delayChildren={REVEAL_GROUP_DELAY}
                             className={`mx-auto flex ${CONTAINER_MAX_WIDTH} items-center justify-between ${CTA_LAYOUT} ${CONTAINER_MAX_WIDTH_MD}`}>
           <RevealItem variant="quickEnter">
-            <div>
+            <div className="max-sm:text-center">
               <motion.p
                                   className={CTA_EYEBROW_STYLE}
                 initial={{ opacity: 0, x: -20 }}
@@ -716,13 +711,13 @@ export default function ModernHomePage() {
             </div>
           </RevealItem>
           <RevealItem variant="quickEnter">
-                               <div className={`flex flex-nowrap items-center ${CTA_BUTTONS_GAP}`}>
+                               <div className={`flex flex-nowrap items-center ${CTA_BUTTONS_GAP} max-sm:mx-auto max-sm:flex-col max-sm:w-full max-sm:max-w-[280px] max-sm:min-w-0 max-sm:gap-3 [&>*]:min-w-0`}>
               <MagneticLink
                 href="/contact"
                 strength={0.2}
                 area={60}
                 variant="primary"
-                                  className={`inline-flex items-center justify-center gap-2 bg-safety ${CTA_PRIMARY_PADDING} text-xs font-extrabold uppercase tracking-industrial text-ink`}>
+                                  className={`inline-flex items-center justify-center gap-2 bg-safety ${CTA_PRIMARY_PADDING} text-xs font-extrabold uppercase tracking-industrial text-ink max-sm:h-12 max-sm:w-full max-sm:min-w-0 max-sm:px-4 max-sm:py-2 max-sm:text-[10px] max-sm:leading-4 max-sm:whitespace-nowrap`}>
                 <span className="relative z-10">Talk to our team</span>
                 <ArrowRight size={17} className="group-hover:translate-x-1 transition-transform duration-300" />
               </MagneticLink>
@@ -731,7 +726,7 @@ export default function ModernHomePage() {
                 strength={0.15}
                 area={50}
                 variant="ghost"
-                                  className={`inline-flex items-center justify-center gap-2 whitespace-nowrap ${CTA_GHOST_PADDING} text-xs font-extrabold hover:text-safety`}>
+                                  className={`inline-flex h-[70px] min-w-0 items-center justify-center gap-2 whitespace-nowrap ${CTA_GHOST_PADDING} text-xs font-extrabold hover:text-safety max-sm:h-12 max-sm:w-full max-sm:px-4 max-sm:py-2 max-sm:text-[11px]`}>
                  <span className="relative z-10 inline-flex items-center justify-center gap-2 whitespace-nowrap">
                    <Phone size={17} className="shrink-0" />
                    <span>{siteContact.phone}</span>
@@ -744,7 +739,7 @@ export default function ModernHomePage() {
                 strength={0.15}
                 area={50}
                 variant="ghost"
-                                  className={`inline-flex items-center justify-center gap-2 ${CTA_GHOST_PADDING} text-xs font-extrabold text-slate-300 hover:text-safety`}>
+                                  className={`inline-flex h-[70px] min-w-0 items-center justify-center gap-2 ${CTA_GHOST_PADDING} text-xs font-extrabold text-slate-300 hover:text-safety max-sm:h-12 max-sm:w-full max-sm:px-4 max-sm:py-2 max-sm:text-[11px]`}>
                  <span className="relative z-10 flex items-center justify-center gap-2">
                    <Download size={16} />
                    <span>Brochure</span>
@@ -759,3 +754,4 @@ export default function ModernHomePage() {
     </main>
   );
 }
+

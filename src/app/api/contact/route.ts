@@ -1,149 +1,64 @@
 import { NextRequest, NextResponse } from 'next/server';
-import nodemailer from 'nodemailer';
+import { getD1Client } from '@/lib/d1-client';
+import { escapeHtml, getMailConfig, getMailer, renderSubmissionEmail } from '@/lib/mail';
+import { clean, clientAddress, emailPattern, rateLimited, verifyMathCaptcha } from '@/lib/form-security';
+
+export const runtime = 'nodejs';
 
 export async function POST(request: NextRequest) {
   try {
+    if (rateLimited(`contact:${clientAddress(request)}`)) return NextResponse.json({ error: 'Too many submissions. Please try again later.' }, { status: 429 });
     const body = await request.json();
-    const { name, email, phone, subject, message, formType } = body;
-
-    // Validate required fields
-    if (!name || !email || !message) {
-      return NextResponse.json(
-        { error: 'Name, email, and message are required' },
-        { status: 400 }
-      );
+    const name = clean(body.name, 100), email = clean(body.email, 254), phone = clean(body.phone, 30);
+    const subject = clean(body.subject, 150), message = clean(body.message, 5000), formType = body.formType;
+    if (!name || !email || !message || !subject) {
+      return NextResponse.json({ error: 'Name, email, and message are required' }, { status: 400 });
+    }
+    if (!emailPattern.test(email) || !/^[\p{L}\s.'-]+$/u.test(name) || message.length < 10) {
+      return NextResponse.json({ error: 'Invalid email format' }, { status: 400 });
+    }
+    // Contact forms can use the same lightweight challenge as career forms.
+    // If Turnstile is configured, it is mandatory and takes precedence.
+    if (process.env.TURNSTILE_SECRET_KEY) {
+      const token = clean(body.captchaToken, 2048);
+      const result = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', { method: 'POST', headers: { 'content-type': 'application/x-www-form-urlencoded' }, body: new URLSearchParams({ secret: process.env.TURNSTILE_SECRET_KEY, response: token, remoteip: clientAddress(request) }) });
+      if (!token || !result.ok || !(await result.json() as { success?: boolean }).success) return NextResponse.json({ error: 'Invalid security verification' }, { status: 400 });
+    } else if (!verifyMathCaptcha(body.captcha, body.captchaQuestion)) {
+      return NextResponse.json({ error: 'Invalid security verification' }, { status: 400 });
     }
 
-    // Validate email format
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      return NextResponse.json(
-        { error: 'Invalid email format' },
-        { status: 400 }
-      );
-    }
-
-    // Create transporter
-    const transporter = nodemailer.createTransport({
-      host: process.env.SMTP_HOST || 'smtp.gmail.com',
-      port: parseInt(process.env.SMTP_PORT || '587'),
-      secure: process.env.SMTP_SECURE === 'true',
-      auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS,
-      },
-    });
-
-    // Verify transporter
-    await transporter.verify();
-
-    // Email content
     const isEnquiry = formType === 'enquiry';
-    const emailSubject = isEnquiry 
-      ? `New Enquiry: ${subject || 'General Enquiry'}`
-      : `New Contact Form: ${subject || 'General Contact'}`;
+    const db = getD1Client();
+    if (isEnquiry) {
+      // The admin enquiry screens read from this table. Keep public enquiries
+      // in the same table so a successful submission is visible to admins.
+      await db.prepare(`INSERT INTO enquiries (id, name, email, phone, subject, message) VALUES (?, ?, ?, ?, ?, ?)`)
+        .bind(crypto.randomUUID(), name, email, phone || '', subject || '', message).run();
+    } else {
+      await db.prepare(`INSERT INTO form_submissions (id, form_type, name, email, phone, subject, message) VALUES (?, ?, ?, ?, ?, ?, ?)`)
+        .bind(crypto.randomUUID(), 'contact', name, email, phone || '', subject || '', message).run();
+    }
 
-    const htmlContent = `
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      </head>
-      <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
-        <div style="background: linear-gradient(135deg, #f6c515 0%, #e6b314 100%); padding: 30px; border-radius: 10px 10px 0 0;">
-          <h1 style="color: #0c131a; margin: 0; font-size: 24px;">${isEnquiry ? 'New Enquiry Received' : 'New Contact Form Submission'}</h1>
-        </div>
-        <div style="background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px; border: 1px solid #eee;">
-          <table style="width: 100%; border-collapse: collapse;">
-            <tr>
-              <td style="padding: 10px 0; font-weight: bold; color: #555; width: 120px;">Name:</td>
-              <td style="padding: 10px 0; color: #333;">${name}</td>
-            </tr>
-            <tr>
-              <td style="padding: 10px 0; font-weight: bold; color: #555;">Email:</td>
-              <td style="padding: 10px 0; color: #333;"><a href="mailto:${email}" style="color: #f6c515; text-decoration: none;">${email}</a></td>
-            </tr>
-            ${phone ? `
-            <tr>
-              <td style="padding: 10px 0; font-weight: bold; color: #555;">Phone:</td>
-              <td style="padding: 10px 0; color: #333;"><a href="tel:${phone}" style="color: #f6c515; text-decoration: none;">${phone}</a></td>
-            </tr>
-            ` : ''}
-            <tr>
-              <td style="padding: 10px 0; font-weight: bold; color: #555;">Subject:</td>
-              <td style="padding: 10px 0; color: #333;">${subject || 'Not specified'}</td>
-            </tr>
-            <tr>
-              <td style="padding: 10px 0; font-weight: bold; color: #555; vertical-align: top;">Message:</td>
-              <td style="padding: 10px 0; color: #333; white-space: pre-wrap;">${message}</td>
-            </tr>
-          </table>
-          <hr style="border: none; border-top: 1px solid #ddd; margin: 20px 0;">
-          <p style="color: #888; font-size: 12px; margin: 0;">
-            This email was sent from the ${isEnquiry ? 'Enquiry Form' : 'Contact Form'} on Sahil Industries website.
-          </p>
-        </div>
-      </body>
-      </html>
-    `;
-
-    // Send email to admin
-    await transporter.sendMail({
-      from: `"Sahil Industries Website" <${process.env.SMTP_USER}>`,
-      to: process.env.CONTACT_EMAIL || 'sahilcranes@gmail.com',
-      subject: emailSubject,
-      html: htmlContent,
+    await getMailer().sendMail({
+      from: getMailConfig().from,
+      to: getMailConfig().to,
       replyTo: email,
+      subject: `${isEnquiry ? 'New Enquiry' : 'New Contact Form'}: ${subject || 'General'}`,
+      html: renderSubmissionEmail({
+        title: isEnquiry ? 'New Product Enquiry' : 'New Contact Message',
+        intro: isEnquiry ? 'A new product enquiry has been received.' : 'A new contact request has been received.',
+        fields: [
+          { label: 'Name', value: name },
+          { label: 'Email', value: email, link: `<a href="mailto:${escapeHtml(email)}" style="color:#b48600">${escapeHtml(email)}</a>` },
+          { label: 'Phone', value: phone, link: phone ? `<a href="tel:${escapeHtml(phone)}" style="color:#b48600">${escapeHtml(phone)}</a>` : undefined },
+          { label: 'Subject', value: subject },
+        ],
+        message,
+      }),
     });
-
-    // Send confirmation email to user
-    await transporter.sendMail({
-      from: `"Sahil Industries" <${process.env.SMTP_USER}>`,
-      to: email,
-      subject: isEnquiry 
-        ? 'Thank you for your enquiry - Sahil Industries'
-        : 'Thank you for contacting us - Sahil Industries',
-      html: `
-        <!DOCTYPE html>
-        <html>
-        <head>
-          <meta charset="utf-8">
-          <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        </head>
-        <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
-          <div style="background: linear-gradient(135deg, #f6c515 0%, #e6b314 100%); padding: 30px; border-radius: 10px 10px 0 0; text-align: center;">
-            <h1 style="color: #0c131a; margin: 0; font-size: 24px;">Thank You for Contacting Us!</h1>
-          </div>
-          <div style="background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px; border: 1px solid #eee;">
-            <p style="font-size: 16px; color: #333;">Dear ${name},</p>
-            <p style="color: #555;">We have received your ${isEnquiry ? 'enquiry' : 'message'} and will get back to you within 24 hours.</p>
-            <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #f6c515;">
-              <p style="margin: 0; color: #666;"><strong>Your ${isEnquiry ? 'enquiry' : 'message'} summary:</strong></p>
-              <p style="margin: 10px 0 0; color: #333;">${subject || 'General'}</p>
-            </div>
-            <p style="color: #555;">For immediate assistance, you can also call us at <a href="tel:+919623242324" style="color: #f6c515;">+91 96 2324 2324</a> or email us at <a href="mailto:sahilcranes@gmail.com" style="color: #f6c515;">sahilcranes@gmail.com</a>.</p>
-            <hr style="border: none; border-top: 1px solid #ddd; margin: 20px 0;">
-            <p style="color: #888; font-size: 12px; margin: 0; text-align: center;">
-              Sahil Industries<br>
-              Plot No. B 88, 89, 90 Kagal Hatkanagale Five Star MIDC,<br>
-              Village – Halsawade, Tal.- Karveer, Dist.- Kolhapur - 416 236
-            </p>
-          </div>
-        </body>
-        </html>
-      `,
-    });
-
-    return NextResponse.json(
-      { message: 'Form submitted successfully' },
-      { status: 200 }
-    );
+    return NextResponse.json({ message: 'Form submitted successfully' });
   } catch (error) {
     console.error('Contact form error:', error);
-    return NextResponse.json(
-      { error: 'Failed to submit form. Please try again later.' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Failed to submit form. Please try again later.' }, { status: 500 });
   }
 }
