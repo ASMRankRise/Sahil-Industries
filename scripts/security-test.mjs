@@ -3,6 +3,8 @@
  * The gallery deletion test always uses a random id and must not delete real data.
  */
 import assert from 'node:assert/strict';
+import { readdir, readFile } from 'node:fs/promises';
+import { join } from 'node:path';
 
 const base = (process.env.BASE_URL || 'http://localhost:3000').replace(/\/$/, '');
 const results = [];
@@ -14,6 +16,29 @@ const run = async (name, fn) => {
 const response = (path, init = {}) => fetch(`${base}${path}`, { redirect: 'manual', ...init });
 const json = (body) => ({ headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) });
 const contactBody = (extra = {}) => ({ name: 'Security Test', email: `security-${Date.now()}@example.com`, subject: 'Security test', message: 'A sufficiently long security test message.', captcha: '5', captchaQuestion: '2 + 3', ...extra });
+
+const adminApiRoot = join(process.cwd(), 'src', 'app', 'api', 'admin');
+const walk = async (directory) => {
+  const entries = await readdir(directory, { withFileTypes: true });
+  const files = [];
+  for (const entry of entries) {
+    const path = join(directory, entry.name);
+    if (entry.isDirectory()) files.push(...await walk(path));
+    else if (entry.name === 'route.ts' || entry.name === 'route.tsx') files.push(path);
+  }
+  return files;
+};
+
+await run('Every non-auth admin API route enforces requireAdmin', async () => {
+  const authRoutes = new Set(['login', 'logout', 'session']);
+  const routes = await walk(adminApiRoot);
+  for (const route of routes) {
+    const relative = route.slice(adminApiRoot.length + 1).replace(/\\/g, '/');
+    if (relative.startsWith('auth/') && authRoutes.has(relative.slice(5, -('/route.ts'.length)))) continue;
+    const source = await readFile(route, 'utf8');
+    assert.match(source, /requireAdmin\s*\(/, `${relative} must call requireAdmin`);
+  }
+});
 
 await run('Unauthenticated /admin does not expose dashboard', async () => {
   const r = await response('/admin');
