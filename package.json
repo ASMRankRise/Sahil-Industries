@@ -6,7 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
+    "lint": "eslint .",
     "security:test": "node scripts/security-test.mjs",
     "admin:create": "node scripts/create-admin.mjs"
   },
