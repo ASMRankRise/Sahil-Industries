@@ -163,6 +163,7 @@ interface AdminDataContextType {
   
   // Loading states
   loading: boolean;
+  galleryLoading: boolean;
 }
 
 // Initial mock data
@@ -408,6 +409,7 @@ export function AdminDataProvider({ children }: { children: ReactNode }) {
   const [galleryImages, setGalleryImages] = useState<GalleryImage[]>(initialGalleryImages);
 
   const [loading, setLoading] = useState(true);
+  const [galleryLoading, setGalleryLoading] = useState(true);
 
   // Theme management with localStorage persistence and DOM synchronization
   const [theme, setThemeState] = useState<"dark" | "light">("dark");
@@ -471,7 +473,7 @@ export function AdminDataProvider({ children }: { children: ReactNode }) {
         tags: Array.isArray(image.tags) ? image.tags as string[] : typeof image.tags === "string" ? (() => { try { return JSON.parse(image.tags as string); } catch { return []; } })() : [], altText: String(image.alt_text || ""), isFeatured: Boolean(image.is_featured),
         date: String(image.created_at || new Date().toISOString()), size: Number(image.size || 0), width: Number(image.width || 0), height: Number(image.height || 0), order: Number(image.order || index + 1),
       })));
-    }).catch(() => setGalleryImages([]));
+    }).catch(() => setGalleryImages([])).finally(() => setGalleryLoading(false));
   }, []);
 
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -662,6 +664,7 @@ export function AdminDataProvider({ children }: { children: ReactNode }) {
           login,
           logout,
           loading,
+          galleryLoading,
         }}>
           {children}
         </AdminDataContext.Provider>

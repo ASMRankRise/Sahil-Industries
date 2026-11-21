@@ -31,3 +31,31 @@ export function AdminTableSkeleton({ rows = 6, columns = 6 }: { rows?: number; c
     </div>
   );
 }
+
+export function AdminAnalyticsSkeleton() {
+  return (
+    <div className="space-y-6 animate-pulse" aria-label="Loading analytics" role="status">
+      <div className="grid gap-4 sm:grid-cols-3">
+        {[1, 2, 3].map((item) => <div key={item} className="h-28 rounded-2xl border border-white/10 bg-surface" />)}
+      </div>
+      <div className="grid gap-6 lg:grid-cols-2">
+        {[1, 2].map((item) => <div key={item} className="h-80 rounded-2xl border border-white/10 bg-surface" />)}
+      </div>
+    </div>
+  );
+}
+
+export function AdminGallerySkeleton() {
+  return (
+    <div className="space-y-6 animate-pulse" aria-label="Loading gallery" role="status">
+      <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+        {[1, 2, 3, 4].map((item) => <div key={item} className="h-28 rounded-2xl border border-white/10 bg-surface" />)}
+      </div>
+      <div className="h-20 rounded-2xl border border-white/10 bg-surface" />
+      <div className="h-40 rounded-2xl border border-white/10 bg-surface" />
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        {[1, 2, 3, 4, 5, 6, 7, 8].map((item) => <div key={item} className="h-64 rounded-2xl border border-white/10 bg-surface" />)}
+      </div>
+    </div>
+  );
+}

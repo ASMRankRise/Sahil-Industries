@@ -35,6 +35,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { AdminDashboardLayoutWrapper } from "@/components/AdminDashboardLayout";
+import { AdminGallerySkeleton } from "@/components/AdminSkeleton";
 import { useAdminData, GalleryImage } from "@/context/AdminDataContext";
 import {
   DndContext,
@@ -88,6 +89,7 @@ export default function GalleryPage() {
     updateGalleryImage,
     deleteGalleryImage,
     uploadImage,
+    galleryLoading,
   } = useAdminData();
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
@@ -429,6 +431,17 @@ export default function GalleryPage() {
     });
     return Array.from(allTags).sort();
   }, [galleryImages]);
+
+  if (galleryLoading) {
+    return (
+      <AdminDashboardLayoutWrapper
+        activeNav="/admin/gallery"
+        pageTitle="Gallery Management"
+        pageDescription="Upload, organize and manage gallery images for products, projects and factory">
+        <AdminGallerySkeleton />
+      </AdminDashboardLayoutWrapper>
+    );
+  }
 
   return (
     <AdminDashboardLayoutWrapper
