@@ -1253,6 +1253,26 @@ svg {
 .admin-dashboard[data-admin-theme="light"] .border-white\/5 {
   border-color: #e3e8ef !important;
 }
+.admin-dashboard[data-admin-theme="light"] .admin-status-select,
+.admin-dashboard[data-admin-theme="light"] .admin-status-badge {
+  color: #fff !important;
+}
+.admin-dashboard[data-admin-theme="light"] .admin-status-select.status-new,
+.admin-dashboard[data-admin-theme="light"] .admin-status-badge.status-new {
+  background-color: #2563eb !important;
+}
+.admin-dashboard[data-admin-theme="light"] .admin-status-select.status-in-progress,
+.admin-dashboard[data-admin-theme="light"] .admin-status-badge.status-in-progress {
+  background-color: #d97706 !important;
+}
+.admin-dashboard[data-admin-theme="light"] .admin-status-select.status-replied,
+.admin-dashboard[data-admin-theme="light"] .admin-status-badge.status-replied {
+  background-color: #16a34a !important;
+}
+.admin-dashboard[data-admin-theme="light"] .admin-status-select.status-closed,
+.admin-dashboard[data-admin-theme="light"] .admin-status-badge.status-closed {
+  background-color: #64748b !important;
+}
 
 /* Keep custom filter menus readable in the light admin theme. */
 .admin-dashboard[data-admin-theme="light"] [role="listbox"] {
