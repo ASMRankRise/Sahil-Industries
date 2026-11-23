@@ -1,4 +1,5 @@
 import nodemailer from "nodemailer";
+import path from "node:path";
 
 export function getMailer() {
   const host = process.env.SMTP_HOST;
@@ -22,6 +23,14 @@ export function getMailConfig() {
   return {
     from: process.env.SMTP_FROM_EMAIL || process.env.SMTP_USER,
     to: process.env.CONTACT_EMAIL || "sahilcranes@gmail.com",
+  };
+}
+
+export function getBrandLogoAttachment() {
+  return {
+    filename: "sahil-industries-logo.png",
+    path: path.join(process.cwd(), "public", "sahilcrane", "logo", "logo-footer.png"),
+    cid: "sahil-industries-logo",
   };
 }
 
@@ -53,8 +62,10 @@ export function renderSubmissionEmail({
   return `<!doctype html><html><body style="margin:0;background:#f3f5f7;font-family:Arial,sans-serif;color:#17202a">
     <div style="max-width:640px;margin:28px auto;padding:0 16px">
       <div style="background:#101820;padding:24px 28px;border-radius:12px 12px 0 0">
-        <div style="color:#f6c515;font-size:13px;font-weight:bold;letter-spacing:1px">SAHIL INDUSTRIES</div>
-        <h1 style="margin:8px 0 0;color:#fff;font-size:24px">${escapeHtml(title)}</h1>
+        <table role="presentation" style="width:100%;border-collapse:collapse"><tr>
+          <td style="width:190px;vertical-align:middle"><img src="cid:sahil-industries-logo" width="170" alt="Sahil Industries" style="display:block;width:170px;height:auto;border:0"></td>
+          <td style="vertical-align:middle;padding-left:18px;border-left:1px solid #34404b"><div style="color:#f6c515;font-size:13px;font-weight:bold;letter-spacing:1px">SAHIL INDUSTRIES</div><h1 style="margin:8px 0 0;color:#fff;font-size:24px">${escapeHtml(title)}</h1></td>
+        </tr></table>
       </div>
       <div style="background:#fff;padding:28px;border:1px solid #e5e7eb;border-top:0;border-radius:0 0 12px 12px">
         <p style="margin:0 0 20px;color:#475467;font-size:15px">${escapeHtml(intro)}</p>

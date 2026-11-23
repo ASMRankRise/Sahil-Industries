@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import {
   escapeHtml,
+  getBrandLogoAttachment,
   getMailConfig,
   getMailer,
   renderSubmissionEmail,
@@ -150,16 +151,17 @@ export async function POST(request: NextRequest) {
         subject: `New Career Application: ${fullname}`,
         html: htmlContent,
         replyTo: email,
+        attachments: [getBrandLogoAttachment()],
       };
 
       if (resume && resumeBytes) {
-        mailOptions.attachments = [
+        mailOptions.attachments.push(
           {
             filename: resume.name,
             content: Buffer.from(resumeBytes),
             contentType: resume.type,
           },
-        ];
+        );
       }
 
       await getMailer().sendMail(mailOptions);
@@ -169,6 +171,7 @@ export async function POST(request: NextRequest) {
         from: getMailConfig().from,
         to: email,
         subject: "Thank you for your application - Sahil Industries",
+        attachments: [getBrandLogoAttachment()],
         html: `
         <!DOCTYPE html>
         <html>
@@ -177,8 +180,8 @@ export async function POST(request: NextRequest) {
           <meta name="viewport" content="width=device-width, initial-scale=1.0">
         </head>
         <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
-          <div style="background: linear-gradient(135deg, #f6c515 0%, #e6b314 100%); padding: 30px; border-radius: 10px 10px 0 0; text-align: center;">
-            <h1 style="color: #0c131a; margin: 0; font-size: 24px;">Thank You for Applying!</h1>
+           <div style="background: #101820; padding: 30px; border-radius: 10px 10px 0 0; text-align: center;">
+             <table role="presentation" style="width:100%;border-collapse:collapse"><tr><td style="width:190px;vertical-align:middle"><img src="cid:sahil-industries-logo" width="170" alt="Sahil Industries" style="display:block;width:170px;height:auto;border:0;"></td><td style="vertical-align:middle;padding-left:18px;border-left:1px solid #34404b"><h1 style="color:#fff;margin:0;font-size:24px;text-align:left">Thank You for Applying!</h1></td></tr></table>
           </div>
           <div style="background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px; border: 1px solid #eee;">
              <p style="font-size: 16px; color: #333;">Dear ${escapeHtml(fullname)},</p>

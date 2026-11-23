@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getD1Client } from "@/lib/d1-client";
 import {
   escapeHtml,
+  getBrandLogoAttachment,
   getMailConfig,
   getMailer,
   renderSubmissionEmail,
@@ -117,6 +118,7 @@ export async function POST(request: NextRequest) {
       from: getMailConfig().from,
       to: getMailConfig().to,
       replyTo: email,
+      attachments: [getBrandLogoAttachment()],
       subject: `${isEnquiry ? "New Enquiry" : "New Contact Form"}: ${subject || "General"}`,
       html: renderSubmissionEmail({
         title: isEnquiry ? "New Product Enquiry" : "New Contact Message",
