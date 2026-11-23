@@ -109,7 +109,7 @@ export function ModernContactBand() {
               <ArrowRight size={17} className="shrink-0" />
             </Link>
             <a
-              className="inline-flex items-center justify-center gap-2 whitespace-nowrap text-xs font-extrabold text-white hover:text-safety"
+              className="inline-flex items-center justify-center gap-4 whitespace-nowrap text-xs font-extrabold text-white hover:text-safety"
               href={siteContact.phoneHref}>
               <Phone size={17} className="shrink-0" />
               <span>{siteContact.phone}</span>
@@ -160,7 +160,7 @@ export function ModernContactBand() {
               strength={0.15}
               area={50}
               variant="ghost"
-              className="inline-flex items-center gap-2 text-xs font-extrabold text-white hover:text-safety">
+              className="inline-flex items-center gap-4 text-xs font-extrabold text-white hover:text-safety">
               <Phone size={17} />
               {siteContact.phone}
             </MagneticLink>
