@@ -7,9 +7,6 @@ import {
   Check,
   Download,
   Phone,
-  Shield,
-  Award,
-  Users,
 } from "lucide-react";
 import { motion, useAnimation } from "framer-motion";
 import { SiteFooter } from "@/components/SiteFooter";
@@ -78,9 +75,6 @@ const STATS_ICON_SIZE = "text-3xl";
 const STATS_ICON_SIZE_MD = "max-md:text-[22px]";
 const STATS_LABEL_MAX_W = "max-w-[110px]";
 const STATS_LABEL_STYLE = "text-[10px] uppercase tracking-industrial text-slate-300";
-const HIGHLIGHTS_PY = "py-6";
-const HIGHLIGHTS_PY_MD = "max-md:py-20";
-const HIGHLIGHTS_GRID = "grid grid-cols-3 gap-8 max-md:grid-cols-1 max-md:gap-6";
 const ABOUT_GRID_COLS = "grid-cols-1 md:grid-cols-[minmax(0,.88fr)_minmax(0,1fr)]";
 const ABOUT_GAP = "gap-10 lg:gap-[clamp(50px,9vw,150px)]";
 const ABOUT_IMG_PB = "pb-[88px]";
@@ -95,13 +89,6 @@ const ABOUT_LIST_GAP = "gap-3";
 const ABOUT_LIST_ITEM_GAP = "gap-2";
 const ABOUT_CHECK_SIZE = 16;
 const ABOUT_CHECK_COLOR = "text-[#b28a00]";
-const WHY_CHOOSE_GRID = "grid grid-cols-3 gap-5 max-md:grid-cols-1";
-const WHY_CHOOSE_CARD_H = "min-h-[285px]";
-const WHY_CHOOSE_CARD_PADDING = "p-9";
-const WHY_CHOOSE_NUMBER_STYLE = "text-xs font-extrabold tracking-[.18em] text-safety";
-const WHY_CHOOSE_TITLE = "mb-3 mt-8 text-xl font-bold tracking-[-.02em]";
-const WHY_CHOOSE_COPY = "m-0 max-w-[300px] text-sm leading-6 text-slate-600";
-const WHY_CHOOSE_ICONS = [Shield, Award, Users];
 const INDUSTRIES_CAROUSEL_MT = "mt-8";
 const CLIENTS_GRID = "grid grid-cols-6 gap-px border border-ink/15 bg-ink/15 max-lg:grid-cols-4 max-md:grid-cols-3";
 const CLIENTS_CARD_H = "h-[120px]";
@@ -429,38 +416,6 @@ export default function ModernHomePage() {
               </span>
             </motion.div>
           </Reveal>
-        </div>
-      </section>
-
-      {/* Highlights Area */}
-      <section className={`${HIGHLIGHTS_PY} ${HIGHLIGHTS_PY_MD} bg-[#f3f0e8]`}>
-        <div className={`mx-auto ${CONTAINER_MAX_WIDTH} ${CONTAINER_MAX_WIDTH_MD}`}>
-          <div className="mb-7 text-center">
-            <p className="mb-2 flex items-center justify-center gap-2 text-[10px] font-extrabold uppercase tracking-[.18em] text-[#9b7800]">
-              <span className="h-px w-6 bg-[#c6a30a]" />
-              Why choose Sahil
-              <span className="h-px w-6 bg-[#c6a30a]" />
-            </p>
-          </div>
-          <RevealGroup
-            staggerChildren={REVEAL_GROUP_STAGGER}
-            delayChildren={REVEAL_GROUP_DELAY}
-            className="grid grid-cols-3 gap-5 max-md:grid-cols-1 max-md:gap-4">
-            {[
-              { title: "Reliability", copy: "Transparency Service", icon: Shield },
-              { title: "Materials", copy: "100% Quality Product", icon: Award },
-              { title: "Expert Staff", copy: "Trained & Experienced", icon: Users },
-            ].map(({ title, copy, icon: Icon }) => (
-              <RevealItem key={title} variant="itemReveal">
-                <article className="group relative flex min-h-[150px] flex-col items-center justify-center overflow-hidden rounded-2xl border border-[#d9cda9] bg-[radial-gradient(circle_at_50%_0%,rgba(246,197,21,.16),transparent_42%),linear-gradient(135deg,#0b1220_0%,#172235_58%,#241b08_100%)] p-5 text-center text-white shadow-[0_12px_28px_rgba(15,23,40,.12)] transition-all duration-300 hover:-translate-y-1 hover:border-[#d5ad16] hover:shadow-[0_18px_35px_rgba(15,23,40,.2)]">
-                  <span className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_var(--x,50%)_var(--y,0%),rgba(255,255,255,.14),transparent_32%)] opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-                  <Icon className="relative z-10 mb-3 h-8 w-8 text-safety" aria-hidden="true" />
-                  <h3 className="relative z-10 mb-1 text-lg font-bold tracking-[-.02em]">{title}</h3>
-                  <p className="relative z-10 text-sm text-white/65">{copy}</p>
-                </article>
-              </RevealItem>
-            ))}
-          </RevealGroup>
         </div>
       </section>
 

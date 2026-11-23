@@ -106,7 +106,7 @@ function HeroSlider() {
 
 function Highlights() {
   const entries = [['flaticon-protection', 'Reliability', 'Transparency Service'], ['flaticon-quality', 'Materials', '100% Quality Product'], ['flaticon-construction-and-tools', 'Expert Staff', 'Trained & Expereinced']];
-  return <section className="highlights-area"><div className="container"><div className="highlights__content"><ul>{entries.map(([icon, title, copy]) => <li className="single-highlights-box" key={title}><div className="inner"><div className="icon"><span className={icon} /></div><div className="text"><h3>{title}</h3><p>{copy}</p></div></div><div className="counting-box" /></li>)}</ul></div></div></section>;
+  return <section className="highlights-area"><div className="container"><div className="highlights__content" style={{ borderRadius: 0, overflow: 'visible' }}><ul>{entries.map(([icon, title, copy]) => <li className="single-highlights-box" style={{ borderRadius: 0 }} key={title}><div className="inner"><div className="icon"><span className={icon} /></div><div className="text"><h3>{title}</h3><p>{copy}</p></div></div><div className="counting-box" /></li>)}</ul></div></div></section>;
 }
 
 function AboutSection() {
