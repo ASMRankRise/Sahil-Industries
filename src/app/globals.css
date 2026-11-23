@@ -1208,8 +1208,50 @@ svg {
   color: #5b4700 !important;
 }
 .admin-dashboard[data-admin-theme="light"] aside {
-  background: #fff1a8 !important;
-  border-color: #e7c84b !important;
+  background: #fff8d6 !important;
+  border-color: #ead58a !important;
+}
+
+/* Refined light admin palette: softer brand yellow, stronger hierarchy, and
+   one accessible amber accent across navigation and dashboard controls. */
+.admin-dashboard[data-admin-theme="light"] {
+  background: #f7f9fc !important;
+  color: #17283a !important;
+}
+.admin-dashboard[data-admin-theme="light"] main,
+.admin-dashboard[data-admin-theme="light"] .bg-ink {
+  background-color: #f7f9fc !important;
+}
+.admin-dashboard[data-admin-theme="light"] h1,
+.admin-dashboard[data-admin-theme="light"] h2,
+.admin-dashboard[data-admin-theme="light"] h3 {
+  color: #17283a !important;
+}
+.admin-dashboard[data-admin-theme="light"] .text-slate-400,
+.admin-dashboard[data-admin-theme="light"] .text-slate-500 {
+  color: #526276 !important;
+}
+.admin-dashboard[data-admin-theme="light"] .text-safety {
+  color: #9a6b00 !important;
+}
+.admin-dashboard[data-admin-theme="light"] .bg-safety {
+  background-color: #f4c430 !important;
+}
+.admin-dashboard[data-admin-theme="light"] aside a[aria-current="page"],
+.admin-dashboard[data-admin-theme="light"] aside a.bg-amber-200\/70 {
+  background-color: #ffe7a3 !important;
+  border-left-color: #c47a00 !important;
+  color: #4f3500 !important;
+  box-shadow: 0 2px 6px rgba(174, 111, 0, 0.12) !important;
+}
+.admin-dashboard[data-admin-theme="light"] aside a:hover,
+.admin-dashboard[data-admin-theme="light"] aside button:hover {
+  background-color: #ffefc2 !important;
+  color: #4f3500 !important;
+}
+.admin-dashboard[data-admin-theme="light"] .border-white\/10,
+.admin-dashboard[data-admin-theme="light"] .border-white\/5 {
+  border-color: #e3e8ef !important;
 }
 
 /* Keep custom filter menus readable in the light admin theme. */
