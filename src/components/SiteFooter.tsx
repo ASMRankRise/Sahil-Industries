@@ -132,7 +132,15 @@ export function SiteFooter() {
             " " +
             COPYRIGHT_TEXT
           }>
-          Copyright © 2023 <b>Sahil Industries.</b> All Rights Reserved.
+          Copyright © 2023 <b>Sahil Industries.</b> All Rights Reserved.{" "}
+          <span className="mx-2 text-white/20">|</span>
+          <Link href="/privacy-policy" className="hover:text-safety">
+            Privacy Policy
+          </Link>
+          <span className="mx-2 text-white/20">|</span>
+          <Link href="/terms-of-service" className="hover:text-safety">
+            Terms of Service
+          </Link>
         </div>
       </footer>
     );
@@ -291,7 +299,15 @@ export function SiteFooter() {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, amount: 0.1 }}
         transition={{ delay: 0.5, duration: 0.4 }}>
-        Copyright © 2023 <b>Sahil Industries.</b> All Rights Reserved.
+        Copyright © 2023 <b>Sahil Industries.</b> All Rights Reserved.{" "}
+        <span className="mx-2 text-white/20">|</span>
+        <Link href="/privacy-policy" className="hover:text-safety">
+          Privacy Policy
+        </Link>
+        <span className="mx-2 text-white/20">|</span>
+        <Link href="/terms-of-service" className="hover:text-safety">
+          Terms of Service
+        </Link>
       </motion.div>
     </footer>
   );
