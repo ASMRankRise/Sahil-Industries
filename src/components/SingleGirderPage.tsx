@@ -1,10 +1,10 @@
 "use client";
 
-import { ModernPageShell } from '@/components/ModernPageShell';
-import { ProductDetailLayout } from '@/components/ProductDetailLayout';
-import { GalleryLightbox } from '@/components/GalleryLightbox';
-import { useState } from 'react';
-import { singleGirderProduct } from '@/data/single-girder';
+import { ModernPageShell } from "@/components/ModernPageShell";
+import { ProductDetailLayout } from "@/components/ProductDetailLayout";
+import { GalleryLightbox } from "@/components/GalleryLightbox";
+import { useState } from "react";
+import { singleGirderProduct } from "@/data/single-girder";
 
 interface GalleryImage {
   id: number;
@@ -20,17 +20,22 @@ export default function SingleGirderPage() {
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [selectedImage, setSelectedImage] = useState<GalleryImage | null>(null);
 
-  const galleryImages: GalleryImage[] = singleGirderProduct.gallery.map((src, index) => ({
-    id: index + 1,
-    src,
-    alt: `${singleGirderProduct.title} ${index + 1}`,
-    title: singleGirderProduct.title,
-    category: 'products',
-    description: singleGirderProduct.title,
-    tags: ['Product'],
-  }));
+  const galleryImages: GalleryImage[] = singleGirderProduct.gallery.map(
+    (src, index) => ({
+      id: index + 1,
+      src,
+      alt: `${singleGirderProduct.title} ${index + 1}`,
+      title: singleGirderProduct.title,
+      category: "products",
+      description: singleGirderProduct.title,
+      tags: ["Product"],
+    }),
+  );
 
-  const handleImageClick = (srcOrImage: GalleryImage | string, index?: number) => {
+  const handleImageClick = (
+    srcOrImage: GalleryImage | string,
+    index?: number,
+  ) => {
     if (typeof srcOrImage === "string") {
       const found = galleryImages.find((img) => img.src === srcOrImage);
       if (found) {
@@ -42,9 +47,9 @@ export default function SingleGirderPage() {
           src: srcOrImage,
           alt: `${singleGirderProduct.title} ${idx + 1}`,
           title: singleGirderProduct.title,
-          category: 'products',
+          category: "products",
           description: singleGirderProduct.title,
-          tags: ['Product'],
+          tags: ["Product"],
         });
       }
     } else if (srcOrImage && typeof srcOrImage === "object") {
@@ -60,22 +65,32 @@ export default function SingleGirderPage() {
 
   const handleNextImage = () => {
     if (!selectedImage) return;
-    const currentIndex = galleryImages.findIndex((img) => img.id === selectedImage.id || img.src === selectedImage.src);
+    const currentIndex = galleryImages.findIndex(
+      (img) => img.id === selectedImage.id || img.src === selectedImage.src,
+    );
     const nextIndex = (currentIndex + 1) % galleryImages.length;
     setSelectedImage(galleryImages[nextIndex]);
   };
 
   const handlePrevImage = () => {
     if (!selectedImage) return;
-    const currentIndex = galleryImages.findIndex((img) => img.id === selectedImage.id || img.src === selectedImage.src);
-    const prevIndex = (currentIndex - 1 + galleryImages.length) % galleryImages.length;
+    const currentIndex = galleryImages.findIndex(
+      (img) => img.id === selectedImage.id || img.src === selectedImage.src,
+    );
+    const prevIndex =
+      (currentIndex - 1 + galleryImages.length) % galleryImages.length;
     setSelectedImage(galleryImages[prevIndex]);
   };
 
   return (
     <>
-      <ModernPageShell eyebrow={singleGirderProduct.breadcrumb} title={singleGirderProduct.title}>
-        <ProductDetailLayout product={singleGirderProduct} onImageClick={handleImageClick} />
+      <ModernPageShell
+        eyebrow={singleGirderProduct.breadcrumb}
+        title={singleGirderProduct.title}>
+        <ProductDetailLayout
+          product={singleGirderProduct}
+          onImageClick={handleImageClick}
+        />
       </ModernPageShell>
       {lightboxOpen && selectedImage && (
         <GalleryLightbox

@@ -10,8 +10,10 @@ import { motion, type HTMLMotionProps } from "framer-motion";
 // Standardized constants for MagneticButton
 const MAGNETIC_DEFAULT_STRENGTH = 0.3;
 const MAGNETIC_DEFAULT_AREA = 100;
-const FOCUS_RING = "focus:outline-none focus-visible:ring-2 focus-visible:ring-safety/50 focus-visible:ring-offset-2 focus-visible:ring-offset-ink";
-const BASE_BUTTON_CLASSES = "relative inline-flex items-center justify-center font-bold uppercase tracking-industrial transition-colors duration-200";
+const FOCUS_RING =
+  "focus:outline-none focus-visible:ring-2 focus-visible:ring-safety/50 focus-visible:ring-offset-2 focus-visible:ring-offset-ink";
+const BASE_BUTTON_CLASSES =
+  "relative inline-flex items-center justify-center font-bold uppercase tracking-industrial transition-colors duration-200";
 
 const buttonVariants = {
   primary: {
@@ -93,7 +95,9 @@ export function MagneticButton({
           style={{ opacity: isHovering ? 1 : 0 }}
         />
       )}
-      <span className="relative z-10 inline-flex items-center justify-center">{children}</span>
+      <span className="relative z-10 inline-flex items-center justify-center">
+        {children}
+      </span>
     </motion.button>
   );
 }
@@ -153,7 +157,9 @@ export function MagneticLink({
           style={{ opacity: isHovering ? 1 : 0 }}
         />
       )}
-      <span className="relative z-10 inline-flex items-center justify-center">{children}</span>
+      <span className="relative z-10 inline-flex items-center justify-center">
+        {children}
+      </span>
     </motion.a>
   );
 }
@@ -199,7 +205,9 @@ export function MagneticElement({
       ref={elementRef as unknown as React.Ref<HTMLDivElement>}
       className={`inline-block ${className}`}
       style={{ willChange: "transform" }}>
-      {React.cloneElement(child as React.ReactElement<any>, { ref: elementRef })}
+      {React.cloneElement(child as React.ReactElement<any>, {
+        ref: elementRef,
+      })}
     </div>
   );
 }

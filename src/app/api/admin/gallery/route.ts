@@ -42,8 +42,14 @@ export async function POST(request: NextRequest) {
         body.title,
         typeof body.alt_text === "string" ? body.alt_text : "",
         typeof body.status === "string" ? body.status : "published",
-        body.description || "", body.category || "other", JSON.stringify(body.tags || []), String(body.isFeatured ? 1 : 0),
-        String(Number(body.order || 0)), String(Number(body.size || 0)), String(Number(body.width || 0)), String(Number(body.height || 0)),
+        body.description || "",
+        body.category || "other",
+        JSON.stringify(body.tags || []),
+        String(body.isFeatured ? 1 : 0),
+        String(Number(body.order || 0)),
+        String(Number(body.size || 0)),
+        String(Number(body.width || 0)),
+        String(Number(body.height || 0)),
       )
       .run();
     return NextResponse.json({ id }, { status: 201 });

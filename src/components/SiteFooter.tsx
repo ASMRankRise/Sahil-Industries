@@ -12,16 +12,19 @@ import { useReducedMotion } from "@/components/animations/hooks/useReducedMotion
 const MotionLink = motion.create(Link);
 
 // Standardized spacing constants for footer
-const FOOTER_GRID_COLS = "grid-cols-2 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,.75fr)_minmax(0,1fr)_minmax(0,1.4fr)]";
+const FOOTER_GRID_COLS =
+  "grid-cols-2 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,.75fr)_minmax(0,1fr)_minmax(0,1.4fr)]";
 const FOOTER_GAP = "gap-x-5 gap-y-10 md:gap-x-8 lg:gap-x-10 lg:gap-y-12";
 const FOOTER_PY = "py-20 max-md:py-14";
 const FOOTER_MAX_WIDTH = "w-[min(1240px,calc(100%-64px))]";
 const FOOTER_SM_WIDTH = "max-md:w-[calc(100%-36px)]";
 // Keep the navigation columns side-by-side on phones; the brand and contact
 // sections still span the full width.
-const FOOTER_SM_GRID = "max-md:[&>div:first-child]:col-span-2 max-md:[&>div:last-child]:col-span-2";
+const FOOTER_SM_GRID =
+  "max-md:[&>div:first-child]:col-span-2 max-md:[&>div:last-child]:col-span-2";
 const HEADING_STYLE = "mb-5 text-base font-bold text-white";
-const LINK_STYLE = "block py-1.5 text-sm text-slate-300 transition-colors hover:text-safety";
+const LINK_STYLE =
+  "block py-1.5 text-sm text-slate-300 transition-colors hover:text-safety";
 const ICON_SIZE = 17;
 const SOCIAL_ICON_SIZE = 17;
 const CONTACT_ICON_SIZE = 17;
@@ -39,8 +42,14 @@ export function SiteFooter() {
 
   if (prefersReduced) {
     return (
-       <footer className="bg-[#0c131a] bg-cover bg-center text-slate-300" style={{ backgroundImage: "linear-gradient(rgba(6,10,14,.58), rgba(6,10,14,.72)), url('/media/theme-images/footer/footer-style3-bg.jpg')" }}>
-        <div className={`mx-auto grid [overflow-wrap:anywhere] ${FOOTER_MAX_WIDTH} ${FOOTER_GRID_COLS} ${FOOTER_GAP} ${FOOTER_PY} ${FOOTER_SM_WIDTH} ${FOOTER_SM_GRID}`}>
+      <footer
+        className="bg-[#0c131a] bg-cover bg-center text-slate-300"
+        style={{
+          backgroundImage:
+            "linear-gradient(rgba(6,10,14,.58), rgba(6,10,14,.72)), url('/media/theme-images/footer/footer-style3-bg.jpg')",
+        }}>
+        <div
+          className={`mx-auto grid [overflow-wrap:anywhere] ${FOOTER_MAX_WIDTH} ${FOOTER_GRID_COLS} ${FOOTER_GAP} ${FOOTER_PY} ${FOOTER_SM_WIDTH} ${FOOTER_SM_GRID}`}>
           <div>
             <Image
               src="/media/logo/logo-footer.png"
@@ -85,17 +94,29 @@ export function SiteFooter() {
           <div>
             <h3 className={HEADING_STYLE}>Get In Touch</h3>
             <p className="mb-4 flex gap-3 text-sm leading-6">
-              <MapPin className="mt-1 shrink-0 text-safety" size={CONTACT_ICON_SIZE} aria-hidden="true" />
+              <MapPin
+                className="mt-1 shrink-0 text-safety"
+                size={CONTACT_ICON_SIZE}
+                aria-hidden="true"
+              />
               {siteContact.address}
             </p>
             <p className="mb-3 flex gap-3 text-sm leading-6">
-              <Phone className="shrink-0 text-safety" size={CONTACT_ICON_SIZE} aria-hidden="true" />
+              <Phone
+                className="shrink-0 text-safety"
+                size={CONTACT_ICON_SIZE}
+                aria-hidden="true"
+              />
               <a href={siteContact.phoneHref} className="hover:text-safety">
                 {siteContact.phone}
               </a>
             </p>
             <p className="flex gap-3 text-sm leading-6">
-              <Mail className="shrink-0 text-safety" size={CONTACT_ICON_SIZE} aria-hidden="true" />
+              <Mail
+                className="shrink-0 text-safety"
+                size={CONTACT_ICON_SIZE}
+                aria-hidden="true"
+              />
               <a
                 href={"mailto:" + siteContact.email}
                 className="hover:text-safety">
@@ -104,7 +125,13 @@ export function SiteFooter() {
             </p>
           </div>
         </div>
-        <div className={'border-t border-white/10 bg-[#080d12] ' + COPYRIGHT_PY + ' ' + COPYRIGHT_TEXT}>
+        <div
+          className={
+            "border-t border-white/10 bg-[#080d12] " +
+            COPYRIGHT_PY +
+            " " +
+            COPYRIGHT_TEXT
+          }>
           Copyright © 2023 <b>Sahil Industries.</b> All Rights Reserved.
         </div>
       </footer>
@@ -112,7 +139,12 @@ export function SiteFooter() {
   }
 
   return (
-     <footer className="bg-[#0c131a] bg-cover bg-center text-slate-300" style={{ backgroundImage: "linear-gradient(rgba(6,10,14,.58), rgba(6,10,14,.72)), url('/media/theme-images/footer/footer-style3-bg.jpg')" }}>
+    <footer
+      className="bg-[#0c131a] bg-cover bg-center text-slate-300"
+      style={{
+        backgroundImage:
+          "linear-gradient(rgba(6,10,14,.58), rgba(6,10,14,.72)), url('/media/theme-images/footer/footer-style3-bg.jpg')",
+      }}>
       <RevealGroup
         staggerChildren={0.1}
         delayChildren={0.1}
@@ -201,7 +233,11 @@ export function SiteFooter() {
               initial={{ opacity: 0, x: -10 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.1, duration: 0.3 }}>
-              <MapPin className="mt-1 shrink-0 text-safety" size={CONTACT_ICON_SIZE} aria-hidden="true" />
+              <MapPin
+                className="mt-1 shrink-0 text-safety"
+                size={CONTACT_ICON_SIZE}
+                aria-hidden="true"
+              />
               {siteContact.address}
             </motion.p>
             <motion.p
@@ -209,7 +245,11 @@ export function SiteFooter() {
               initial={{ opacity: 0, x: -10 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.15, duration: 0.3 }}>
-              <Phone className="shrink-0 text-safety" size={CONTACT_ICON_SIZE} aria-hidden="true" />
+              <Phone
+                className="shrink-0 text-safety"
+                size={CONTACT_ICON_SIZE}
+                aria-hidden="true"
+              />
               <motion.a
                 href={siteContact.phoneHref}
                 className="hover:text-safety"
@@ -223,7 +263,11 @@ export function SiteFooter() {
               initial={{ opacity: 0, x: -10 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.2, duration: 0.3 }}>
-              <Mail className="shrink-0 text-safety" size={CONTACT_ICON_SIZE} aria-hidden="true" />
+              <Mail
+                className="shrink-0 text-safety"
+                size={CONTACT_ICON_SIZE}
+                aria-hidden="true"
+              />
               <motion.a
                 href={"mailto:" + siteContact.email}
                 className="hover:text-safety"
@@ -237,7 +281,12 @@ export function SiteFooter() {
       </RevealGroup>
 
       <motion.div
-        className={'border-t border-white/10 bg-[#080d12] ' + COPYRIGHT_PY + ' ' + COPYRIGHT_TEXT}
+        className={
+          "border-t border-white/10 bg-[#080d12] " +
+          COPYRIGHT_PY +
+          " " +
+          COPYRIGHT_TEXT
+        }
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, amount: 0.1 }}
@@ -247,4 +296,3 @@ export function SiteFooter() {
     </footer>
   );
 }
-

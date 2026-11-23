@@ -9,8 +9,23 @@ export async function PATCH(
     await requireAdmin(request);
     const { id } = await params;
     const body = await request.json();
-    const fields: Record<string, string> = { object_key: "object_key", title: "title", altText: "alt_text", status: "status", description: "description", category: "category", tags: "tags", isFeatured: "is_featured", order: "sort_order", size: "size", width: "width", height: "height" };
-    const entries = Object.keys(fields).filter((key) => body[key] !== undefined);
+    const fields: Record<string, string> = {
+      object_key: "object_key",
+      title: "title",
+      altText: "alt_text",
+      status: "status",
+      description: "description",
+      category: "category",
+      tags: "tags",
+      isFeatured: "is_featured",
+      order: "sort_order",
+      size: "size",
+      width: "width",
+      height: "height",
+    };
+    const entries = Object.keys(fields).filter(
+      (key) => body[key] !== undefined,
+    );
     if (!entries.length)
       return NextResponse.json(
         { error: "No fields to update" },
@@ -19,7 +34,18 @@ export async function PATCH(
     const set = entries.map((key) => `${fields[key]} = ?`).join(", ");
     await getAdminDb()
       .prepare(`UPDATE gallery_images SET ${set} WHERE id = ?`)
-      .bind(...entries.map((key) => key === "tags" ? JSON.stringify(body[key]) : key === "isFeatured" ? (body[key] ? 1 : 0) : body[key]), id)
+      .bind(
+        ...entries.map((key) =>
+          key === "tags"
+            ? JSON.stringify(body[key])
+            : key === "isFeatured"
+              ? body[key]
+                ? 1
+                : 0
+              : body[key],
+        ),
+        id,
+      )
       .run();
     return NextResponse.json({ ok: true });
   } catch (error) {

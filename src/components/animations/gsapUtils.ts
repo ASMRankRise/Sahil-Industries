@@ -275,16 +275,16 @@ export function animateSplitText(
   const targets = split[options.target || "lines"];
   if (!targets || targets.length === 0) return null;
 
-    // Wrap in a timeline to match return type
-    const tl = gsap.timeline();
-    tl.fromTo(targets, options.from || { opacity: 0, y: 20 }, {
-      ...(options.to || { opacity: 1, y: 0 }),
-      stagger: options.stagger || 0.05,
-      delay: options.delay || 0,
-      ease: options.ease || "power3.out",
-      duration: options.duration || 0.6,
-    });
-    return tl;
+  // Wrap in a timeline to match return type
+  const tl = gsap.timeline();
+  tl.fromTo(targets, options.from || { opacity: 0, y: 20 }, {
+    ...(options.to || { opacity: 1, y: 0 }),
+    stagger: options.stagger || 0.05,
+    delay: options.delay || 0,
+    ease: options.ease || "power3.out",
+    duration: options.duration || 0.6,
+  });
+  return tl;
 }
 
 /**
@@ -431,54 +431,54 @@ export function batchAnimate(
 
   // Convert TweenTarget to DOMTarget for ScrollTrigger.batch
   const domTargets = Array.isArray(targets) ? targets : [targets];
-  
+
   return ScrollTrigger.batch(domTargets, {
     interval: options.interval || 0.1,
     batchMax: options.batchMax || 10,
-      onEnter: (elements) => {
-        const extraProps = options.onEnter?.(elements, []);
-        return gsap.to(elements, {
-          opacity: 1,
-          y: 0,
-          duration: 0.6,
-          ease: "power3.out",
-          stagger: 0.08,
-          ...(extraProps || {}),
-        });
-      },
-      onLeave: (elements) => {
-        const extraProps = options.onLeave?.(elements, []);
-        return gsap.to(elements, {
-          opacity: 0,
-          y: -20,
-          duration: 0.4,
-          ease: "power3.in",
-          ...(extraProps || {}),
-        });
-      },
-      onEnterBack: (elements) => {
-        const extraProps = options.onEnterBack?.(elements, []);
-        return gsap.to(elements, {
-          opacity: 1,
-          y: 0,
-          duration: 0.6,
-          ease: "power3.out",
-          stagger: 0.08,
-          ...(extraProps || {}),
-        });
-      },
-      onLeaveBack: (elements) => {
-        const extraProps = options.onLeaveBack?.(elements, []);
-        return gsap.to(elements, {
-          opacity: 0,
-          y: 20,
-          duration: 0.4,
-          ease: "power3.in",
-          ...(extraProps || {}),
-        });
-      },
-    });
-  }
+    onEnter: (elements) => {
+      const extraProps = options.onEnter?.(elements, []);
+      return gsap.to(elements, {
+        opacity: 1,
+        y: 0,
+        duration: 0.6,
+        ease: "power3.out",
+        stagger: 0.08,
+        ...(extraProps || {}),
+      });
+    },
+    onLeave: (elements) => {
+      const extraProps = options.onLeave?.(elements, []);
+      return gsap.to(elements, {
+        opacity: 0,
+        y: -20,
+        duration: 0.4,
+        ease: "power3.in",
+        ...(extraProps || {}),
+      });
+    },
+    onEnterBack: (elements) => {
+      const extraProps = options.onEnterBack?.(elements, []);
+      return gsap.to(elements, {
+        opacity: 1,
+        y: 0,
+        duration: 0.6,
+        ease: "power3.out",
+        stagger: 0.08,
+        ...(extraProps || {}),
+      });
+    },
+    onLeaveBack: (elements) => {
+      const extraProps = options.onLeaveBack?.(elements, []);
+      return gsap.to(elements, {
+        opacity: 0,
+        y: 20,
+        duration: 0.4,
+        ease: "power3.in",
+        ...(extraProps || {}),
+      });
+    },
+  });
+}
 
 /**
  * Kill all ScrollTriggers in a context (cleanup).

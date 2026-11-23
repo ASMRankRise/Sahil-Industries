@@ -42,10 +42,21 @@ export function GlobalLoader() {
             transition={{ duration: 0.65, ease: [0.22, 1, 0.36, 1] }}>
             <motion.span
               className="absolute h-28 w-28 rounded-full border border-safety/70"
-              animate={{ scale: [0.82, 1.08, 0.82], opacity: [0.35, 0.9, 0.35] }}
-              transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
+              animate={{
+                scale: [0.82, 1.08, 0.82],
+                opacity: [0.35, 0.9, 0.35],
+              }}
+              transition={{
+                duration: 1.8,
+                repeat: Infinity,
+                ease: "easeInOut",
+              }}
             />
-            <img src="/media/logo/hero-center.svg?v=4" alt="Sahil Industries" className="relative z-10 h-24 w-32 object-contain" />
+            <img
+              src="/media/logo/hero-center.svg?v=4"
+              alt="Sahil Industries"
+              className="relative z-10 h-24 w-32 object-contain"
+            />
           </motion.div>
         </motion.div>
       )}

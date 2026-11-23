@@ -29,8 +29,12 @@ export type GalleryImage = {
 
 type GalleryClientProps = { images: GalleryImage[] };
 
-export default function GalleryClient({ images: galleryImages }: GalleryClientProps) {
-  const categoryIds = Array.from(new Set(galleryImages.map((image) => image.category).filter(Boolean)));
+export default function GalleryClient({
+  images: galleryImages,
+}: GalleryClientProps) {
+  const categoryIds = Array.from(
+    new Set(galleryImages.map((image) => image.category).filter(Boolean)),
+  );
   const galleryCategories = [
     { id: "all", label: "All", count: galleryImages.length },
     ...categoryIds.map((id) => ({
@@ -43,9 +47,10 @@ export default function GalleryClient({ images: galleryImages }: GalleryClientPr
   const [selectedImage, setSelectedImage] = useState<GalleryImage | null>(null);
   const [lightboxOpen, setLightboxOpen] = useState(false);
 
-  const filteredImages = activeCategory === "all"
-    ? galleryImages
-    : galleryImages.filter((img) => img.category === activeCategory);
+  const filteredImages =
+    activeCategory === "all"
+      ? galleryImages
+      : galleryImages.filter((img) => img.category === activeCategory);
 
   const handleImageClick = (image: GalleryImage) => {
     setSelectedImage(image);
@@ -59,15 +64,20 @@ export default function GalleryClient({ images: galleryImages }: GalleryClientPr
 
   const handleNextImage = () => {
     if (!selectedImage) return;
-    const currentIndex = filteredImages.findIndex((img) => img.id === selectedImage.id);
+    const currentIndex = filteredImages.findIndex(
+      (img) => img.id === selectedImage.id,
+    );
     const nextIndex = (currentIndex + 1) % filteredImages.length;
     setSelectedImage(filteredImages[nextIndex]);
   };
 
   const handlePrevImage = () => {
     if (!selectedImage) return;
-    const currentIndex = filteredImages.findIndex((img) => img.id === selectedImage.id);
-    const prevIndex = (currentIndex - 1 + filteredImages.length) % filteredImages.length;
+    const currentIndex = filteredImages.findIndex(
+      (img) => img.id === selectedImage.id,
+    );
+    const prevIndex =
+      (currentIndex - 1 + filteredImages.length) % filteredImages.length;
     setSelectedImage(filteredImages[prevIndex]);
   };
 
@@ -77,13 +87,12 @@ export default function GalleryClient({ images: galleryImages }: GalleryClientPr
       <section className="relative min-h-[40vh] flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-ink via-slate-900 to-ink z-0" />
         <div className="absolute inset-0 bg-[url('/media/theme-images/pattern/thm-pattern-7.png')] opacity-5 z-10" />
-        
+
         <div className="relative z-20 mx-auto max-w-7xl px-6 py-20 text-center">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-          >
+            transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}>
             <span className="inline-block px-4 py-1.5 rounded-full bg-safety/10 text-safety text-xs font-bold uppercase tracking-widest mb-4">
               Our Gallery
             </span>
@@ -91,8 +100,9 @@ export default function GalleryClient({ images: galleryImages }: GalleryClientPr
               Gallery
             </h1>
             <p className="text-lg md:text-xl text-slate-300 max-w-2xl mx-auto leading-relaxed">
-              Explore our comprehensive collection of crane products, manufacturing facilities, 
-              and successful project installations across industries.
+              Explore our comprehensive collection of crane products,
+              manufacturing facilities, and successful project installations
+              across industries.
             </p>
           </motion.div>
         </div>
@@ -101,10 +111,18 @@ export default function GalleryClient({ images: galleryImages }: GalleryClientPr
         <motion.div
           animate={{ y: [0, 10, 0] }}
           transition={{ duration: 2, repeat: Infinity }}
-          className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20"
-        >
-          <svg className="w-6 h-6 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+          className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20">
+          <svg
+            className="w-6 h-6 text-slate-400"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24">
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M19 14l-7 7m0 0l-7-7m7 7V3"
+            />
           </svg>
         </motion.div>
       </section>
@@ -121,13 +139,15 @@ export default function GalleryClient({ images: galleryImages }: GalleryClientPr
                 whileTap={{ scale: 0.95 }}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: galleryCategories.indexOf(category) * 0.05, duration: 0.3 }}
+                transition={{
+                  delay: galleryCategories.indexOf(category) * 0.05,
+                  duration: 0.3,
+                }}
                 className={`px-6 py-2.5 rounded-full text-sm font-semibold uppercase tracking-wide transition-all duration-300 ${
                   activeCategory === category.id
                     ? "bg-gradient-to-r from-safety to-yellow-400 text-ink shadow-lg shadow-safety/25"
                     : "bg-white/5 text-slate-300 hover:bg-white/10 hover:text-white border border-white/10"
-                }`}
-              >
+                }`}>
                 {category.label}
                 <span className="ml-2 px-2 py-0.5 text-[10px] font-bold rounded-full bg-white/20">
                   {category.count}
@@ -164,11 +184,14 @@ export default function GalleryClient({ images: galleryImages }: GalleryClientPr
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: index * 0.1, duration: 0.4 }}
-              className="text-center p-6"
-            >
+              className="text-center p-6">
               <div className="text-4xl mb-3">{stat.icon}</div>
-              <div className="text-3xl md:text-4xl font-extrabold text-safety mb-1">{stat.value}</div>
-              <div className="text-slate-400 text-sm uppercase tracking-wide">{stat.label}</div>
+              <div className="text-3xl md:text-4xl font-extrabold text-safety mb-1">
+                {stat.value}
+              </div>
+              <div className="text-slate-400 text-sm uppercase tracking-wide">
+                {stat.label}
+              </div>
             </motion.div>
           ))}
         </div>
@@ -181,26 +204,24 @@ export default function GalleryClient({ images: galleryImages }: GalleryClientPr
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-          >
+            transition={{ duration: 0.6 }}>
             <h2 className="text-3xl md:text-4xl font-bold mb-4">
               Looking for Something Specific?
             </h2>
             <p className="text-slate-300 mb-8 max-w-xl mx-auto">
-              Can't find what you're looking for? Our team can provide detailed specifications, 
-              custom solutions, and project references tailored to your requirements.
+              Can't find what you're looking for? Our team can provide detailed
+              specifications, custom solutions, and project references tailored
+              to your requirements.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <a
                 href="/enquiry"
-                className="px-8 py-3.5 bg-gradient-to-r from-safety to-yellow-400 text-ink font-bold rounded-lg hover:from-yellow-400 hover:to-yellow-300 transition-all shadow-lg shadow-safety/25"
-              >
+                className="px-8 py-3.5 bg-gradient-to-r from-safety to-yellow-400 text-ink font-bold rounded-lg hover:from-yellow-400 hover:to-yellow-300 transition-all shadow-lg shadow-safety/25">
                 Submit an Enquiry
               </a>
               <a
                 href="/products/single-girder-eot-crane"
-                className="px-8 py-3.5 border border-white/10 text-white font-bold rounded-lg hover:bg-white/5 hover:border-safety/50 transition-all"
-              >
+                className="px-8 py-3.5 border border-white/10 text-white font-bold rounded-lg hover:bg-white/5 hover:border-safety/50 transition-all">
                 Browse Products
               </a>
             </div>

@@ -41,7 +41,13 @@ export function ModernPageShell({
   );
 }
 
-function PremiumPageHero({ eyebrow, title }: { eyebrow: string; title: string }) {
+function PremiumPageHero({
+  eyebrow,
+  title,
+}: {
+  eyebrow: string;
+  title: string;
+}) {
   const prefersReduced = useReducedMotion();
 
   return (
@@ -53,7 +59,9 @@ function PremiumPageHero({ eyebrow, title }: { eyebrow: string; title: string })
 
       <div className="mx-auto w-[calc(100%-36px)] md:w-[min(1240px,calc(100%-64px))]">
         <div className="mb-5 flex items-center gap-2 text-[10px] font-bold uppercase tracking-[.18em] text-white/55">
-          <Link href="/" className="transition-colors hover:text-safety">Home</Link>
+          <Link href="/" className="transition-colors hover:text-safety">
+            Home
+          </Link>
           <span>/</span>
           <span className="text-white/80">{eyebrow}</span>
         </div>
@@ -69,10 +77,13 @@ function PremiumPageHero({ eyebrow, title }: { eyebrow: string; title: string })
             {title}
           </h1>
           <p className="mt-4 max-w-xl text-sm leading-6 text-white/70">
-            Engineered lifting solutions built for safety, reliability, and performance.
+            Engineered lifting solutions built for safety, reliability, and
+            performance.
           </p>
           <div className="mt-5 flex flex-wrap gap-4">
-            <Link href="/contact" className="inline-flex items-center gap-2 border border-safety bg-safety px-5 py-4 text-xs font-extrabold uppercase tracking-industrial text-ink transition hover:-translate-y-1 hover:bg-yellow-300">
+            <Link
+              href="/contact"
+              className="inline-flex items-center gap-2 border border-safety bg-safety px-5 py-4 text-xs font-extrabold uppercase tracking-industrial text-ink transition hover:-translate-y-1 hover:bg-yellow-300">
               Explore our solutions <ArrowRight size={16} />
             </Link>
           </div>

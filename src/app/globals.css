@@ -1261,8 +1261,10 @@ svg {
 .admin-dashboard[data-admin-theme="light"] .admin-status-badge.status-new {
   background-color: #2563eb !important;
 }
-.admin-dashboard[data-admin-theme="light"] .admin-status-select.status-in-progress,
-.admin-dashboard[data-admin-theme="light"] .admin-status-badge.status-in-progress {
+.admin-dashboard[data-admin-theme="light"]
+  .admin-status-select.status-in-progress,
+.admin-dashboard[data-admin-theme="light"]
+  .admin-status-badge.status-in-progress {
   background-color: #d97706 !important;
 }
 .admin-dashboard[data-admin-theme="light"] .admin-status-select.status-replied,
@@ -1282,8 +1284,12 @@ svg {
 .admin-dashboard[data-admin-theme="light"] [role="listbox"] [role="option"] {
   color: #475569 !important;
 }
-.admin-dashboard[data-admin-theme="light"] [role="listbox"] [role="option"]:hover,
-.admin-dashboard[data-admin-theme="light"] [role="listbox"] [role="option"][aria-selected="true"] {
+.admin-dashboard[data-admin-theme="light"]
+  [role="listbox"]
+  [role="option"]:hover,
+.admin-dashboard[data-admin-theme="light"]
+  [role="listbox"]
+  [role="option"][aria-selected="true"] {
   background-color: #60a5fa !important;
   color: #17202a !important;
 }

@@ -2,7 +2,19 @@
 
 import { useState, useCallback, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { CheckCircle, AlertCircle, Loader2, Mail, Phone, User, MessageSquare, Check, X, Info, RefreshCw } from "lucide-react";
+import {
+  CheckCircle,
+  AlertCircle,
+  Loader2,
+  Mail,
+  Phone,
+  User,
+  MessageSquare,
+  Check,
+  X,
+  Info,
+  RefreshCw,
+} from "lucide-react";
 
 interface FormData {
   name: string;
@@ -84,7 +96,8 @@ const validationRules: ValidationRules = {
     minLength: 2,
     maxLength: 100,
     pattern: /^[a-zA-Z\s\-\.']+$/,
-    patternMessage: "Name can only contain letters, spaces, hyphens, apostrophes, and periods",
+    patternMessage:
+      "Name can only contain letters, spaces, hyphens, apostrophes, and periods",
   },
   email: {
     required: true,
@@ -94,7 +107,8 @@ const validationRules: ValidationRules = {
   },
   phone: {
     required: false,
-    pattern: /^[\+]?[(]?[0-9]{1,3}[)]?[-\s\.]?[(]?[0-9]{1,3}[)]?[-\s\.]?[0-9]{4,10}$/,
+    pattern:
+      /^[\+]?[(]?[0-9]{1,3}[)]?[-\s\.]?[(]?[0-9]{1,3}[)]?[-\s\.]?[0-9]{4,10}$/,
     patternMessage: "Please enter a valid phone number (e.g., +91 98765 43210)",
     format: true,
   },
@@ -113,9 +127,14 @@ function captchaAnswer(question: string) {
   return (numbers[0] ?? 0) + (numbers[1] ?? 0);
 }
 
-export function ContactForm({ formType = "contact", onSuccess }: ContactFormProps) {
+export function ContactForm({
+  formType = "contact",
+  onSuccess,
+}: ContactFormProps) {
   const [formData, setFormData] = useState<FormData>(initialFormData);
-  const [fieldStates, setFieldStates] = useState<Record<keyof FormData, FieldState>>({
+  const [fieldStates, setFieldStates] = useState<
+    Record<keyof FormData, FieldState>
+  >({
     name: initialFieldState,
     email: initialFieldState,
     phone: initialFieldState,
@@ -123,10 +142,14 @@ export function ContactForm({ formType = "contact", onSuccess }: ContactFormProp
     message: initialFieldState,
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitStatus, setSubmitStatus] = useState<"idle" | "success" | "error">("idle");
+  const [submitStatus, setSubmitStatus] = useState<
+    "idle" | "success" | "error"
+  >("idle");
   const [errorMessage, setErrorMessage] = useState("");
   const [captchaError, setCaptchaError] = useState("");
-  const [touchedFields, setTouchedFields] = useState<Set<keyof FormData>>(new Set());
+  const [touchedFields, setTouchedFields] = useState<Set<keyof FormData>>(
+    new Set(),
+  );
   // Keep the initial render deterministic. Randomizing during state
   // initialization runs once on the server and again in the browser, which
   // produces different captcha text and causes a hydration mismatch.
@@ -146,140 +169,182 @@ export function ContactForm({ formType = "contact", onSuccess }: ContactFormProp
     });
     setCaptchaError("");
   }, []);
-  
+
   const validationTimeouts = useRef<Record<string, NodeJS.Timeout>>({});
   const asyncValidationCache = useRef<Record<string, boolean>>({});
 
   // Debounced validation
-  const validateField = useCallback((name: keyof FormData, value: string, isBlur = false): Promise<{ error?: string; warning?: string }> => {
-    const rules = validationRules[name];
-    if (!rules) return Promise.resolve({});
+  const validateField = useCallback(
+    (
+      name: keyof FormData,
+      value: string,
+      isBlur = false,
+    ): Promise<{ error?: string; warning?: string }> => {
+      const rules = validationRules[name];
+      if (!rules) return Promise.resolve({});
 
-    // Clear existing timeout
-    if (validationTimeouts.current[name]) {
-      clearTimeout(validationTimeouts.current[name]);
-    }
+      // Clear existing timeout
+      if (validationTimeouts.current[name]) {
+        clearTimeout(validationTimeouts.current[name]);
+      }
 
-    // For blur events, validate immediately
-    // For change events, debounce
-    const delay = isBlur ? 0 : 300;
+      // For blur events, validate immediately
+      // For change events, debounce
+      const delay = isBlur ? 0 : 300;
 
-    return new Promise<{ error?: string; warning?: string }>((resolve) => {
-      validationTimeouts.current[name] = setTimeout(() => {
-        let error: string | undefined;
-        let warning: string | undefined;
+      return new Promise<{ error?: string; warning?: string }>((resolve) => {
+        validationTimeouts.current[name] = setTimeout(() => {
+          let error: string | undefined;
+          let warning: string | undefined;
 
-        // Required validation
-        if (rules.required && !value.trim()) {
-          error = `${name.charAt(0).toUpperCase() + name.slice(1)} is required`;
-        }
-        // Min length
-        else if (rules.minLength && value.trim().length > 0 && value.trim().length < rules.minLength) {
-          error = `Must be at least ${rules.minLength} characters`;
-        }
-        // Max length
-        else if (rules.maxLength && value.length > rules.maxLength) {
-          error = `Must not exceed ${rules.maxLength} characters`;
-        }
-        // Pattern validation
-        else if (rules.pattern && value.trim() && !rules.pattern.test(value)) {
-          error = rules.patternMessage;
-        }
-        // Async validation simulation (e.g., check if email exists)
-        else if (rules.asyncValidate && value.trim() && rules.pattern?.test(value)) {
-          setFieldStates(prev => ({
-            ...prev,
-            [name]: { ...prev[name], isValidating: true }
-          }));
-          
-          // Simulate API call
-          setTimeout(() => {
-            const isTaken = asyncValidationCache.current[value.toLowerCase()] || false;
-            // This form does not look up accounts or registrations. Keep the
-            // async check as a harmless debounce without making claims about
-            // whether an email address is already registered.
-            asyncValidationCache.current[value.toLowerCase()] = true;
-            resolve({});
-            setFieldStates(prev => ({
+          // Required validation
+          if (rules.required && !value.trim()) {
+            error = `${name.charAt(0).toUpperCase() + name.slice(1)} is required`;
+          }
+          // Min length
+          else if (
+            rules.minLength &&
+            value.trim().length > 0 &&
+            value.trim().length < rules.minLength
+          ) {
+            error = `Must be at least ${rules.minLength} characters`;
+          }
+          // Max length
+          else if (rules.maxLength && value.length > rules.maxLength) {
+            error = `Must not exceed ${rules.maxLength} characters`;
+          }
+          // Pattern validation
+          else if (
+            rules.pattern &&
+            value.trim() &&
+            !rules.pattern.test(value)
+          ) {
+            error = rules.patternMessage;
+          }
+          // Async validation simulation (e.g., check if email exists)
+          else if (
+            rules.asyncValidate &&
+            value.trim() &&
+            rules.pattern?.test(value)
+          ) {
+            setFieldStates((prev) => ({
               ...prev,
-              [name]: { ...prev[name], isValidating: false }
+              [name]: { ...prev[name], isValidating: true },
             }));
-          }, 500);
-          return;
-        }
 
-        resolve({ error, warning });
-      }, delay);
-    });
-  }, []);
+            // Simulate API call
+            setTimeout(() => {
+              const isTaken =
+                asyncValidationCache.current[value.toLowerCase()] || false;
+              // This form does not look up accounts or registrations. Keep the
+              // async check as a harmless debounce without making claims about
+              // whether an email address is already registered.
+              asyncValidationCache.current[value.toLowerCase()] = true;
+              resolve({});
+              setFieldStates((prev) => ({
+                ...prev,
+                [name]: { ...prev[name], isValidating: false },
+              }));
+            }, 500);
+            return;
+          }
+
+          resolve({ error, warning });
+        }, delay);
+      });
+    },
+    [],
+  );
 
   // Handle field change with real-time validation
-  const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
-    const fieldName = name as keyof FormData;
-    
-    // Format phone number as user types
-    let formattedValue = value;
-    if (fieldName === 'phone' && validationRules.phone.format) {
-      formattedValue = formatPhoneNumber(value);
-    }
+  const handleChange = useCallback(
+    (
+      e: React.ChangeEvent<
+        HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+      >,
+    ) => {
+      const { name, value } = e.target;
+      const fieldName = name as keyof FormData;
 
-    setFormData((prev) => ({ ...prev, [fieldName]: formattedValue }));
-    setFieldStates((prev) => ({
-      ...prev,
-      [fieldName]: { ...prev[fieldName], value: formattedValue, isDirty: true }
-    }));
-
-    // Real-time validation on change (debounced)
-    validateField(fieldName, formattedValue).then(({ error, warning }) => {
-      if (error || warning) {
-        setFieldStates((prevState) => ({
-          ...prevState,
-          [fieldName]: { ...prevState[fieldName], error, warning }
-        }));
-      } else {
-        // Check if field was touched using the current fieldStates
-        setFieldStates((prevState) => {
-          if (prevState[fieldName].isTouched) {
-            // Clear error if field was touched and now valid
-            return {
-              ...prevState,
-              [fieldName]: { ...prevState[fieldName], error: undefined, warning: undefined }
-            };
-          }
-          return prevState;
-        });
+      // Format phone number as user types
+      let formattedValue = value;
+      if (fieldName === "phone" && validationRules.phone.format) {
+        formattedValue = formatPhoneNumber(value);
       }
-    });
-  }, []);
+
+      setFormData((prev) => ({ ...prev, [fieldName]: formattedValue }));
+      setFieldStates((prev) => ({
+        ...prev,
+        [fieldName]: {
+          ...prev[fieldName],
+          value: formattedValue,
+          isDirty: true,
+        },
+      }));
+
+      // Real-time validation on change (debounced)
+      validateField(fieldName, formattedValue).then(({ error, warning }) => {
+        if (error || warning) {
+          setFieldStates((prevState) => ({
+            ...prevState,
+            [fieldName]: { ...prevState[fieldName], error, warning },
+          }));
+        } else {
+          // Check if field was touched using the current fieldStates
+          setFieldStates((prevState) => {
+            if (prevState[fieldName].isTouched) {
+              // Clear error if field was touched and now valid
+              return {
+                ...prevState,
+                [fieldName]: {
+                  ...prevState[fieldName],
+                  error: undefined,
+                  warning: undefined,
+                },
+              };
+            }
+            return prevState;
+          });
+        }
+      });
+    },
+    [],
+  );
 
   // Handle field blur - validate immediately and mark as touched
-  const handleBlur = useCallback((e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
-    const fieldName = name as keyof FormData;
-    
-    setTouchedFields(prev => new Set(prev).add(fieldName));
-    setFieldStates(prev => ({
-      ...prev,
-      [fieldName]: { ...prev[fieldName], isTouched: true }
-    }));
+  const handleBlur = useCallback(
+    (
+      e: React.FocusEvent<
+        HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+      >,
+    ) => {
+      const { name, value } = e.target;
+      const fieldName = name as keyof FormData;
 
-    // Immediate validation on blur
-    validateField(fieldName, value, true).then(({ error, warning }) => {
-      setFieldStates(prev => ({
+      setTouchedFields((prev) => new Set(prev).add(fieldName));
+      setFieldStates((prev) => ({
         ...prev,
-        [fieldName]: { ...prev[fieldName], error, warning }
+        [fieldName]: { ...prev[fieldName], isTouched: true },
       }));
-    });
-  }, []);
+
+      // Immediate validation on blur
+      validateField(fieldName, value, true).then(({ error, warning }) => {
+        setFieldStates((prev) => ({
+          ...prev,
+          [fieldName]: { ...prev[fieldName], error, warning },
+        }));
+      });
+    },
+    [],
+  );
 
   // Format phone number
   const formatPhoneNumber = (value: string): string => {
-    const digits = value.replace(/\D/g, '');
-    if (digits.length === 0) return '';
-    
+    const digits = value.replace(/\D/g, "");
+    if (digits.length === 0) return "";
+
     // Indian phone number format: +91 XXXXX XXXXX
-    if (digits.startsWith('91') && digits.length > 2) {
+    if (digits.startsWith("91") && digits.length > 2) {
       const rest = digits.slice(2);
       if (rest.length <= 5) return `+91 ${rest}`;
       return `+91 ${rest.slice(0, 5)} ${rest.slice(5, 10)}`;
@@ -296,16 +361,20 @@ export function ContactForm({ formType = "contact", onSuccess }: ContactFormProp
     let isValid = true;
     const newFieldStates = { ...fieldStates };
 
-    (Object.keys(formData) as Array<keyof FormData>).forEach(fieldName => {
+    (Object.keys(formData) as Array<keyof FormData>).forEach((fieldName) => {
       const value = formData[fieldName];
       const rules = validationRules[fieldName];
       if (!rules) return;
 
       let error: string | undefined;
-      
+
       if (rules.required && !value.trim()) {
         error = `${fieldName.charAt(0).toUpperCase() + fieldName.slice(1)} is required`;
-      } else if (rules.minLength && value.trim().length > 0 && value.trim().length < rules.minLength) {
+      } else if (
+        rules.minLength &&
+        value.trim().length > 0 &&
+        value.trim().length < rules.minLength
+      ) {
         error = `Must be at least ${rules.minLength} characters`;
       } else if (rules.maxLength && value.length > rules.maxLength) {
         error = `Must not exceed ${rules.maxLength} characters`;
@@ -315,7 +384,11 @@ export function ContactForm({ formType = "contact", onSuccess }: ContactFormProp
 
       if (error) {
         isValid = false;
-        newFieldStates[fieldName] = { ...newFieldStates[fieldName], error, isTouched: true };
+        newFieldStates[fieldName] = {
+          ...newFieldStates[fieldName],
+          error,
+          isTouched: true,
+        };
       }
     });
 
@@ -329,7 +402,10 @@ export function ContactForm({ formType = "contact", onSuccess }: ContactFormProp
 
     if (!validateForm()) return;
 
-    if (!/^\d+$/.test(captcha.answer.trim()) || Number(captcha.answer) !== captchaAnswer(captcha.question)) {
+    if (
+      !/^\d+$/.test(captcha.answer.trim()) ||
+      Number(captcha.answer) !== captchaAnswer(captcha.question)
+    ) {
       setCaptchaError("Please enter the correct answer to continue.");
       document.getElementById("contact-captcha")?.focus();
       return;
@@ -369,11 +445,15 @@ export function ContactForm({ formType = "contact", onSuccess }: ContactFormProp
         message: initialFieldState,
       });
       setTouchedFields(new Set());
-       refreshCaptcha();
+      refreshCaptcha();
       onSuccess?.();
     } catch (error) {
       setSubmitStatus("error");
-      setErrorMessage(error instanceof Error ? error.message : "Something went wrong. Please try again.");
+      setErrorMessage(
+        error instanceof Error
+          ? error.message
+          : "Something went wrong. Please try again.",
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -387,16 +467,19 @@ export function ContactForm({ formType = "contact", onSuccess }: ContactFormProp
       formData.email.trim().length > 0 &&
       validationRules.email.pattern?.test(formData.email) &&
       formData.subject &&
-       formData.message.trim().length >= (validationRules.message.minLength ?? 10) &&
-       /^\d+$/.test(captcha.answer.trim()) &&
-       Number(captcha.answer) === captchaAnswer(captcha.question)
+      formData.message.trim().length >=
+        (validationRules.message.minLength ?? 10) &&
+      /^\d+$/.test(captcha.answer.trim()) &&
+      Number(captcha.answer) === captchaAnswer(captcha.question)
     );
   }, [formData, captcha]);
 
   // Cleanup timeouts on unmount
   useEffect(() => {
     return () => {
-      Object.values(validationTimeouts.current).forEach(timeout => clearTimeout(timeout));
+      Object.values(validationTimeouts.current).forEach((timeout) =>
+        clearTimeout(timeout),
+      );
     };
   }, []);
 
@@ -404,12 +487,16 @@ export function ContactForm({ formType = "contact", onSuccess }: ContactFormProp
     const state = fieldStates[name];
     const isTouched = touchedFields.has(name) || state.isTouched;
     const showValidation = isTouched || state.isDirty;
-    
+
     return {
       ...state,
       isTouched,
       showValidation,
-      isValid: showValidation && !state.error && !state.isValidating && state.value.trim().length > 0,
+      isValid:
+        showValidation &&
+        !state.error &&
+        !state.isValidating &&
+        state.value.trim().length > 0,
       isInvalid: showValidation && !!state.error,
       isWarning: showValidation && !!state.warning,
     };
@@ -424,12 +511,13 @@ export function ContactForm({ formType = "contact", onSuccess }: ContactFormProp
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -20, scale: 0.95 }}
             className="flex items-center gap-3 p-4 bg-green-500/10 border border-green-500/30 rounded-xl text-green-400"
-            role="alert"
-          >
+            role="alert">
             <CheckCircle className="w-6 h-6 flex-shrink-0" />
             <div>
               <p className="font-semibold">Message Sent Successfully!</p>
-              <p className="text-sm opacity-90">We'll get back to you within 24 hours.</p>
+              <p className="text-sm opacity-90">
+                We'll get back to you within 24 hours.
+              </p>
             </div>
           </motion.div>
         )}
@@ -439,8 +527,7 @@ export function ContactForm({ formType = "contact", onSuccess }: ContactFormProp
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -20, scale: 0.95 }}
             className="flex items-center gap-3 p-4 bg-red-500/10 border border-red-500/30 rounded-xl text-red-400"
-            role="alert"
-          >
+            role="alert">
             <AlertCircle className="w-6 h-6 flex-shrink-0" />
             <div>
               <p className="font-semibold">Failed to Send Message</p>
@@ -524,10 +611,18 @@ export function ContactForm({ formType = "contact", onSuccess }: ContactFormProp
       />
 
       <fieldset className="rounded-xl border border-ink/15 bg-slate-50 p-4">
-        <legend className="px-1 text-xs font-extrabold uppercase tracking-[.12em] text-steel">Spam protection</legend>
+        <legend className="px-1 text-xs font-extrabold uppercase tracking-[.12em] text-steel">
+          Spam protection
+        </legend>
         <div className="flex flex-wrap items-center gap-3">
-          <label htmlFor="contact-captcha" className="text-sm font-semibold text-ink">
-            What is <span className="rounded bg-white px-2 py-1 font-bold tracking-wide shadow-sm">{captcha.question}</span>?
+          <label
+            htmlFor="contact-captcha"
+            className="text-sm font-semibold text-ink">
+            What is{" "}
+            <span className="rounded bg-white px-2 py-1 font-bold tracking-wide shadow-sm">
+              {captcha.question}
+            </span>
+            ?
           </label>
           <input
             id="contact-captcha"
@@ -535,18 +630,37 @@ export function ContactForm({ formType = "contact", onSuccess }: ContactFormProp
             inputMode="numeric"
             pattern="[0-9]*"
             value={captcha.answer}
-            onChange={(e) => { setCaptchaError(""); setCaptcha(prev => ({ ...prev, answer: e.target.value.replace(/\D/g, "") })); }}
+            onChange={(e) => {
+              setCaptchaError("");
+              setCaptcha((prev) => ({
+                ...prev,
+                answer: e.target.value.replace(/\D/g, ""),
+              }));
+            }}
             className={`h-11 w-20 rounded-lg border bg-white px-3 text-center text-lg font-bold text-ink outline-none transition focus:border-safety focus:ring-2 focus:ring-safety/20 ${captchaError ? "border-red-500" : "border-ink/20"}`}
             required
             aria-label="Security check answer"
             aria-describedby="captcha-help captcha-error"
           />
-          <button type="button" onClick={refreshCaptcha} className="inline-flex h-11 items-center gap-2 rounded-lg px-3 text-xs font-bold text-steel transition hover:bg-white hover:text-ink" aria-label="Get a new security question">
+          <button
+            type="button"
+            onClick={refreshCaptcha}
+            className="inline-flex h-11 items-center gap-2 rounded-lg px-3 text-xs font-bold text-steel transition hover:bg-white hover:text-ink"
+            aria-label="Get a new security question">
             <RefreshCw className="h-4 w-4" aria-hidden="true" /> New question
           </button>
         </div>
-        <p id="captcha-help" className="mt-2 text-xs text-steel">Enter the answer to verify you&apos;re human.</p>
-        {captchaError && <p id="captcha-error" className="mt-1 text-xs font-semibold text-red-600" role="alert">{captchaError}</p>}
+        <p id="captcha-help" className="mt-2 text-xs text-steel">
+          Enter the answer to verify you&apos;re human.
+        </p>
+        {captchaError && (
+          <p
+            id="captcha-error"
+            className="mt-1 text-xs font-semibold text-red-600"
+            role="alert">
+            {captchaError}
+          </p>
+        )}
       </fieldset>
 
       <motion.button
@@ -558,10 +672,9 @@ export function ContactForm({ formType = "contact", onSuccess }: ContactFormProp
           isSubmitting
             ? "bg-safety/50 cursor-not-allowed"
             : isFormValid()
-            ? "bg-gradient-to-r from-safety to-yellow-400 hover:from-yellow-400 hover:to-yellow-300 shadow-lg shadow-safety/25"
-            : "bg-white/10 text-slate-400 cursor-not-allowed"
-        }`}
-      >
+              ? "bg-gradient-to-r from-safety to-yellow-400 hover:from-yellow-400 hover:to-yellow-300 shadow-lg shadow-safety/25"
+              : "bg-white/10 text-slate-400 cursor-not-allowed"
+        }`}>
         {isSubmitting ? (
           <>
             <Loader2 className="w-5 h-5 animate-spin" />
@@ -577,9 +690,13 @@ export function ContactForm({ formType = "contact", onSuccess }: ContactFormProp
 
       <p className="text-xs text-slate-400 text-center">
         By submitting this form, you agree to our{" "}
-        <a href="/privacy" className="text-safety hover:underline">Privacy Policy</a>
-        {" "}and{" "}
-        <a href="/terms" className="text-safety hover:underline">Terms of Service</a>
+        <a href="/privacy" className="text-safety hover:underline">
+          Privacy Policy
+        </a>{" "}
+        and{" "}
+        <a href="/terms" className="text-safety hover:underline">
+          Terms of Service
+        </a>
       </p>
     </form>
   );
@@ -614,14 +731,42 @@ interface FieldProps {
   isSubmitting: boolean;
 }
 
-function Field({ name, label, type, placeholder, icon: Icon, required, autoComplete, value, onChange, onBlur, fieldState, isSubmitting }: FieldProps) {
-  const { isValid, isInvalid, isWarning, isValidating, error, warning, showValidation } = fieldState;
-  
+function Field({
+  name,
+  label,
+  type,
+  placeholder,
+  icon: Icon,
+  required,
+  autoComplete,
+  value,
+  onChange,
+  onBlur,
+  fieldState,
+  isSubmitting,
+}: FieldProps) {
+  const {
+    isValid,
+    isInvalid,
+    isWarning,
+    isValidating,
+    error,
+    warning,
+    showValidation,
+  } = fieldState;
+
   return (
     <div className="form-group space-y-2">
-      <label htmlFor={name} className="block text-xs font-bold uppercase tracking-industrial text-ink flex items-center gap-1">
+      <label
+        htmlFor={name}
+        className="block text-xs font-bold uppercase tracking-industrial text-ink flex items-center gap-1">
         {label} {required && <span className="text-safety">*</span>}
-        {isValidating && <Loader2 className="w-3 h-3 text-safety animate-spin" aria-label="Validating..." />}
+        {isValidating && (
+          <Loader2
+            className="w-3 h-3 text-safety animate-spin"
+            aria-label="Validating..."
+          />
+        )}
       </label>
       <div className="relative">
         <div className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 transition-colors">
@@ -635,17 +780,22 @@ function Field({ name, label, type, placeholder, icon: Icon, required, autoCompl
           onChange={onChange}
           onBlur={onBlur}
           className={`form-control min-h-[54px] w-full pl-12 pr-12 py-3 border border-ink/20 bg-white text-ink outline-none transition-all duration-200 ${
-            isInvalid ? "border-red-500/50 focus:border-red-500 bg-red-500/5" :
-            isValid ? "border-green-500/50 focus:border-green-500 bg-green-500/5" :
-            isWarning ? "border-yellow-500/50 focus:border-yellow-500 bg-yellow-500/5" :
-            "focus:border-safety/50 focus:bg-white focus:ring-2 focus:ring-safety/20"
+            isInvalid
+              ? "border-red-500/50 focus:border-red-500 bg-red-500/5"
+              : isValid
+                ? "border-green-500/50 focus:border-green-500 bg-green-500/5"
+                : isWarning
+                  ? "border-yellow-500/50 focus:border-yellow-500 bg-yellow-500/5"
+                  : "focus:border-safety/50 focus:bg-white focus:ring-2 focus:ring-safety/20"
           } ${isSubmitting ? "opacity-50 cursor-not-allowed" : ""}`}
           placeholder={placeholder}
           required={required}
           disabled={isSubmitting}
           autoComplete={autoComplete}
           aria-invalid={isInvalid}
-          aria-describedby={isInvalid || isWarning ? `${name}-message` : undefined}
+          aria-describedby={
+            isInvalid || isWarning ? `${name}-message` : undefined
+          }
         />
         {(isValid || isInvalid || isWarning) && !isValidating && (
           <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-1">
@@ -667,8 +817,7 @@ function Field({ name, label, type, placeholder, icon: Icon, required, autoCompl
             initial={{ opacity: 0, y: -5 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -5 }}
-            className={`text-xs flex items-center gap-1 ${isInvalid ? "text-red-500" : "text-yellow-500"}`}
-          >
+            className={`text-xs flex items-center gap-1 ${isInvalid ? "text-red-500" : "text-yellow-500"}`}>
             {isInvalid && <AlertCircle className="w-3 h-3" />}
             {isWarning && <Info className="w-3 h-3" />}
             {error || warning}
@@ -694,12 +843,34 @@ interface SelectFieldProps {
   options: Array<{ value: string; label: string }>;
 }
 
-function SelectField({ name, label, placeholder, icon: Icon, required, value, onChange, onBlur, fieldState, isSubmitting, options }: SelectFieldProps) {
-  const { isValid, isInvalid, isWarning, isValidating, error, warning, showValidation } = fieldState;
-  
+function SelectField({
+  name,
+  label,
+  placeholder,
+  icon: Icon,
+  required,
+  value,
+  onChange,
+  onBlur,
+  fieldState,
+  isSubmitting,
+  options,
+}: SelectFieldProps) {
+  const {
+    isValid,
+    isInvalid,
+    isWarning,
+    isValidating,
+    error,
+    warning,
+    showValidation,
+  } = fieldState;
+
   return (
     <div className="form-group space-y-2">
-      <label htmlFor={name} className="block text-xs font-bold uppercase tracking-industrial text-ink flex items-center gap-1">
+      <label
+        htmlFor={name}
+        className="block text-xs font-bold uppercase tracking-industrial text-ink flex items-center gap-1">
         {label} {required && <span className="text-safety">*</span>}
       </label>
       <div className="relative">
@@ -710,19 +881,25 @@ function SelectField({ name, label, placeholder, icon: Icon, required, value, on
           onChange={onChange}
           onBlur={onBlur}
           className={`form-control min-h-[54px] w-full pr-12 pl-4 py-3 border border-ink/20 bg-white text-ink outline-none transition-all duration-200 appearance-none ${
-            isInvalid ? "border-red-500/50 focus:border-red-500 bg-red-500/5" :
-            isValid ? "border-green-500/50 focus:border-green-500 bg-green-500/5" :
-            isWarning ? "border-yellow-500/50 focus:border-yellow-500 bg-yellow-500/5" :
-            "focus:border-safety/50 focus:bg-white focus:ring-2 focus:ring-safety/20"
+            isInvalid
+              ? "border-red-500/50 focus:border-red-500 bg-red-500/5"
+              : isValid
+                ? "border-green-500/50 focus:border-green-500 bg-green-500/5"
+                : isWarning
+                  ? "border-yellow-500/50 focus:border-yellow-500 bg-yellow-500/5"
+                  : "focus:border-safety/50 focus:bg-white focus:ring-2 focus:ring-safety/20"
           } ${isSubmitting ? "opacity-50 cursor-not-allowed" : ""}`}
           required={required}
           disabled={isSubmitting}
           aria-invalid={isInvalid}
-          aria-describedby={isInvalid || isWarning ? `${name}-message` : undefined}
-        >
+          aria-describedby={
+            isInvalid || isWarning ? `${name}-message` : undefined
+          }>
           <option value="">{placeholder}</option>
           {options.map((opt) => (
-            <option key={opt.value} value={opt.value}>{opt.label}</option>
+            <option key={opt.value} value={opt.value}>
+              {opt.label}
+            </option>
           ))}
         </select>
         <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
@@ -743,8 +920,7 @@ function SelectField({ name, label, placeholder, icon: Icon, required, value, on
             initial={{ opacity: 0, y: -5 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -5 }}
-            className={`text-xs flex items-center gap-1 ${isInvalid ? "text-red-500" : "text-yellow-500"}`}
-          >
+            className={`text-xs flex items-center gap-1 ${isInvalid ? "text-red-500" : "text-yellow-500"}`}>
             {isInvalid && <AlertCircle className="w-3 h-3" />}
             {isWarning && <Info className="w-3 h-3" />}
             {error || warning}
@@ -769,15 +945,36 @@ interface TextareaFieldProps {
   maxLength: number;
 }
 
-function TextareaField({ name, label, placeholder, required, value, onChange, onBlur, fieldState, isSubmitting, maxLength }: TextareaFieldProps) {
-  const { isValid, isInvalid, isWarning, isValidating, error, warning, showValidation } = fieldState;
+function TextareaField({
+  name,
+  label,
+  placeholder,
+  required,
+  value,
+  onChange,
+  onBlur,
+  fieldState,
+  isSubmitting,
+  maxLength,
+}: TextareaFieldProps) {
+  const {
+    isValid,
+    isInvalid,
+    isWarning,
+    isValidating,
+    error,
+    warning,
+    showValidation,
+  } = fieldState;
   const charCount = value.length;
   const isNearLimit = charCount > maxLength * 0.8;
   const isOverLimit = charCount > maxLength;
-  
+
   return (
     <div className="form-group space-y-2">
-      <label htmlFor={name} className="block text-xs font-bold uppercase tracking-industrial text-ink flex items-center gap-1">
+      <label
+        htmlFor={name}
+        className="block text-xs font-bold uppercase tracking-industrial text-ink flex items-center gap-1">
         {label} {required && <span className="text-safety">*</span>}
       </label>
       <div className="relative">
@@ -790,10 +987,13 @@ function TextareaField({ name, label, placeholder, required, value, onChange, on
           rows={5}
           maxLength={maxLength}
           className={`form-control min-h-[140px] w-full px-4 py-3 border border-ink/20 bg-white text-ink outline-none transition-all duration-200 resize-none ${
-            isInvalid ? "border-red-500/50 focus:border-red-500 bg-red-500/5" :
-            isValid ? "border-green-500/50 focus:border-green-500 bg-green-500/5" :
-            isWarning ? "border-yellow-500/50 focus:border-yellow-500 bg-yellow-500/5" :
-            "focus:border-safety/50 focus:bg-white focus:ring-2 focus:ring-safety/20"
+            isInvalid
+              ? "border-red-500/50 focus:border-red-500 bg-red-500/5"
+              : isValid
+                ? "border-green-500/50 focus:border-green-500 bg-green-500/5"
+                : isWarning
+                  ? "border-yellow-500/50 focus:border-yellow-500 bg-yellow-500/5"
+                  : "focus:border-safety/50 focus:bg-white focus:ring-2 focus:ring-safety/20"
           } ${isSubmitting ? "opacity-50 cursor-not-allowed" : ""}`}
           placeholder={placeholder}
           required={required}
@@ -816,17 +1016,22 @@ function TextareaField({ name, label, placeholder, required, value, onChange, on
             initial={{ opacity: 0, y: -5 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -5 }}
-            className={`text-xs flex items-center gap-1 ${isInvalid ? "text-red-500" : "text-yellow-500"}`}
-          >
+            className={`text-xs flex items-center gap-1 ${isInvalid ? "text-red-500" : "text-yellow-500"}`}>
             {isInvalid && <AlertCircle className="w-3 h-3" />}
             {isWarning && <Info className="w-3 h-3" />}
             {error || warning}
           </motion.p>
         )}
       </AnimatePresence>
-      <p id={`${name}-counter`} className={`text-xs text-right transition-colors ${
-        isOverLimit ? "text-red-500" : isNearLimit ? "text-yellow-500" : "text-slate-400"
-      }`}>
+      <p
+        id={`${name}-counter`}
+        className={`text-xs text-right transition-colors ${
+          isOverLimit
+            ? "text-red-500"
+            : isNearLimit
+              ? "text-yellow-500"
+              : "text-slate-400"
+        }`}>
         {charCount}/{maxLength} characters
       </p>
     </div>

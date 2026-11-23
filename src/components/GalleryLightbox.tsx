@@ -2,7 +2,18 @@
 
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, ChevronLeft, ChevronRight, Maximize2, Minimize2, Download, Share2, Heart, Loader2, Info } from "lucide-react";
+import {
+  X,
+  ChevronLeft,
+  ChevronRight,
+  Maximize2,
+  Minimize2,
+  Download,
+  Share2,
+  Heart,
+  Loader2,
+  Info,
+} from "lucide-react";
 import { useState, useEffect, useCallback, useRef } from "react";
 
 interface GalleryImage {
@@ -23,7 +34,13 @@ interface GalleryLightboxProps {
   images: GalleryImage[];
 }
 
-export function GalleryLightbox({ image, onClose, onNext, onPrev, images = [] }: GalleryLightboxProps) {
+export function GalleryLightbox({
+  image,
+  onClose,
+  onNext,
+  onPrev,
+  images = [],
+}: GalleryLightboxProps) {
   const [isLoading, setIsLoading] = useState(true);
   const [showInfo, setShowInfo] = useState(true);
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -40,28 +57,33 @@ export function GalleryLightbox({ image, onClose, onNext, onPrev, images = [] }:
     closeRef.current?.focus({ preventScroll: true });
     return () => {
       document.body.style.overflow = overflow;
-      if (previousFocus instanceof HTMLElement) previousFocus.focus({ preventScroll: true });
+      if (previousFocus instanceof HTMLElement)
+        previousFocus.focus({ preventScroll: true });
     };
   }, []);
 
   // Normalize incoming image prop to handle both object and string inputs safely
   const isObj = Boolean(image && typeof image === "object");
   const rawSrc = isObj ? image.src : typeof image === "string" ? image : "";
-  const imageSrc = (typeof rawSrc === "string" && rawSrc.trim() !== "") ? rawSrc.trim() : null;
-  const imageAlt = (isObj ? (image.alt || image.title) : "") || "Gallery Image";
+  const imageSrc =
+    typeof rawSrc === "string" && rawSrc.trim() !== "" ? rawSrc.trim() : null;
+  const imageAlt = (isObj ? image.alt || image.title : "") || "Gallery Image";
   const imageTitle = (isObj ? image.title : "") || "Image Preview";
   const imageCategory = (isObj ? image.category : "") || "products";
   const imageDescription = isObj ? image.description : "";
-  const imageTags = (isObj && Array.isArray(image.tags)) ? image.tags : [];
-  const imageId = isObj ? image.id : (imageSrc || "current");
+  const imageTags = isObj && Array.isArray(image.tags) ? image.tags : [];
+  const imageId = isObj ? image.id : imageSrc || "current";
 
   // Handle keyboard navigation
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       switch (e.key) {
         case "Tab": {
-          const buttons = Array.from(containerRef.current?.querySelectorAll<HTMLButtonElement>("button:not(:disabled)") ?? [])
-            .filter((button) => button.getClientRects().length > 0);
+          const buttons = Array.from(
+            containerRef.current?.querySelectorAll<HTMLButtonElement>(
+              "button:not(:disabled)",
+            ) ?? [],
+          ).filter((button) => button.getClientRects().length > 0);
           if (!buttons.length) break;
           const first = buttons[0];
           const last = buttons[buttons.length - 1];
@@ -125,23 +147,29 @@ export function GalleryLightbox({ image, onClose, onNext, onPrev, images = [] }:
   const dragStartRef = useRef({ x: 0, y: 0 });
   const panStartRef = useRef({ x: 0, y: 0 });
 
-  const handleMouseDown = useCallback((e: React.MouseEvent) => {
-    if (zoom <= 1) return;
-    setIsDragging(true);
-    dragStartRef.current = { x: e.clientX, y: e.clientY };
-    panStartRef.current = pan;
-    e.preventDefault();
-  }, [zoom, pan]);
+  const handleMouseDown = useCallback(
+    (e: React.MouseEvent) => {
+      if (zoom <= 1) return;
+      setIsDragging(true);
+      dragStartRef.current = { x: e.clientX, y: e.clientY };
+      panStartRef.current = pan;
+      e.preventDefault();
+    },
+    [zoom, pan],
+  );
 
-  const handleMouseMove = useCallback((e: React.MouseEvent) => {
-    if (!isDragging || zoom <= 1) return;
-    const dx = e.clientX - dragStartRef.current.x;
-    const dy = e.clientY - dragStartRef.current.y;
-    setPan({
-      x: panStartRef.current.x + dx,
-      y: panStartRef.current.y + dy,
-    });
-  }, [isDragging, zoom, pan]);
+  const handleMouseMove = useCallback(
+    (e: React.MouseEvent) => {
+      if (!isDragging || zoom <= 1) return;
+      const dx = e.clientX - dragStartRef.current.x;
+      const dy = e.clientY - dragStartRef.current.y;
+      setPan({
+        x: panStartRef.current.x + dx,
+        y: panStartRef.current.y + dy,
+      });
+    },
+    [isDragging, zoom, pan],
+  );
 
   const handleMouseUp = useCallback(() => {
     setIsDragging(false);
@@ -199,8 +227,9 @@ export function GalleryLightbox({ image, onClose, onNext, onPrev, images = [] }:
   const currentIndex = Math.max(
     0,
     images.findIndex(
-      (img) => (isObj && img.id === image.id) || (imageSrc && img.src === imageSrc)
-    )
+      (img) =>
+        (isObj && img.id === image.id) || (imageSrc && img.src === imageSrc),
+    ),
   );
   const totalCount = Math.max(images.length, 1);
   const isFirst = currentIndex === 0;
@@ -221,14 +250,9 @@ export function GalleryLightbox({ image, onClose, onNext, onPrev, images = [] }:
       onMouseDown={handleMouseDown}
       onMouseMove={handleMouseMove}
       onMouseUp={handleMouseUp}
-      onMouseLeave={handleMouseUp}
-    >
+      onMouseLeave={handleMouseUp}>
       {/* Background click to close */}
-      <div
-        className="absolute inset-0"
-        onClick={onClose}
-        aria-hidden="true"
-      />
+      <div className="absolute inset-0" onClick={onClose} aria-hidden="true" />
 
       {/* Loading State */}
       {isLoading && imageSrc && (
@@ -240,48 +264,68 @@ export function GalleryLightbox({ image, onClose, onNext, onPrev, images = [] }:
       {/* Navigation - Previous */}
       {!isFirst && (
         <motion.button
-          onClick={(e) => { e.stopPropagation(); onPrev(); }}
+          onClick={(e) => {
+            e.stopPropagation();
+            onPrev();
+          }}
           whileHover={{ scale: 1.08, x: -2 }}
           whileTap={{ scale: 0.92 }}
-           className="absolute left-6 top-1/2 z-30 hidden -translate-y-1/2 cursor-pointer rounded-full border border-white/20 bg-slate-900/90 p-3.5 text-white shadow-2xl transition-all hover:bg-safety sm:block group"
+          className="absolute left-6 top-1/2 z-30 hidden -translate-y-1/2 cursor-pointer rounded-full border border-white/20 bg-slate-900/90 p-3.5 text-white shadow-2xl transition-all hover:bg-safety sm:block group"
           aria-label="Previous image"
-          title="Previous (?)"
-        >
-          <ChevronLeft size={26} className="text-white group-hover:text-ink transition-colors" strokeWidth={2.5} />
+          title="Previous (?)">
+          <ChevronLeft
+            size={26}
+            className="text-white group-hover:text-ink transition-colors"
+            strokeWidth={2.5}
+          />
         </motion.button>
       )}
 
       {/* Navigation - Next */}
       {!isLast && (
         <motion.button
-          onClick={(e) => { e.stopPropagation(); onNext(); }}
+          onClick={(e) => {
+            e.stopPropagation();
+            onNext();
+          }}
           whileHover={{ scale: 1.08, x: 2 }}
           whileTap={{ scale: 0.92 }}
-           className="absolute right-6 top-1/2 z-30 hidden -translate-y-1/2 cursor-pointer rounded-full border border-white/20 bg-slate-900/90 p-3.5 text-white shadow-2xl transition-all hover:bg-safety sm:block group"
+          className="absolute right-6 top-1/2 z-30 hidden -translate-y-1/2 cursor-pointer rounded-full border border-white/20 bg-slate-900/90 p-3.5 text-white shadow-2xl transition-all hover:bg-safety sm:block group"
           aria-label="Next image"
-          title="Next (?)"
-        >
-          <ChevronRight size={26} className="text-white group-hover:text-ink transition-colors" strokeWidth={2.5} />
+          title="Next (?)">
+          <ChevronRight
+            size={26}
+            className="text-white group-hover:text-ink transition-colors"
+            strokeWidth={2.5}
+          />
         </motion.button>
       )}
 
       {/* Close Button */}
       <motion.button
         ref={closeRef}
-        onClick={(e) => { e.stopPropagation(); onClose(); }}
+        onClick={(e) => {
+          e.stopPropagation();
+          onClose();
+        }}
         whileHover={{ scale: 1.08 }}
         whileTap={{ scale: 0.92 }}
         className="absolute top-5 right-5 sm:top-6 sm:right-6 z-30 p-3 bg-slate-900/90 hover:bg-red-500 border border-white/20 rounded-full text-white shadow-2xl transition-all cursor-pointer group"
         aria-label="Close lightbox"
-        title="Close (Esc)"
-      >
-        <X size={22} className="text-white group-hover:rotate-90 transition-transform duration-200" strokeWidth={2.5} />
+        title="Close (Esc)">
+        <X
+          size={22}
+          className="text-white group-hover:rotate-90 transition-transform duration-200"
+          strokeWidth={2.5}
+        />
       </motion.button>
 
       {/* Image Counter */}
       <div className="absolute top-5 left-5 sm:top-6 sm:left-6 z-30 px-4 py-2 bg-slate-900/90 border border-white/20 rounded-full text-white text-xs sm:text-sm font-semibold tracking-wider shadow-2xl flex items-center gap-2">
         <span className="h-2 w-2 rounded-full bg-safety animate-pulse" />
-        <span>{currentIndex + 1} / {totalCount}</span>
+        <span>
+          {currentIndex + 1} / {totalCount}
+        </span>
       </div>
 
       {/* Image Container */}
@@ -292,13 +336,12 @@ export function GalleryLightbox({ image, onClose, onNext, onPrev, images = [] }:
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 1.05 }}
           transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-           className="relative flex max-h-[min(85dvh,calc(100dvh-9rem))] max-w-[90vw] items-center justify-center"
-           style={{
-             transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`,
-             cursor: zoom > 1 ? "grabbing" : isDragging ? "grabbing" : "default",
-           }}
-           onWheel={handleWheel}
-        >
+          className="relative flex max-h-[min(85dvh,calc(100dvh-9rem))] max-w-[90vw] items-center justify-center"
+          style={{
+            transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`,
+            cursor: zoom > 1 ? "grabbing" : isDragging ? "grabbing" : "default",
+          }}
+          onWheel={handleWheel}>
           {imageSrc ? (
             <Image
               ref={imgRef}
@@ -307,15 +350,19 @@ export function GalleryLightbox({ image, onClose, onNext, onPrev, images = [] }:
               width={1920}
               height={1080}
               onLoad={handleLoad}
-               className="h-auto max-h-[min(85dvh,calc(100dvh-9rem))] w-auto max-w-[90vw] select-none rounded-lg object-contain shadow-2xl"
+              className="h-auto max-h-[min(85dvh,calc(100dvh-9rem))] w-auto max-w-[90vw] select-none rounded-lg object-contain shadow-2xl"
               priority
               sizes="90vw"
             />
           ) : (
             <div className="flex flex-col items-center justify-center p-8 text-center text-slate-300 bg-slate-900/90 rounded-2xl border border-white/20 shadow-2xl">
               <Info size={40} className="mb-3 text-safety" />
-              <p className="text-base font-semibold text-white">No Image Available</p>
-              <p className="text-xs text-slate-400 mt-1">Image source is empty or could not be loaded.</p>
+              <p className="text-base font-semibold text-white">
+                No Image Available
+              </p>
+              <p className="text-xs text-slate-400 mt-1">
+                Image source is empty or could not be loaded.
+              </p>
             </div>
           )}
         </motion.div>
@@ -326,65 +373,80 @@ export function GalleryLightbox({ image, onClose, onNext, onPrev, images = [] }:
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.15, duration: 0.3 }}
-        className="absolute inset-x-0 bottom-3 z-30 mx-auto flex w-fit items-center gap-0.5 rounded-2xl border border-white/20 bg-slate-900/95 px-2 py-2 shadow-2xl backdrop-blur-lg [&>button]:grid [&>button]:size-11 [&>button]:shrink-0 [&>button]:place-items-center sm:bottom-6 sm:gap-2.5 sm:px-5 sm:py-2.5"
-      >
+        className="absolute inset-x-0 bottom-3 z-30 mx-auto flex w-fit items-center gap-0.5 rounded-2xl border border-white/20 bg-slate-900/95 px-2 py-2 shadow-2xl backdrop-blur-lg [&>button]:grid [&>button]:size-11 [&>button]:shrink-0 [&>button]:place-items-center sm:bottom-6 sm:gap-2.5 sm:px-5 sm:py-2.5">
         <button
-          onClick={(e) => { e.stopPropagation(); onPrev(); }}
+          onClick={(e) => {
+            e.stopPropagation();
+            onPrev();
+          }}
           disabled={isFirst}
           className="p-2.5 text-slate-300 hover:text-white hover:bg-white/10 rounded-xl transition-all cursor-pointer disabled:opacity-25 disabled:pointer-events-none"
           aria-label="Previous"
-          title="Previous image"
-        >
+          title="Previous image">
           <ChevronLeft size={20} strokeWidth={2.2} />
         </button>
 
         <button
-          onClick={(e) => { e.stopPropagation(); toggleFullscreen(); }}
+          onClick={(e) => {
+            e.stopPropagation();
+            toggleFullscreen();
+          }}
           className="p-2.5 text-slate-300 hover:text-white hover:bg-white/10 rounded-xl transition-all cursor-pointer"
           aria-label={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
-          title={isFullscreen ? "Exit fullscreen (F)" : "Enter fullscreen (F)"}
-        >
-          {isFullscreen ? <Minimize2 size={20} strokeWidth={2.2} /> : <Maximize2 size={20} strokeWidth={2.2} />}
+          title={isFullscreen ? "Exit fullscreen (F)" : "Enter fullscreen (F)"}>
+          {isFullscreen ? (
+            <Minimize2 size={20} strokeWidth={2.2} />
+          ) : (
+            <Maximize2 size={20} strokeWidth={2.2} />
+          )}
         </button>
 
         <button
-          onClick={(e) => { e.stopPropagation(); handleDownload(); }}
+          onClick={(e) => {
+            e.stopPropagation();
+            handleDownload();
+          }}
           className="p-2.5 text-slate-300 hover:text-white hover:bg-white/10 rounded-xl transition-all cursor-pointer"
           aria-label="Download"
-          title="Download image"
-        >
+          title="Download image">
           <Download size={20} strokeWidth={2.2} />
         </button>
 
         <button
-          onClick={(e) => { e.stopPropagation(); handleShare(); }}
+          onClick={(e) => {
+            e.stopPropagation();
+            handleShare();
+          }}
           className="p-2.5 text-slate-300 hover:text-white hover:bg-white/10 rounded-xl transition-all cursor-pointer"
           aria-label="Share"
-          title="Share image"
-        >
+          title="Share image">
           <Share2 size={20} strokeWidth={2.2} />
         </button>
 
         <button
-          onClick={(e) => { e.stopPropagation(); setShowInfo((prev) => !prev); }}
+          onClick={(e) => {
+            e.stopPropagation();
+            setShowInfo((prev) => !prev);
+          }}
           className={`p-2.5 rounded-xl transition-all cursor-pointer ${
             showInfo
               ? "bg-safety text-ink font-bold shadow-md shadow-safety/25"
               : "text-slate-300 hover:text-white hover:bg-white/10"
           }`}
           aria-label="Toggle info"
-          title="Toggle image details (I)"
-        >
+          title="Toggle image details (I)">
           <Info size={20} strokeWidth={2.2} />
         </button>
 
         <button
-          onClick={(e) => { e.stopPropagation(); onNext(); }}
+          onClick={(e) => {
+            e.stopPropagation();
+            onNext();
+          }}
           disabled={isLast}
           className="p-2.5 text-slate-300 hover:text-white hover:bg-white/10 rounded-xl transition-all cursor-pointer disabled:opacity-25 disabled:pointer-events-none"
           aria-label="Next"
-          title="Next image"
-        >
+          title="Next image">
           <ChevronRight size={20} strokeWidth={2.2} />
         </button>
       </motion.div>
@@ -397,23 +459,33 @@ export function GalleryLightbox({ image, onClose, onNext, onPrev, images = [] }:
             animate={{ opacity: 1, x: 0, scale: 1 }}
             exit={{ opacity: 0, x: -20, scale: 0.95 }}
             transition={{ duration: 0.25 }}
-             className="absolute bottom-20 left-3 right-3 z-30 max-h-[min(50dvh,calc(100dvh-10rem))] overflow-y-auto overscroll-contain rounded-2xl border border-white/20 p-4 shadow-2xl backdrop-blur-xl [overflow-wrap:anywhere] sm:bottom-[6.5rem] sm:left-6 sm:right-auto sm:w-96 sm:max-h-[min(70dvh,calc(100dvh-12rem))] sm:p-6"
-            style={{ backgroundColor: "rgba(15, 23, 42, 0.98)" }}
-          >
+            className="absolute bottom-20 left-3 right-3 z-30 max-h-[min(50dvh,calc(100dvh-10rem))] overflow-y-auto overscroll-contain rounded-2xl border border-white/20 p-4 shadow-2xl backdrop-blur-xl [overflow-wrap:anywhere] sm:bottom-[6.5rem] sm:left-6 sm:right-auto sm:w-96 sm:max-h-[min(70dvh,calc(100dvh-12rem))] sm:p-6"
+            style={{ backgroundColor: "rgba(15, 23, 42, 0.98)" }}>
             <div className="flex items-start justify-between gap-4 mb-4">
               <div className="flex-1 min-w-0">
                 <span className="px-3 py-1 text-[11px] font-extrabold uppercase tracking-wider rounded-md bg-safety text-ink inline-block mb-3 shadow-sm">
-                  {imageCategory ? imageCategory.charAt(0).toUpperCase() + imageCategory.slice(1) : 'Product'}
+                  {imageCategory
+                    ? imageCategory.charAt(0).toUpperCase() +
+                      imageCategory.slice(1)
+                    : "Product"}
                 </span>
-                <h3 className="text-xl font-bold text-white mb-2 leading-snug">{imageTitle}</h3>
-                {imageDescription && <p className="text-slate-300 text-sm leading-relaxed">{imageDescription}</p>}
+                <h3 className="text-xl font-bold text-white mb-2 leading-snug">
+                  {imageTitle}
+                </h3>
+                {imageDescription && (
+                  <p className="text-slate-300 text-sm leading-relaxed">
+                    {imageDescription}
+                  </p>
+                )}
               </div>
               <button
-                onClick={(e) => { e.stopPropagation(); setShowInfo(false); }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowInfo(false);
+                }}
                 className="p-1.5 text-slate-400 hover:text-white hover:bg-white/10 rounded-lg transition-colors cursor-pointer"
                 aria-label="Close info"
-                title="Close details (I)"
-              >
+                title="Close details (I)">
                 <X size={18} />
               </button>
             </div>
@@ -424,8 +496,7 @@ export function GalleryLightbox({ image, onClose, onNext, onPrev, images = [] }:
                 {imageTags.map((tag, i) => (
                   <span
                     key={i}
-                    className="px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider rounded-md bg-slate-800 text-slate-200 border border-white/15"
-                  >
+                    className="px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider rounded-md bg-slate-800 text-slate-200 border border-white/15">
                     {tag}
                   </span>
                 ))}
@@ -435,16 +506,20 @@ export function GalleryLightbox({ image, onClose, onNext, onPrev, images = [] }:
             {/* Action Buttons */}
             <div className="flex flex-wrap items-center gap-3">
               <button
-                onClick={(e) => { e.stopPropagation(); handleDownload(); }}
-                className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-safety text-ink font-bold rounded-xl hover:brightness-110 shadow-lg shadow-safety/20 transition-all text-sm cursor-pointer"
-              >
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleDownload();
+                }}
+                className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-safety text-ink font-bold rounded-xl hover:brightness-110 shadow-lg shadow-safety/20 transition-all text-sm cursor-pointer">
                 <Download size={16} strokeWidth={2.5} />
                 Download
               </button>
               <button
-                onClick={(e) => { e.stopPropagation(); handleShare(); }}
-                className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-slate-800 text-white font-semibold border border-white/20 rounded-xl hover:bg-slate-700 transition-all text-sm cursor-pointer"
-              >
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleShare();
+                }}
+                className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-slate-800 text-white font-semibold border border-white/20 rounded-xl hover:bg-slate-700 transition-all text-sm cursor-pointer">
                 <Share2 size={16} strokeWidth={2.2} />
                 Share
               </button>
@@ -452,14 +527,46 @@ export function GalleryLightbox({ image, onClose, onNext, onPrev, images = [] }:
 
             {/* Keyboard Shortcuts Hint */}
             <div className="mt-5 pt-4 border-t border-white/15">
-              <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2.5">Keyboard Shortcuts</p>
-               <div className="grid grid-cols-2 gap-2 text-[11px] text-slate-300">
-                <div className="flex justify-between items-center bg-slate-800/60 px-2 py-1 rounded border border-white/5"><kbd className="px-1.5 py-0.5 bg-slate-700 rounded text-safety font-bold font-mono">?</kbd><span>Previous</span></div>
-                <div className="flex justify-between items-center bg-slate-800/60 px-2 py-1 rounded border border-white/5"><kbd className="px-1.5 py-0.5 bg-slate-700 rounded text-safety font-bold font-mono">?</kbd><span>Next</span></div>
-                <div className="flex justify-between items-center bg-slate-800/60 px-2 py-1 rounded border border-white/5"><kbd className="px-1.5 py-0.5 bg-slate-700 rounded text-safety font-bold font-mono">Esc</kbd><span>Close</span></div>
-                <div className="flex justify-between items-center bg-slate-800/60 px-2 py-1 rounded border border-white/5"><kbd className="px-1.5 py-0.5 bg-slate-700 rounded text-safety font-bold font-mono">I</kbd><span>Info</span></div>
-                <div className="flex justify-between items-center bg-slate-800/60 px-2 py-1 rounded border border-white/5"><kbd className="px-1.5 py-0.5 bg-slate-700 rounded text-safety font-bold font-mono">F</kbd><span>Fullscreen</span></div>
-                <div className="flex justify-between items-center bg-slate-800/60 px-2 py-1 rounded border border-white/5"><kbd className="px-1.5 py-0.5 bg-slate-700 rounded text-safety font-bold font-mono">Space</kbd><span>Next</span></div>
+              <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2.5">
+                Keyboard Shortcuts
+              </p>
+              <div className="grid grid-cols-2 gap-2 text-[11px] text-slate-300">
+                <div className="flex justify-between items-center bg-slate-800/60 px-2 py-1 rounded border border-white/5">
+                  <kbd className="px-1.5 py-0.5 bg-slate-700 rounded text-safety font-bold font-mono">
+                    ?
+                  </kbd>
+                  <span>Previous</span>
+                </div>
+                <div className="flex justify-between items-center bg-slate-800/60 px-2 py-1 rounded border border-white/5">
+                  <kbd className="px-1.5 py-0.5 bg-slate-700 rounded text-safety font-bold font-mono">
+                    ?
+                  </kbd>
+                  <span>Next</span>
+                </div>
+                <div className="flex justify-between items-center bg-slate-800/60 px-2 py-1 rounded border border-white/5">
+                  <kbd className="px-1.5 py-0.5 bg-slate-700 rounded text-safety font-bold font-mono">
+                    Esc
+                  </kbd>
+                  <span>Close</span>
+                </div>
+                <div className="flex justify-between items-center bg-slate-800/60 px-2 py-1 rounded border border-white/5">
+                  <kbd className="px-1.5 py-0.5 bg-slate-700 rounded text-safety font-bold font-mono">
+                    I
+                  </kbd>
+                  <span>Info</span>
+                </div>
+                <div className="flex justify-between items-center bg-slate-800/60 px-2 py-1 rounded border border-white/5">
+                  <kbd className="px-1.5 py-0.5 bg-slate-700 rounded text-safety font-bold font-mono">
+                    F
+                  </kbd>
+                  <span>Fullscreen</span>
+                </div>
+                <div className="flex justify-between items-center bg-slate-800/60 px-2 py-1 rounded border border-white/5">
+                  <kbd className="px-1.5 py-0.5 bg-slate-700 rounded text-safety font-bold font-mono">
+                    Space
+                  </kbd>
+                  <span>Next</span>
+                </div>
               </div>
             </div>
           </motion.div>
@@ -471,8 +578,7 @@ export function GalleryLightbox({ image, onClose, onNext, onPrev, images = [] }:
         <motion.div
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="absolute bottom-20 sm:bottom-24 right-5 sm:right-6 z-30 px-3.5 py-1.5 bg-slate-900/95 border border-white/20 rounded-full text-safety font-bold text-sm font-mono shadow-2xl"
-        >
+          className="absolute bottom-20 sm:bottom-24 right-5 sm:right-6 z-30 px-3.5 py-1.5 bg-slate-900/95 border border-white/20 rounded-full text-safety font-bold text-sm font-mono shadow-2xl">
           {Math.round(zoom * 100)}%
         </motion.div>
       )}
@@ -482,8 +588,7 @@ export function GalleryLightbox({ image, onClose, onNext, onPrev, images = [] }:
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="absolute bottom-20 sm:bottom-24 left-1/2 -translate-x-1/2 z-30 px-4 py-1.5 bg-slate-900/90 border border-white/20 rounded-full text-white text-xs sm:text-sm font-medium shadow-2xl"
-        >
+          className="absolute bottom-20 sm:bottom-24 left-1/2 -translate-x-1/2 z-30 px-4 py-1.5 bg-slate-900/90 border border-white/20 rounded-full text-white text-xs sm:text-sm font-medium shadow-2xl">
           Drag to pan
         </motion.div>
       )}

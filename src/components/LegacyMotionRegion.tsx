@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import { motion, useReducedMotion } from 'framer-motion';
+import { motion, useReducedMotion } from "framer-motion";
 
 /** Motion wrapper for preserved legacy markup. It does not alter child DOM or form behavior. */
 export function LegacyMotionRegion({ html }: { html: string }) {

@@ -102,7 +102,7 @@ export function TextReveal({
   wordsClass = TEXT_REVEAL_DEFAULT_WORDS_CLASS,
   charsClass = TEXT_REVEAL_DEFAULT_CHARS_CLASS,
 }: TextRevealProps) {
-    const elementRef = useRef<HTMLElement>(null);
+  const elementRef = useRef<HTMLElement>(null);
   const splitRef = useRef<{ split: SplitText; revert: () => void } | null>(
     null,
   );
@@ -220,7 +220,10 @@ export function TextReveal({
   const gsap = typeof window !== "undefined" ? require("gsap").gsap : null;
 
   return (
-    <Tag ref={elementRef as unknown as React.Ref<HTMLDivElement>} className={className} style={{ opacity: 0 }}>
+    <Tag
+      ref={elementRef as unknown as React.Ref<HTMLDivElement>}
+      className={className}
+      style={{ opacity: 0 }}>
       {children}
     </Tag>
   );
@@ -378,7 +381,9 @@ export function SplitTextOnly({
   }, [split, linesClass, wordsClass, charsClass]);
 
   return (
-    <div ref={elementRef as unknown as React.Ref<HTMLDivElement>} style={{ display: "contents" }}>
+    <div
+      ref={elementRef as unknown as React.Ref<HTMLDivElement>}
+      style={{ display: "contents" }}>
       {render(splitRef.current?.split || null, () =>
         splitRef.current?.revert(),
       )}

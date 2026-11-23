@@ -1,12 +1,20 @@
 "use client";
 
-import { ModernPageShell } from '@/components/ModernPageShell';
-import { ProductDetailLayout } from '@/components/ProductDetailLayout';
-import { GalleryLightbox } from '@/components/GalleryLightbox';
-import { useState } from 'react';
+import { ModernPageShell } from "@/components/ModernPageShell";
+import { ProductDetailLayout } from "@/components/ProductDetailLayout";
+import { GalleryLightbox } from "@/components/GalleryLightbox";
+import { useState } from "react";
 
 type Cell = { type: string; colSpan: number; rowSpan: number; value: string };
-type SourceProduct = { breadcrumb: string; title: string; description: readonly string[]; gallery: readonly string[]; brochure?: string; specificationTables: readonly Cell[][][]; standardFeatures?: readonly string[] };
+type SourceProduct = {
+  breadcrumb: string;
+  title: string;
+  description: readonly string[];
+  gallery: readonly string[];
+  brochure?: string;
+  specificationTables: readonly Cell[][][];
+  standardFeatures?: readonly string[];
+};
 
 interface GalleryImage {
   id: number;
@@ -27,12 +35,15 @@ export function SourceProductPage({ product }: { product: SourceProduct }) {
     src,
     alt: `${product.title} ${index + 1}`,
     title: product.title,
-    category: 'products',
+    category: "products",
     description: product.title,
-    tags: ['Product'],
+    tags: ["Product"],
   }));
 
-  const handleImageClick = (srcOrImage: GalleryImage | string, index?: number) => {
+  const handleImageClick = (
+    srcOrImage: GalleryImage | string,
+    index?: number,
+  ) => {
     if (typeof srcOrImage === "string") {
       const found = galleryImages.find((img) => img.src === srcOrImage);
       if (found) {
@@ -44,9 +55,9 @@ export function SourceProductPage({ product }: { product: SourceProduct }) {
           src: srcOrImage,
           alt: `${product.title} ${idx + 1}`,
           title: product.title,
-          category: 'products',
+          category: "products",
           description: product.title,
-          tags: ['Product'],
+          tags: ["Product"],
         });
       }
     } else if (srcOrImage && typeof srcOrImage === "object") {
@@ -62,22 +73,30 @@ export function SourceProductPage({ product }: { product: SourceProduct }) {
 
   const handleNextImage = () => {
     if (!selectedImage) return;
-    const currentIndex = galleryImages.findIndex((img) => img.id === selectedImage.id || img.src === selectedImage.src);
+    const currentIndex = galleryImages.findIndex(
+      (img) => img.id === selectedImage.id || img.src === selectedImage.src,
+    );
     const nextIndex = (currentIndex + 1) % galleryImages.length;
     setSelectedImage(galleryImages[nextIndex]);
   };
 
   const handlePrevImage = () => {
     if (!selectedImage) return;
-    const currentIndex = galleryImages.findIndex((img) => img.id === selectedImage.id || img.src === selectedImage.src);
-    const prevIndex = (currentIndex - 1 + galleryImages.length) % galleryImages.length;
+    const currentIndex = galleryImages.findIndex(
+      (img) => img.id === selectedImage.id || img.src === selectedImage.src,
+    );
+    const prevIndex =
+      (currentIndex - 1 + galleryImages.length) % galleryImages.length;
     setSelectedImage(galleryImages[prevIndex]);
   };
 
   return (
     <>
       <ModernPageShell eyebrow={product.breadcrumb} title={product.title}>
-        <ProductDetailLayout product={product} onImageClick={handleImageClick} />
+        <ProductDetailLayout
+          product={product}
+          onImageClick={handleImageClick}
+        />
       </ModernPageShell>
       {lightboxOpen && selectedImage && (
         <GalleryLightbox

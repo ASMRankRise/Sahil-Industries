@@ -15,7 +15,10 @@ export default function AdminLogin() {
 
   useEffect(() => {
     const savedEmail = window.localStorage.getItem("admin_remembered_email");
-    if (savedEmail) { setEmail(savedEmail); setRememberMe(true); }
+    if (savedEmail) {
+      setEmail(savedEmail);
+      setRememberMe(true);
+    }
   }, []);
 
   if (isAuthenticated) {
@@ -30,7 +33,8 @@ export default function AdminLogin() {
     try {
       const formData = new FormData(e.currentTarget as HTMLFormElement);
       const submittedEmail = formData.get("email") as string;
-      if (rememberMe) window.localStorage.setItem("admin_remembered_email", submittedEmail);
+      if (rememberMe)
+        window.localStorage.setItem("admin_remembered_email", submittedEmail);
       else window.localStorage.removeItem("admin_remembered_email");
       await login({
         email: submittedEmail,
@@ -51,18 +55,30 @@ export default function AdminLogin() {
         {/* Brand */}
         <div className="mb-8 flex translate-y-2 flex-col items-center justify-center">
           <div className="flex h-16 w-20 items-center justify-center rounded-xl border border-safety/50 bg-safety/10 shadow-lg shadow-safety/10">
-            <img src="/media/logo/logo%20svg1.svg" alt="Sahil Industries" className="h-12 w-16 object-contain" />
+            <img
+              src="/media/logo/logo%20svg1.svg"
+              alt="Sahil Industries"
+              className="h-12 w-16 object-contain"
+            />
           </div>
           <div className="mt-2 text-center">
-            <span className="text-xs font-extrabold uppercase tracking-widest text-white">SAHIL</span>
-            <span className="text-[10px] font-medium text-safety uppercase tracking-wider block">INDUSTRIES</span>
+            <span className="text-xs font-extrabold uppercase tracking-widest text-white">
+              SAHIL
+            </span>
+            <span className="text-[10px] font-medium text-safety uppercase tracking-wider block">
+              INDUSTRIES
+            </span>
           </div>
         </div>
 
         {/* Login Card */}
         <div className="bg-surface border border-white/10 rounded-2xl shadow-2xl p-8 sm:p-10">
-          <h2 className="text-2xl font-bold tracking-tight text-white mb-1">Admin Login</h2>
-          <p className="text-slate-400 text-sm mb-6">Sign in to manage Sahil Industries</p>
+          <h2 className="text-2xl font-bold tracking-tight text-white mb-1">
+            Admin Login
+          </h2>
+          <p className="text-slate-400 text-sm mb-6">
+            Sign in to manage Sahil Industries
+          </p>
 
           {error && (
             <div className="mb-6 p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm flex items-center gap-2">
@@ -73,9 +89,14 @@ export default function AdminLogin() {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <label className="block text-xs font-medium text-slate-300 uppercase tracking-wider">Email Address</label>
+              <label className="block text-xs font-medium text-slate-300 uppercase tracking-wider">
+                Email Address
+              </label>
               <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                <Mail
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+                  size={18}
+                />
                 <input
                   name="email"
                   type="email"
@@ -90,9 +111,14 @@ export default function AdminLogin() {
             </div>
 
             <div className="space-y-2">
-              <label className="block text-xs font-medium text-slate-300 uppercase tracking-wider">Password</label>
+              <label className="block text-xs font-medium text-slate-300 uppercase tracking-wider">
+                Password
+              </label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                <Lock
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+                  size={18}
+                />
                 <input
                   name="password"
                   type="password"
@@ -106,22 +132,43 @@ export default function AdminLogin() {
 
             <div className="flex items-center justify-between">
               <label className="flex items-center gap-2 text-sm text-slate-300 cursor-pointer select-none">
-                <input type="checkbox" checked={rememberMe} onChange={(event) => setRememberMe(event.target.checked)} className="rounded bg-white/5 border border-white/10 text-safety focus:ring-safety" />
+                <input
+                  type="checkbox"
+                  checked={rememberMe}
+                  onChange={(event) => setRememberMe(event.target.checked)}
+                  className="rounded bg-white/5 border border-white/10 text-safety focus:ring-safety"
+                />
                 <span>Remember me</span>
               </label>
-              <a href="/" className="text-xs text-safety hover:text-safety/80 underline underline-offset-4">Back to website</a>
+              <a
+                href="/"
+                className="text-xs text-safety hover:text-safety/80 underline underline-offset-4">
+                Back to website
+              </a>
             </div>
 
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full flex items-center justify-center gap-2 px-4 py-3.5 bg-safety text-ink font-bold rounded-xl hover:bg-yellow-400 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg shadow-safety/20 hover:shadow-safety/30"
-            >
+              className="w-full flex items-center justify-center gap-2 px-4 py-3.5 bg-safety text-ink font-bold rounded-xl hover:bg-yellow-400 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg shadow-safety/20 hover:shadow-safety/30">
               {isLoading ? (
                 <>
-                  <svg className="animate-spin h-5 w-5 text-ink" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  <svg
+                    className="animate-spin h-5 w-5 text-ink"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24">
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                   </svg>
                   Signing in...
                 </>
@@ -134,12 +181,14 @@ export default function AdminLogin() {
           </form>
 
           <p className="mt-8 pt-6 border-t border-white/10 text-center text-xs text-slate-500">
-            Use an administrator account provisioned by your deployment administrator.
+            Use an administrator account provisioned by your deployment
+            administrator.
           </p>
         </div>
 
         <p className="mt-6 text-center text-[11px] text-slate-500">
-          Sahil Industries &copy; {new Date().getFullYear()} &bull; Management Portal
+          Sahil Industries &copy; {new Date().getFullYear()} &bull; Management
+          Portal
         </p>
       </div>
     </div>

@@ -73,9 +73,7 @@
     "/sahilcrane/products/monorail-crane.jpg",
     "/sahilcrane/logo/logo-footer.png"
   ],
-  "pdfs": [
-    "/sahilcrane/broucher/electric-wire-rope-hoist.pdf"
-  ],
+  "pdfs": ["/sahilcrane/broucher/electric-wire-rope-hoist.pdf"],
   "featureLists": [
     [
       "Compact Design",

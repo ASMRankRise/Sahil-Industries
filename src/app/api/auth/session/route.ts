@@ -12,6 +12,9 @@ export async function GET(request: NextRequest) {
     // 500 while checking an anonymous session. Keep the response compatible
     // with the client and expose the actual failure in the server logs.
     console.error("Unable to check admin session", error);
-    return NextResponse.json({ authenticated: false, error: "Session service unavailable" }, { status: 503 });
+    return NextResponse.json(
+      { authenticated: false, error: "Session service unavailable" },
+      { status: 503 },
+    );
   }
 }

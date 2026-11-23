@@ -3,12 +3,31 @@
 import { useEffect, useRef } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { Award, CheckCircle, Cog, Headphones, Lightbulb, Shield, SlidersHorizontal, Users, LucideIcon } from "lucide-react";
+import {
+  Award,
+  CheckCircle,
+  Cog,
+  Headphones,
+  Lightbulb,
+  Shield,
+  SlidersHorizontal,
+  Users,
+  LucideIcon,
+} from "lucide-react";
 import { reasonsToChoose } from "@/data/about";
 
 gsap.registerPlugin(ScrollTrigger);
 
-const icons: LucideIcon[] = [Shield, Cog, SlidersHorizontal, Lightbulb, Headphones, Users, CheckCircle, Award];
+const icons: LucideIcon[] = [
+  Shield,
+  Cog,
+  SlidersHorizontal,
+  Lightbulb,
+  Headphones,
+  Users,
+  CheckCircle,
+  Award,
+];
 
 export function WhySahilTimeline() {
   const sectionRef = useRef<HTMLElement>(null);
@@ -30,7 +49,8 @@ export function WhySahilTimeline() {
 
           if (!track || !container || !line || !section) return;
 
-          const getScrollDistance = () => Math.max(0, track.scrollWidth - container.clientWidth);
+          const getScrollDistance = () =>
+            Math.max(0, track.scrollWidth - container.clientWidth);
 
           gsap.set(line, { scaleX: 0, transformOrigin: "left center" });
           gsap.set(track, { x: 0 });
@@ -55,7 +75,7 @@ export function WhySahilTimeline() {
               ease: "none",
               duration: 1,
             },
-            0
+            0,
           );
 
           // Animate line from left to right in sync with points
@@ -66,7 +86,7 @@ export function WhySahilTimeline() {
               ease: "none",
               duration: 1,
             },
-            0
+            0,
           );
         },
       });
@@ -79,8 +99,7 @@ export function WhySahilTimeline() {
     <section
       ref={sectionRef}
       data-pinned-section="true"
-      className="relative min-h-screen bg-ink text-white flex flex-col justify-center overflow-hidden py-16 md:py-24 max-md:min-h-0 max-md:py-12"
-    >
+      className="relative min-h-screen bg-ink text-white flex flex-col justify-center overflow-hidden py-16 md:py-24 max-md:min-h-0 max-md:py-12">
       <div className="mx-auto w-[min(1240px,calc(100%-64px))] max-md:w-[calc(100%-36px)]">
         <p className="mb-4 flex items-center justify-center gap-2 text-xs font-semibold tracking-[.18em] text-safety">
           <span className="h-0.5 w-8 bg-safety" />
@@ -91,10 +110,13 @@ export function WhySahilTimeline() {
           Built around operational confidence.
         </h2>
         <p className="mx-auto mt-4 max-w-[560px] text-center text-sm md:text-base leading-6 md:leading-7 text-slate-300">
-          Engineering, support, and expertise that keep every lift moving forward.
+          Engineering, support, and expertise that keep every lift moving
+          forward.
         </p>
 
-        <div ref={containerRef} className="relative mt-16 md:mt-24 overflow-hidden max-md:mt-10 max-md:overflow-visible">
+        <div
+          ref={containerRef}
+          className="relative mt-16 md:mt-24 overflow-hidden max-md:mt-10 max-md:overflow-visible">
           {/* Background line track */}
           <div className="absolute left-0 right-0 top-[24px] hidden h-px bg-white/20 md:block" />
 
@@ -108,15 +130,13 @@ export function WhySahilTimeline() {
           {/* Horizontal Timeline Track */}
           <div
             ref={trackRef}
-            className="relative flex w-max max-md:w-full max-md:flex-col gap-8 md:gap-16 pr-12 md:pr-40"
-          >
+            className="relative flex w-max max-md:w-full max-md:flex-col gap-8 md:gap-16 pr-12 md:pr-40">
             {reasonsToChoose.map(([title, description], index) => {
               const Icon = icons[index];
               return (
                 <article
                   key={title}
-                  className="timeline-card relative shrink-0 w-[290px] sm:w-[330px] md:w-[360px] pt-14 max-md:w-full max-md:rounded-2xl max-md:border max-md:border-white/10 max-md:bg-gradient-to-br max-md:from-[#172235] max-md:to-[#0b1220] max-md:p-4 max-md:pt-4 max-md:pb-5 max-md:shadow-[0_10px_25px_rgba(0,0,0,.2)]"
-                >
+                  className="timeline-card relative shrink-0 w-[290px] sm:w-[330px] md:w-[360px] pt-14 max-md:w-full max-md:rounded-2xl max-md:border max-md:border-white/10 max-md:bg-gradient-to-br max-md:from-[#172235] max-md:to-[#0b1220] max-md:p-4 max-md:pt-4 max-md:pb-5 max-md:shadow-[0_10px_25px_rgba(0,0,0,.2)]">
                   <span className="absolute left-0 top-0 flex h-12 w-12 items-center justify-center rounded-full bg-safety text-ink shadow-[0_0_24px_rgba(246,197,21,.35)] transition-transform duration-300 hover:scale-110 max-md:left-4 max-md:top-2 max-md:h-9 max-md:w-9">
                     <Icon size={20} />
                   </span>

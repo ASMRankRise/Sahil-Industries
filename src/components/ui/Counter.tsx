@@ -74,57 +74,57 @@ export function Counter({
   const animationRef = useRef<gsap.core.Tween | null>(null);
 
   // Handle scroll-triggered animation
-    useEffect(() => {
-      if (!scrollTrigger || isVisible || hasAnimatedRef.current) return;
+  useEffect(() => {
+    if (!scrollTrigger || isVisible || hasAnimatedRef.current) return;
 
-      const observer = new IntersectionObserver(
-        (entries) => {
-          entries.forEach((entry) => {
-            if (entry.isIntersecting) {
-              setIsVisible(true);
-              observer.disconnect();
-            }
-          });
-        },
-        {
-          rootMargin: COUNTER_OBSERVER_ROOT_MARGIN,
-          threshold: COUNTER_OBSERVER_THRESHOLD,
-        },
-      );
-
-      if (elementRef.current) {
-        observer.observe(elementRef.current);
-      
-        // Check if element is already in viewport (for refresh scenarios)
-        // Use requestAnimationFrame to ensure layout is complete
-        const checkViewport = () => {
-          if (elementRef.current) {
-            const rect = elementRef.current.getBoundingClientRect();
-            const isInViewport = rect.top < window.innerHeight && rect.bottom > 0;
-            if (isInViewport) {
-              setIsVisible(true);
-              observer.disconnect();
-            }
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setIsVisible(true);
+            observer.disconnect();
           }
-        };
-      
-        // Immediate check
-        checkViewport();
-      
-        // Check after layout is complete
-        requestAnimationFrame(checkViewport);
-      
-        // Fallback: check again after a short delay in case layout isn't ready
-        const timeoutId = setTimeout(checkViewport, 100);
-      
-        return () => {
-          observer.disconnect();
-          clearTimeout(timeoutId);
-        };
-      }
+        });
+      },
+      {
+        rootMargin: COUNTER_OBSERVER_ROOT_MARGIN,
+        threshold: COUNTER_OBSERVER_THRESHOLD,
+      },
+    );
 
-      return () => observer.disconnect();
-    }, [scrollTrigger, isVisible]);
+    if (elementRef.current) {
+      observer.observe(elementRef.current);
+
+      // Check if element is already in viewport (for refresh scenarios)
+      // Use requestAnimationFrame to ensure layout is complete
+      const checkViewport = () => {
+        if (elementRef.current) {
+          const rect = elementRef.current.getBoundingClientRect();
+          const isInViewport = rect.top < window.innerHeight && rect.bottom > 0;
+          if (isInViewport) {
+            setIsVisible(true);
+            observer.disconnect();
+          }
+        }
+      };
+
+      // Immediate check
+      checkViewport();
+
+      // Check after layout is complete
+      requestAnimationFrame(checkViewport);
+
+      // Fallback: check again after a short delay in case layout isn't ready
+      const timeoutId = setTimeout(checkViewport, 100);
+
+      return () => {
+        observer.disconnect();
+        clearTimeout(timeoutId);
+      };
+    }
+
+    return () => observer.disconnect();
+  }, [scrollTrigger, isVisible]);
 
   // Animate when visible
   useEffect(() => {
@@ -245,7 +245,10 @@ export function CounterGroup({
           }
         });
       },
-      { rootMargin: COUNTER_GROUP_OBSERVER_ROOT_MARGIN, threshold: COUNTER_GROUP_OBSERVER_THRESHOLD },
+      {
+        rootMargin: COUNTER_GROUP_OBSERVER_ROOT_MARGIN,
+        threshold: COUNTER_GROUP_OBSERVER_THRESHOLD,
+      },
     );
 
     if (containerRef.current) {

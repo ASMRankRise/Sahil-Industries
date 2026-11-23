@@ -1,14 +1,31 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { ChevronDown, Download, Eye, Filter, Mail, Search, Trash2, X } from "lucide-react";
+import {
+  ChevronDown,
+  Download,
+  Eye,
+  Filter,
+  Mail,
+  Search,
+  Trash2,
+  X,
+} from "lucide-react";
 import { AdminDashboardLayoutWrapper } from "@/components/AdminDashboardLayout";
 import { AdminTableSkeleton } from "@/components/AdminSkeleton";
 
 type RecordItem = {
-  id: string; name: string; email: string; phone?: string; subject?: string;
-  city?: string; message: string; status: string; created_at: string;
-  kind: "enquiry"; read: boolean;
+  id: string;
+  name: string;
+  email: string;
+  phone?: string;
+  subject?: string;
+  city?: string;
+  message: string;
+  status: string;
+  created_at: string;
+  kind: "enquiry";
+  read: boolean;
 };
 
 const PAGE_SIZE = 10;
@@ -32,62 +49,418 @@ export default function EnquiriesPage() {
   const [statusOpen, setStatusOpen] = useState(false);
 
   const load = useCallback(async () => {
-    setLoading(true); setError("");
+    setLoading(true);
+    setError("");
     try {
-      const enquiries = await fetch("/api/admin/enquiries", { cache: "no-store" }).then(r => r.ok ? r.json() : Promise.reject(r));
-      const read = JSON.parse(localStorage.getItem("admin_read_records") || "[]") as string[];
-      setItems([
-        ...(enquiries.enquiries || []).map((x: any) => ({ ...x, name: x.name, phone: x.phone, kind: "enquiry", read: read.includes(`enquiry:${x.id}`) })),
-      ].map(x => ({ ...x, status: String(x.status || "new").toLowerCase() })));
-    } catch { setError("Unable to load records. Please try again."); }
-    finally { setLoading(false); }
+      const enquiries = await fetch("/api/admin/enquiries", {
+        cache: "no-store",
+      }).then((r) => (r.ok ? r.json() : Promise.reject(r)));
+      const read = JSON.parse(
+        localStorage.getItem("admin_read_records") || "[]",
+      ) as string[];
+      setItems(
+        [
+          ...(enquiries.enquiries || []).map((x: any) => ({
+            ...x,
+            name: x.name,
+            phone: x.phone,
+            kind: "enquiry",
+            read: read.includes(`enquiry:${x.id}`),
+          })),
+        ].map((x) => ({
+          ...x,
+          status: String(x.status || "new").toLowerCase(),
+        })),
+      );
+    } catch {
+      setError("Unable to load records. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   }, []);
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => {
+    load();
+  }, [load]);
 
-  const filtered = useMemo(() => items.filter(x =>
-    (status === "all" || x.status === status) &&
-    `${x.id} ${x.name} ${x.email} ${x.subject || ""} ${x.city || ""}`.toLowerCase().includes(search.toLowerCase())
-  ), [items, status, search]);
+  const filtered = useMemo(
+    () =>
+      items.filter(
+        (x) =>
+          (status === "all" || x.status === status) &&
+          `${x.id} ${x.name} ${x.email} ${x.subject || ""} ${x.city || ""}`
+            .toLowerCase()
+            .includes(search.toLowerCase()),
+      ),
+    [items, status, search],
+  );
   const pages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const visible = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
-  useEffect(() => { setPage(1); }, [status, search]);
+  useEffect(() => {
+    setPage(1);
+  }, [status, search]);
 
   const markRead = (item: RecordItem) => {
     if (item.read) return;
     const key = `${item.kind}:${item.id}`;
-    const next = [...new Set([...JSON.parse(localStorage.getItem("admin_read_records") || "[]"), key])];
+    const next = [
+      ...new Set([
+        ...JSON.parse(localStorage.getItem("admin_read_records") || "[]"),
+        key,
+      ]),
+    ];
     localStorage.setItem("admin_read_records", JSON.stringify(next));
-    setItems(xs => xs.map(x => x.kind === item.kind && x.id === item.id ? { ...x, read: true } : x));
+    setItems((xs) =>
+      xs.map((x) =>
+        x.kind === item.kind && x.id === item.id ? { ...x, read: true } : x,
+      ),
+    );
   };
   const remove = async (item: RecordItem) => {
     if (!confirm(`Delete this ${item.kind}?`)) return;
-    const response = await fetch(`/api/admin/enquiries?id=${encodeURIComponent(item.id)}`, { method: "DELETE" });
-    if (response.ok) { setItems(xs => xs.filter(x => !(x.kind === item.kind && x.id === item.id))); if (selected?.id === item.id) setSelected(null); }
-    else setError("Unable to delete enquiry.");
+    const response = await fetch(
+      `/api/admin/enquiries?id=${encodeURIComponent(item.id)}`,
+      { method: "DELETE" },
+    );
+    if (response.ok) {
+      setItems((xs) =>
+        xs.filter((x) => !(x.kind === item.kind && x.id === item.id)),
+      );
+      if (selected?.id === item.id) setSelected(null);
+    } else setError("Unable to delete enquiry.");
   };
   const updateStatus = async (item: RecordItem, nextStatus: string) => {
     setSavingId(item.id);
     try {
-      const response = await fetch("/api/admin/enquiries", { method: "PATCH", headers: { "content-type": "application/json" }, body: JSON.stringify({ id: item.id, status: nextStatus }) });
+      const response = await fetch("/api/admin/enquiries", {
+        method: "PATCH",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ id: item.id, status: nextStatus }),
+      });
       if (!response.ok) throw new Error();
-      setItems(xs => xs.map(x => x.id === item.id ? { ...x, status: nextStatus } : x));
-      setSelected(x => x?.id === item.id ? { ...x, status: nextStatus } : x);
-    } catch { setError("Unable to update enquiry status."); }
-    finally { setSavingId(null); }
+      setItems((xs) =>
+        xs.map((x) => (x.id === item.id ? { ...x, status: nextStatus } : x)),
+      );
+      setSelected((x) =>
+        x?.id === item.id ? { ...x, status: nextStatus } : x,
+      );
+    } catch {
+      setError("Unable to update enquiry status.");
+    } finally {
+      setSavingId(null);
+    }
   };
   const exportCsv = () => {
-    const csv = [["Type", "ID", "Name", "Email", "Phone", "Subject/City", "Status", "Date"], ...filtered.map(x => [x.kind, x.id, x.name, x.email, x.phone || "", x.subject || x.city || "", x.status, x.created_at])]
-      .map(row => row.map(v => `"${String(v).replaceAll('"', '""')}"`).join(",")).join("\n");
-    const url = URL.createObjectURL(new Blob([csv], { type: "text/csv" })); const a = document.createElement("a"); a.href = url; a.download = "admin-records.csv"; a.click(); URL.revokeObjectURL(url);
+    const csv = [
+      [
+        "Type",
+        "ID",
+        "Name",
+        "Email",
+        "Phone",
+        "Subject/City",
+        "Status",
+        "Date",
+      ],
+      ...filtered.map((x) => [
+        x.kind,
+        x.id,
+        x.name,
+        x.email,
+        x.phone || "",
+        x.subject || x.city || "",
+        x.status,
+        x.created_at,
+      ]),
+    ]
+      .map((row) =>
+        row.map((v) => `"${String(v).replaceAll('"', '""')}"`).join(","),
+      )
+      .join("\n");
+    const url = URL.createObjectURL(new Blob([csv], { type: "text/csv" }));
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "admin-records.csv";
+    a.click();
+    URL.revokeObjectURL(url);
   };
 
-  return <AdminDashboardLayoutWrapper activeNav="/admin/enquiries" pageTitle="Enquiries" pageDescription="Manage customer enquiries">
-    <div className="space-y-6">
-      <div className="flex justify-end"><button onClick={exportCsv} className="flex items-center gap-2 px-4 py-2.5 border border-white/10 rounded-lg text-sm hover:bg-white/5"><Download size={15}/> Export CSV</button></div>
-       <div className="bg-surface border border-white/10 rounded-2xl p-4 flex flex-wrap gap-3"><div className="relative flex-1 min-w-[220px]"><Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16}/><input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search name, email, subject..." className="h-10 w-full pl-10 pr-3 bg-white/5 border border-white/10 rounded-lg text-sm text-white"/></div><div className="relative"><button type="button" aria-haspopup="listbox" aria-expanded={statusOpen} onClick={() => setStatusOpen(open => !open)} className="flex h-10 min-w-[146px] items-center gap-2 rounded-lg border border-white/10 bg-white/5 pl-3 pr-2 text-sm text-white"><Filter className="shrink-0 text-slate-400" size={14}/><span className="flex-1 text-left">{status === "all" ? "All statuses" : status}</span><ChevronDown size={15} className={`text-slate-400 transition-transform ${statusOpen ? "rotate-180" : ""}`}/></button>{statusOpen && <div role="listbox" className="absolute right-0 top-12 z-30 min-w-full overflow-hidden rounded-lg border border-white/10 bg-slate-800 py-1 shadow-xl">{statuses.map(x => <button type="button" role="option" aria-selected={status === x} key={x} onClick={() => { setStatus(x); setStatusOpen(false); }} className={`block w-full whitespace-nowrap px-3 py-2 text-left text-sm capitalize transition-colors ${status === x ? "bg-blue-400 text-slate-900" : "text-slate-200 hover:bg-white/10"}`}>{x === "all" ? "All statuses" : x}</button>)}</div>}</div></div>
-       <div className="bg-surface border border-white/10 rounded-2xl overflow-x-auto">{loading ? <AdminTableSkeleton /> : error ? <div className="p-12 text-center text-red-400">{error} <button onClick={load} className="underline ml-2">Retry</button></div> : <table className="w-full text-left text-sm min-w-[800px]"><thead><tr className="border-b border-white/10 text-slate-400 uppercase text-xs"><th className="p-4">Type</th><th className="p-4">Name</th><th className="p-4">Subject / City</th><th className="p-4">Status</th><th className="p-4">Date</th><th className="p-4">Actions</th></tr></thead><tbody className="divide-y divide-white/5">{visible.map(x => <tr key={`${x.kind}-${x.id}`} className={`${x.read ? "" : "bg-blue-500/5"} hover:bg-white/[.03]`}><td className="p-4 capitalize text-safety">{x.kind}</td><td className="p-4"><div className="font-medium text-white">{!x.read && <Mail size={13} className="inline mr-1"/>}{x.name}</div><div className="text-xs text-slate-400">{x.email}</div></td><td className="p-4 text-slate-300">{x.subject || x.city || "—"}</td><td className="p-4"><select value={x.status} disabled={savingId === x.id} onChange={e => updateStatus(x, e.target.value)} style={{ backgroundColor: statusColors[x.status] || "#475569" }} className={`admin-status-select status-${x.status.replaceAll(" ", "-")} rounded border border-white/20 px-2 py-1 text-xs capitalize text-white`}><option className="bg-white text-slate-900" value="new">new</option><option className="bg-white text-slate-900" value="in progress">in progress</option><option className="bg-white text-slate-900" value="replied">replied</option><option className="bg-white text-slate-900" value="closed">closed</option></select></td><td className="p-4 text-slate-400">{new Date(x.created_at).toLocaleDateString()}</td><td className="p-4"><button title="View details" onClick={() => { markRead(x); setSelected(x); }} className="p-2 text-slate-400 hover:text-safety"><Eye size={15}/></button><button title="Delete" onClick={() => remove(x)} className="p-2 text-slate-400 hover:text-red-400"><Trash2 size={15}/></button></td></tr>)}</tbody></table>}{!loading && !error && !visible.length && <div className="p-12 text-center text-slate-400">No records found.</div>}</div>
-        {selected && <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/70 p-4 sm:items-center" onClick={() => setSelected(null)}><div className="my-auto flex max-h-[min(720px,calc(100dvh-2rem))] w-full max-w-xl flex-col overflow-hidden rounded-2xl border border-white/10 bg-surface shadow-2xl" onClick={e => e.stopPropagation()}><div className="flex shrink-0 items-start justify-between border-b border-white/10 bg-white/[.03] px-6 py-5"><div><p className="mb-1 text-xs font-medium uppercase tracking-wider text-safety">Enquiry details</p><h2 className="text-xl font-bold text-white">{selected.subject || "Customer enquiry"}</h2><p className="mt-1 text-xs text-slate-400">Received {new Date(selected.created_at).toLocaleString()}</p></div><button aria-label="Close enquiry details" onClick={() => setSelected(null)} className="rounded-lg p-2 text-slate-400 transition hover:bg-white/10 hover:text-white"><X size={18}/></button></div><div className="min-h-0 flex-1 space-y-5 overflow-y-auto overscroll-contain p-6"><div className="flex items-center justify-between rounded-xl border border-white/10 bg-white/[.03] p-4"><div><p className="font-semibold text-white">{selected.name}</p><a className="text-sm text-safety hover:underline" href={`mailto:${selected.email}`}>{selected.email}</a></div><span className={`admin-status-badge status-${selected.status.replaceAll(" ", "-")} rounded-full px-3 py-1 text-xs font-medium capitalize text-white`} style={{ backgroundColor: statusColors[selected.status] || "#475569" }}>{selected.status}</span></div><div className="grid gap-3 sm:grid-cols-2"><div className="rounded-xl border border-white/10 p-4"><p className="mb-1 text-xs uppercase tracking-wide text-slate-500">Phone</p>{selected.phone ? <a className="text-sm text-white hover:text-safety" href={`tel:${selected.phone}`}>{selected.phone}</a> : <p className="text-sm text-slate-400">Not provided</p>}</div><div className="rounded-xl border border-white/10 p-4"><p className="mb-1 text-xs uppercase tracking-wide text-slate-500">Reference</p><p className="text-sm text-white">{selected.id}</p></div></div><div><p className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">Message</p><div className="min-h-28 max-h-48 overflow-y-auto overscroll-contain whitespace-pre-wrap rounded-xl border border-white/10 bg-black/10 p-4 text-sm leading-6 text-slate-200">{selected.message}</div></div><div className="flex justify-end gap-3 border-t border-white/10 pt-4"><a href={`mailto:${selected.email}`} className="rounded-lg bg-safety px-4 py-2 text-sm font-semibold text-slate-950 transition hover:brightness-110">Reply by email</a><button onClick={() => setSelected(null)} className="rounded-lg border border-white/10 px-4 py-2 text-sm text-slate-300 transition hover:bg-white/5 hover:text-white">Close</button></div></div></div></div>}
-      <div className="flex items-center justify-between text-sm text-slate-400"><span>Showing {filtered.length ? (page - 1) * PAGE_SIZE + 1 : 0}–{Math.min(page * PAGE_SIZE, filtered.length)} of {filtered.length}</span><div className="flex gap-2"><button disabled={page === 1} onClick={() => setPage(page - 1)} className="px-3 py-2 border border-white/10 rounded disabled:opacity-40">Previous</button><span className="px-3 py-2">{page} / {pages}</span><button disabled={page === pages} onClick={() => setPage(page + 1)} className="px-3 py-2 border border-white/10 rounded disabled:opacity-40">Next</button></div></div>
-    </div>
-  </AdminDashboardLayoutWrapper>;
+  return (
+    <AdminDashboardLayoutWrapper
+      activeNav="/admin/enquiries"
+      pageTitle="Enquiries"
+      pageDescription="Manage customer enquiries">
+      <div className="space-y-6">
+        <div className="flex justify-end">
+          <button
+            onClick={exportCsv}
+            className="flex items-center gap-2 px-4 py-2.5 border border-white/10 rounded-lg text-sm hover:bg-white/5">
+            <Download size={15} /> Export CSV
+          </button>
+        </div>
+        <div className="bg-surface border border-white/10 rounded-2xl p-4 flex flex-wrap gap-3">
+          <div className="relative flex-1 min-w-[220px]">
+            <Search
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+              size={16}
+            />
+            <input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search name, email, subject..."
+              className="h-10 w-full pl-10 pr-3 bg-white/5 border border-white/10 rounded-lg text-sm text-white"
+            />
+          </div>
+          <div className="relative">
+            <button
+              type="button"
+              aria-haspopup="listbox"
+              aria-expanded={statusOpen}
+              onClick={() => setStatusOpen((open) => !open)}
+              className="flex h-10 min-w-[146px] items-center gap-2 rounded-lg border border-white/10 bg-white/5 pl-3 pr-2 text-sm text-white">
+              <Filter className="shrink-0 text-slate-400" size={14} />
+              <span className="flex-1 text-left">
+                {status === "all" ? "All statuses" : status}
+              </span>
+              <ChevronDown
+                size={15}
+                className={`text-slate-400 transition-transform ${statusOpen ? "rotate-180" : ""}`}
+              />
+            </button>
+            {statusOpen && (
+              <div
+                role="listbox"
+                className="absolute right-0 top-12 z-30 min-w-full overflow-hidden rounded-lg border border-white/10 bg-slate-800 py-1 shadow-xl">
+                {statuses.map((x) => (
+                  <button
+                    type="button"
+                    role="option"
+                    aria-selected={status === x}
+                    key={x}
+                    onClick={() => {
+                      setStatus(x);
+                      setStatusOpen(false);
+                    }}
+                    className={`block w-full whitespace-nowrap px-3 py-2 text-left text-sm capitalize transition-colors ${status === x ? "bg-blue-400 text-slate-900" : "text-slate-200 hover:bg-white/10"}`}>
+                    {x === "all" ? "All statuses" : x}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+        <div className="bg-surface border border-white/10 rounded-2xl overflow-x-auto">
+          {loading ? (
+            <AdminTableSkeleton />
+          ) : error ? (
+            <div className="p-12 text-center text-red-400">
+              {error}{" "}
+              <button onClick={load} className="underline ml-2">
+                Retry
+              </button>
+            </div>
+          ) : (
+            <table className="w-full text-left text-sm min-w-[800px]">
+              <thead>
+                <tr className="border-b border-white/10 text-slate-400 uppercase text-xs">
+                  <th className="p-4">Type</th>
+                  <th className="p-4">Name</th>
+                  <th className="p-4">Subject / City</th>
+                  <th className="p-4">Status</th>
+                  <th className="p-4">Date</th>
+                  <th className="p-4">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-white/5">
+                {visible.map((x) => (
+                  <tr
+                    key={`${x.kind}-${x.id}`}
+                    className={`${x.read ? "" : "bg-blue-500/5"} hover:bg-white/[.03]`}>
+                    <td className="p-4 capitalize text-safety">{x.kind}</td>
+                    <td className="p-4">
+                      <div className="font-medium text-white">
+                        {!x.read && <Mail size={13} className="inline mr-1" />}
+                        {x.name}
+                      </div>
+                      <div className="text-xs text-slate-400">{x.email}</div>
+                    </td>
+                    <td className="p-4 text-slate-300">
+                      {x.subject || x.city || "—"}
+                    </td>
+                    <td className="p-4">
+                      <select
+                        value={x.status}
+                        disabled={savingId === x.id}
+                        onChange={(e) => updateStatus(x, e.target.value)}
+                        style={{
+                          backgroundColor: statusColors[x.status] || "#475569",
+                        }}
+                        className={`admin-status-select status-${x.status.replaceAll(" ", "-")} rounded border border-white/20 px-2 py-1 text-xs capitalize text-white`}>
+                        <option className="bg-white text-slate-900" value="new">
+                          new
+                        </option>
+                        <option
+                          className="bg-white text-slate-900"
+                          value="in progress">
+                          in progress
+                        </option>
+                        <option
+                          className="bg-white text-slate-900"
+                          value="replied">
+                          replied
+                        </option>
+                        <option
+                          className="bg-white text-slate-900"
+                          value="closed">
+                          closed
+                        </option>
+                      </select>
+                    </td>
+                    <td className="p-4 text-slate-400">
+                      {new Date(x.created_at).toLocaleDateString()}
+                    </td>
+                    <td className="p-4">
+                      <button
+                        title="View details"
+                        onClick={() => {
+                          markRead(x);
+                          setSelected(x);
+                        }}
+                        className="p-2 text-slate-400 hover:text-safety">
+                        <Eye size={15} />
+                      </button>
+                      <button
+                        title="Delete"
+                        onClick={() => remove(x)}
+                        className="p-2 text-slate-400 hover:text-red-400">
+                        <Trash2 size={15} />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+          {!loading && !error && !visible.length && (
+            <div className="p-12 text-center text-slate-400">
+              No records found.
+            </div>
+          )}
+        </div>
+        {selected && (
+          <div
+            className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/70 p-4 sm:items-center"
+            onClick={() => setSelected(null)}>
+            <div
+              className="my-auto flex max-h-[min(720px,calc(100dvh-2rem))] w-full max-w-xl flex-col overflow-hidden rounded-2xl border border-white/10 bg-surface shadow-2xl"
+              onClick={(e) => e.stopPropagation()}>
+              <div className="flex shrink-0 items-start justify-between border-b border-white/10 bg-white/[.03] px-6 py-5">
+                <div>
+                  <p className="mb-1 text-xs font-medium uppercase tracking-wider text-safety">
+                    Enquiry details
+                  </p>
+                  <h2 className="text-xl font-bold text-white">
+                    {selected.subject || "Customer enquiry"}
+                  </h2>
+                  <p className="mt-1 text-xs text-slate-400">
+                    Received {new Date(selected.created_at).toLocaleString()}
+                  </p>
+                </div>
+                <button
+                  aria-label="Close enquiry details"
+                  onClick={() => setSelected(null)}
+                  className="rounded-lg p-2 text-slate-400 transition hover:bg-white/10 hover:text-white">
+                  <X size={18} />
+                </button>
+              </div>
+              <div className="min-h-0 flex-1 space-y-5 overflow-y-auto overscroll-contain p-6">
+                <div className="flex items-center justify-between rounded-xl border border-white/10 bg-white/[.03] p-4">
+                  <div>
+                    <p className="font-semibold text-white">{selected.name}</p>
+                    <a
+                      className="text-sm text-safety hover:underline"
+                      href={`mailto:${selected.email}`}>
+                      {selected.email}
+                    </a>
+                  </div>
+                  <span
+                    className={`admin-status-badge status-${selected.status.replaceAll(" ", "-")} rounded-full px-3 py-1 text-xs font-medium capitalize text-white`}
+                    style={{
+                      backgroundColor:
+                        statusColors[selected.status] || "#475569",
+                    }}>
+                    {selected.status}
+                  </span>
+                </div>
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <div className="rounded-xl border border-white/10 p-4">
+                    <p className="mb-1 text-xs uppercase tracking-wide text-slate-500">
+                      Phone
+                    </p>
+                    {selected.phone ? (
+                      <a
+                        className="text-sm text-white hover:text-safety"
+                        href={`tel:${selected.phone}`}>
+                        {selected.phone}
+                      </a>
+                    ) : (
+                      <p className="text-sm text-slate-400">Not provided</p>
+                    )}
+                  </div>
+                  <div className="rounded-xl border border-white/10 p-4">
+                    <p className="mb-1 text-xs uppercase tracking-wide text-slate-500">
+                      Reference
+                    </p>
+                    <p className="text-sm text-white">{selected.id}</p>
+                  </div>
+                </div>
+                <div>
+                  <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">
+                    Message
+                  </p>
+                  <div className="min-h-28 max-h-48 overflow-y-auto overscroll-contain whitespace-pre-wrap rounded-xl border border-white/10 bg-black/10 p-4 text-sm leading-6 text-slate-200">
+                    {selected.message}
+                  </div>
+                </div>
+                <div className="flex justify-end gap-3 border-t border-white/10 pt-4">
+                  <a
+                    href={`mailto:${selected.email}`}
+                    className="rounded-lg bg-safety px-4 py-2 text-sm font-semibold text-slate-950 transition hover:brightness-110">
+                    Reply by email
+                  </a>
+                  <button
+                    onClick={() => setSelected(null)}
+                    className="rounded-lg border border-white/10 px-4 py-2 text-sm text-slate-300 transition hover:bg-white/5 hover:text-white">
+                    Close
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+        <div className="flex items-center justify-between text-sm text-slate-400">
+          <span>
+            Showing {filtered.length ? (page - 1) * PAGE_SIZE + 1 : 0}–
+            {Math.min(page * PAGE_SIZE, filtered.length)} of {filtered.length}
+          </span>
+          <div className="flex gap-2">
+            <button
+              disabled={page === 1}
+              onClick={() => setPage(page - 1)}
+              className="px-3 py-2 border border-white/10 rounded disabled:opacity-40">
+              Previous
+            </button>
+            <span className="px-3 py-2">
+              {page} / {pages}
+            </span>
+            <button
+              disabled={page === pages}
+              onClick={() => setPage(page + 1)}
+              className="px-3 py-2 border border-white/10 rounded disabled:opacity-40">
+              Next
+            </button>
+          </div>
+        </div>
+      </div>
+    </AdminDashboardLayoutWrapper>
+  );
 }

@@ -1,6 +1,9 @@
 export function AdminPageSkeleton() {
   return (
-    <div className="min-h-screen bg-ink animate-pulse" aria-label="Loading admin dashboard" role="status">
+    <div
+      className="min-h-screen bg-ink animate-pulse"
+      aria-label="Loading admin dashboard"
+      role="status">
       <div className="fixed inset-y-0 left-0 hidden w-64 border-r border-white/10 bg-surface lg:block" />
       <main className="lg:pl-64">
         <div className="border-b border-white/10 bg-surface px-6 py-5">
@@ -9,7 +12,12 @@ export function AdminPageSkeleton() {
         </div>
         <div className="space-y-6 p-6">
           <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-            {[1, 2, 3, 4].map((item) => <div key={item} className="h-28 rounded-2xl border border-slate-800 bg-surface" />)}
+            {[1, 2, 3, 4].map((item) => (
+              <div
+                key={item}
+                className="h-28 rounded-2xl border border-slate-800 bg-surface"
+              />
+            ))}
           </div>
           <div className="h-80 rounded-2xl border border-slate-800 bg-surface" />
         </div>
@@ -18,13 +26,25 @@ export function AdminPageSkeleton() {
   );
 }
 
-export function AdminTableSkeleton({ rows = 6, columns = 6 }: { rows?: number; columns?: number }) {
+export function AdminTableSkeleton({
+  rows = 6,
+  columns = 6,
+}: {
+  rows?: number;
+  columns?: number;
+}) {
   return (
-    <div className="space-y-4 p-5 animate-pulse" aria-label="Loading records" role="status">
+    <div
+      className="space-y-4 p-5 animate-pulse"
+      aria-label="Loading records"
+      role="status">
       {Array.from({ length: rows }).map((_, row) => (
         <div key={row} className="grid gap-4 sm:grid-cols-6">
           {Array.from({ length: columns }).map((__, column) => (
-            <div key={column} className={`h-4 rounded-md bg-slate-700/60 ${column === 1 ? "sm:col-span-2" : ""}`} />
+            <div
+              key={column}
+              className={`h-4 rounded-md bg-slate-700/60 ${column === 1 ? "sm:col-span-2" : ""}`}
+            />
           ))}
         </div>
       ))}
@@ -34,12 +54,25 @@ export function AdminTableSkeleton({ rows = 6, columns = 6 }: { rows?: number; c
 
 export function AdminAnalyticsSkeleton() {
   return (
-    <div className="space-y-6 animate-pulse" aria-label="Loading analytics" role="status">
+    <div
+      className="space-y-6 animate-pulse"
+      aria-label="Loading analytics"
+      role="status">
       <div className="grid gap-4 sm:grid-cols-3">
-        {[1, 2, 3].map((item) => <div key={item} className="h-28 rounded-2xl border border-white/10 bg-surface" />)}
+        {[1, 2, 3].map((item) => (
+          <div
+            key={item}
+            className="h-28 rounded-2xl border border-white/10 bg-surface"
+          />
+        ))}
       </div>
       <div className="grid gap-6 lg:grid-cols-2">
-        {[1, 2].map((item) => <div key={item} className="h-80 rounded-2xl border border-white/10 bg-surface" />)}
+        {[1, 2].map((item) => (
+          <div
+            key={item}
+            className="h-80 rounded-2xl border border-white/10 bg-surface"
+          />
+        ))}
       </div>
     </div>
   );
@@ -47,14 +80,27 @@ export function AdminAnalyticsSkeleton() {
 
 export function AdminGallerySkeleton() {
   return (
-    <div className="space-y-6 animate-pulse" aria-label="Loading gallery" role="status">
+    <div
+      className="space-y-6 animate-pulse"
+      aria-label="Loading gallery"
+      role="status">
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-        {[1, 2, 3, 4].map((item) => <div key={item} className="h-28 rounded-2xl border border-white/10 bg-surface" />)}
+        {[1, 2, 3, 4].map((item) => (
+          <div
+            key={item}
+            className="h-28 rounded-2xl border border-white/10 bg-surface"
+          />
+        ))}
       </div>
       <div className="h-20 rounded-2xl border border-white/10 bg-surface" />
       <div className="h-40 rounded-2xl border border-white/10 bg-surface" />
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-        {[1, 2, 3, 4, 5, 6, 7, 8].map((item) => <div key={item} className="h-64 rounded-2xl border border-white/10 bg-surface" />)}
+        {[1, 2, 3, 4, 5, 6, 7, 8].map((item) => (
+          <div
+            key={item}
+            className="h-64 rounded-2xl border border-white/10 bg-surface"
+          />
+        ))}
       </div>
     </div>
   );

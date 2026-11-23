@@ -1,4 +1,4 @@
-import source from '@/data/generated/double-girder-eot-crane.json';
+import source from "@/data/generated/double-girder-eot-crane.json";
 
 /** Source-derived Double Girder content, including all original specification tables. */
 export const doubleGirderProduct = {

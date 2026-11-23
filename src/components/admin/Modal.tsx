@@ -16,7 +16,19 @@ interface ModalProps {
 }
 
 export const Modal = forwardRef<HTMLDivElement, ModalProps>(
-  ({ isOpen, onClose, title, children, size = "md", showCloseButton = true, closeOnOverlayClick = true, className = "" }, ref) => {
+  (
+    {
+      isOpen,
+      onClose,
+      title,
+      children,
+      size = "md",
+      showCloseButton = true,
+      closeOnOverlayClick = true,
+      className = "",
+    },
+    ref,
+  ) => {
     const sizeClasses = {
       sm: "max-w-md",
       md: "max-w-2xl",
@@ -36,24 +48,25 @@ export const Modal = forwardRef<HTMLDivElement, ModalProps>(
             onClick={closeOnOverlayClick ? onClose : undefined}
             role="dialog"
             aria-modal="true"
-            aria-labelledby="modal-title"
-          >
+            aria-labelledby="modal-title">
             <motion.div
               ref={ref}
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
               className={`flex max-h-full min-w-0 flex-col overflow-hidden rounded-2xl border border-white/20 bg-surface w-full ${sizeClasses[size]} ${className}`}
-              onClick={(e) => e.stopPropagation()}
-            >
+              onClick={(e) => e.stopPropagation()}>
               <div className="flex shrink-0 items-center justify-between gap-2 border-b border-white/20 p-3 sm:p-5">
-                <h3 id="modal-title" className="min-w-0 break-words text-lg font-bold text-white">{title}</h3>
+                <h3
+                  id="modal-title"
+                  className="min-w-0 break-words text-lg font-bold text-white">
+                  {title}
+                </h3>
                 {showCloseButton && (
                   <button
                     onClick={onClose}
                     className="grid size-11 shrink-0 place-items-center rounded-lg text-slate-300 transition-colors hover:bg-white/10 hover:text-white"
-                    aria-label="Close modal"
-                  >
+                    aria-label="Close modal">
                     <X size={20} className="text-white" strokeWidth={2.5} />
                   </button>
                 )}
@@ -66,7 +79,7 @@ export const Modal = forwardRef<HTMLDivElement, ModalProps>(
         )}
       </AnimatePresence>
     );
-  }
+  },
 );
 
 Modal.displayName = "Modal";
@@ -83,11 +96,39 @@ interface ConfirmModalProps {
   isLoading?: boolean;
 }
 
-export function ConfirmModal({ isOpen, onClose, onConfirm, title, message, confirmLabel = "Confirm", cancelLabel = "Cancel", variant = "danger", isLoading = false }: ConfirmModalProps) {
+export function ConfirmModal({
+  isOpen,
+  onClose,
+  onConfirm,
+  title,
+  message,
+  confirmLabel = "Confirm",
+  cancelLabel = "Cancel",
+  variant = "danger",
+  isLoading = false,
+}: ConfirmModalProps) {
   const variantStyles = {
-    danger: { iconColor: "text-red-400", bgColor: "bg-red-500/10", borderColor: "border-red-500/30", buttonColor: "bg-red-500/20 border border-red-500/30 text-red-400 hover:bg-red-500/30" },
-    warning: { iconColor: "text-yellow-400", bgColor: "bg-yellow-500/10", borderColor: "border-yellow-500/30", buttonColor: "bg-yellow-500/20 border border-yellow-500/30 text-yellow-400 hover:bg-yellow-500/30" },
-    info: { iconColor: "text-blue-400", bgColor: "bg-blue-500/10", borderColor: "border-blue-500/30", buttonColor: "bg-blue-500/20 border border-blue-500/30 text-blue-400 hover:bg-blue-500/30" },
+    danger: {
+      iconColor: "text-red-400",
+      bgColor: "bg-red-500/10",
+      borderColor: "border-red-500/30",
+      buttonColor:
+        "bg-red-500/20 border border-red-500/30 text-red-400 hover:bg-red-500/30",
+    },
+    warning: {
+      iconColor: "text-yellow-400",
+      bgColor: "bg-yellow-500/10",
+      borderColor: "border-yellow-500/30",
+      buttonColor:
+        "bg-yellow-500/20 border border-yellow-500/30 text-yellow-400 hover:bg-yellow-500/30",
+    },
+    info: {
+      iconColor: "text-blue-400",
+      bgColor: "bg-blue-500/10",
+      borderColor: "border-blue-500/30",
+      buttonColor:
+        "bg-blue-500/20 border border-blue-500/30 text-blue-400 hover:bg-blue-500/30",
+    },
   };
 
   const styles = variantStyles[variant];
@@ -103,36 +144,76 @@ export function ConfirmModal({ isOpen, onClose, onConfirm, title, message, confi
           onClick={onClose}
           role="dialog"
           aria-modal="true"
-          aria-labelledby="confirm-modal-title"
-        >
+          aria-labelledby="confirm-modal-title">
           <motion.div
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
             className="max-h-full w-full max-w-md overflow-y-auto overscroll-contain rounded-2xl border border-white/20 bg-surface"
-            onClick={(e) => e.stopPropagation()}
-          >
+            onClick={(e) => e.stopPropagation()}>
             <div className="p-6 text-center">
-              <div className={`h-14 w-14 rounded-full flex items-center justify-center mx-auto mb-4 ${styles.bgColor} ${styles.iconColor} ${styles.borderColor}`}>
-                {variant === "danger" && <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>}
-                {variant === "warning" && <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>}
-                {variant === "info" && <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>}
+              <div
+                className={`h-14 w-14 rounded-full flex items-center justify-center mx-auto mb-4 ${styles.bgColor} ${styles.iconColor} ${styles.borderColor}`}>
+                {variant === "danger" && (
+                  <svg
+                    className="w-7 h-7 text-white"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24">
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                    />
+                  </svg>
+                )}
+                {variant === "warning" && (
+                  <svg
+                    className="w-7 h-7 text-white"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24">
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                    />
+                  </svg>
+                )}
+                {variant === "info" && (
+                  <svg
+                    className="w-7 h-7 text-white"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24">
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
+                  </svg>
+                )}
               </div>
-              <h3 id="confirm-modal-title" className="text-lg font-bold text-white mb-2">{title}</h3>
+              <h3
+                id="confirm-modal-title"
+                className="text-lg font-bold text-white mb-2">
+                {title}
+              </h3>
               <p className="text-slate-300 mb-6">{message}</p>
               <div className="flex flex-wrap justify-center gap-3 [&>button]:min-h-11">
                 <button
                   onClick={onClose}
                   disabled={isLoading}
-                  className="px-4 py-2 border border-white/20 rounded-lg text-sm font-medium text-slate-200 hover:bg-white/10 transition-colors disabled:opacity-50"
-                >
+                  className="px-4 py-2 border border-white/20 rounded-lg text-sm font-medium text-slate-200 hover:bg-white/10 transition-colors disabled:opacity-50">
                   {cancelLabel}
                 </button>
                 <button
                   onClick={onConfirm}
                   disabled={isLoading}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${styles.buttonColor} disabled:opacity-50`}
-                >
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${styles.buttonColor} disabled:opacity-50`}>
                   {isLoading ? "Processing..." : confirmLabel}
                 </button>
               </div>
