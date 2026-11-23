@@ -181,7 +181,7 @@ export async function POST(request: NextRequest) {
         </head>
         <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
            <div style="background: #101820; padding: 30px; border-radius: 10px 10px 0 0; text-align: center;">
-             <table role="presentation" style="width:100%;border-collapse:collapse"><tr><td style="width:190px;vertical-align:middle"><img src="cid:sahil-industries-logo" width="170" alt="Sahil Industries" style="display:block;width:170px;height:auto;border:0;"></td><td style="vertical-align:middle;padding-left:18px;border-left:1px solid #34404b"><h1 style="color:#fff;margin:0;font-size:24px;text-align:left">Thank You for Applying!</h1></td></tr></table>
+             <table role="presentation" style="width:100%;border-collapse:collapse"><tr><td style="width:190px;vertical-align:middle"><img src="cid:sahil-industries-logo" width="170" alt="Sahil Industries" style="display:block;width:170px;height:auto;border:0;"></td><td style="vertical-align:middle;padding-left:18px;border-left:1px solid #34404b"><div style="color:#f6c515;font-size:13px;font-weight:bold;letter-spacing:1px;text-align:left">SAHIL INDUSTRIES</div><h1 style="color:#fff;margin:8px 0 0;font-size:24px;text-align:left">Thank You for Applying!</h1></td></tr></table>
           </div>
           <div style="background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px; border: 1px solid #eee;">
              <p style="font-size: 16px; color: #333;">Dear ${escapeHtml(fullname)},</p>
