@@ -9,7 +9,7 @@ export const primaryNavigation: NavigationItem[] = [
   { label: "About", href: "/about" },
   {
     label: "Products",
-    href: "/products/single-girder-eot-crane",
+    href: "/products",
     children: [
       {
         label: "Single Girder EOT Crane",

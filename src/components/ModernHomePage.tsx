@@ -391,7 +391,7 @@ export default function ModernHomePage() {
                   />
                 </MagneticLink>
                 <MagneticLink
-                  href="/products/single-girder-eot-crane"
+                  href="/products"
                   strength={0.15}
                   area={60}
                   variant="secondary"
@@ -675,7 +675,7 @@ export default function ModernHomePage() {
                 </Link>
               )}
               <MagneticLink
-                href="/products/single-girder-eot-crane"
+                href="/products"
                 strength={0.15}
                 area={50}
                 variant="secondary"

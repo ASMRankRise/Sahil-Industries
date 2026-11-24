@@ -690,11 +690,11 @@ export function ContactForm({
 
       <p className="text-xs text-slate-400 text-center">
         By submitting this form, you agree to our{" "}
-        <a href="/privacy" className="text-safety hover:underline">
+        <a href="/privacy-policy" className="text-safety hover:underline">
           Privacy Policy
         </a>{" "}
         and{" "}
-        <a href="/terms" className="text-safety hover:underline">
+        <a href="/terms-of-service" className="text-safety hover:underline">
           Terms of Service
         </a>
       </p>

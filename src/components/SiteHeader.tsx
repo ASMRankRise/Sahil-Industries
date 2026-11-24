@@ -185,6 +185,16 @@ export function SiteHeader() {
                       transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
                       className="absolute left-[-24px] top-[24px] z-40 w-[285px] border border-safety/40 bg-surface p-2.5 shadow-2xl"
                       role="menu">
+                      <MotionLink
+                        href="/products"
+                        onClick={() => setProductsOpen(false)}
+                        className={`flex items-center justify-between border-b border-white/10 px-3 pb-2.5 mb-1.5 text-xs font-bold uppercase tracking-wider text-safety hover:bg-safety/10${pathname === "/products" ? " !bg-safety/20" : ""}`}
+                        whileHover={{ x: 2 }}
+                        whileTap={{ scale: 0.98 }}
+                        role="menuitem">
+                        <span>All Products Catalog</span>
+                        <span>&rarr;</span>
+                      </MotionLink>
                       {productItem?.children?.map((item, index) => (
                         <MotionLink
                           href={item.href}
@@ -358,6 +368,14 @@ export function SiteHeader() {
                 Products
               </motion.summary>
               <motion.div className="mt-3 grid gap-2">
+                <MotionLink
+                  href="/products"
+                  onClick={() => setMenuOpen(false)}
+                  className="flex min-h-11 items-center justify-between border-b border-white/10 pb-2 mb-1 text-sm font-bold text-safety"
+                  whileHover={{ x: 4, color: "#F6C515" }}>
+                  <span>All Products Catalog</span>
+                  <span>&rarr;</span>
+                </MotionLink>
                 {productItem?.children?.map((item) => (
                   <MotionLink
                     href={item.href}
