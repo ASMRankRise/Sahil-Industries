@@ -1,2 +1,4 @@
-import EnquiryPage from '@/components/EnquiryPage';
-export default function Page() { return <EnquiryPage />; }
+import EnquiryPage from "@/components/EnquiryPage";
+export default function Page() {
+  return <EnquiryPage />;
+}

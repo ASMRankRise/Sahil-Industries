@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
-import { X, Tag, ChevronDown } from "lucide-react";
+import { useState, useRef, useEffect, useId } from "react";
+import { X, Tag } from "lucide-react";
 
 interface TagInputProps {
   value: string;
@@ -28,17 +28,21 @@ export function TagInput({
   const [highlightedIndex, setHighlightedIndex] = useState(-1);
   const inputRef = useRef<HTMLInputElement>(null);
   const suggestionsRef = useRef<HTMLDivElement>(null);
+  const inputId = useId();
 
   // Parse current tags from the comma-separated value
-  const currentTags = value.split(",").map(t => t.trim()).filter(Boolean);
+  const currentTags = value
+    .split(",")
+    .map((t) => t.trim())
+    .filter(Boolean);
   const lastTag = currentTags[currentTags.length - 1] || "";
-  const prefix = currentTags.slice(0, -1).join(", ") + (currentTags.length > 1 ? ", " : "");
 
   // Filter suggestions based on the last tag being typed
   const filteredSuggestions = suggestions
-    .filter(tag =>
-      tag.toLowerCase().includes(lastTag.toLowerCase()) &&
-      !currentTags.slice(0, -1).includes(tag)
+    .filter(
+      (tag) =>
+        tag.toLowerCase().includes(lastTag.toLowerCase()) &&
+        !currentTags.slice(0, -1).includes(tag),
     )
     .slice(0, 10);
 
@@ -55,11 +59,13 @@ export function TagInput({
     switch (e.key) {
       case "ArrowDown":
         e.preventDefault();
-        setHighlightedIndex(prev => Math.min(prev + 1, filteredSuggestions.length - 1));
+        setHighlightedIndex((prev) =>
+          Math.min(prev + 1, filteredSuggestions.length - 1),
+        );
         break;
       case "ArrowUp":
         e.preventDefault();
-        setHighlightedIndex(prev => Math.max(prev - 1, 0));
+        setHighlightedIndex((prev) => Math.max(prev - 1, 0));
         break;
       case "Enter":
       case "Tab":
@@ -105,8 +111,12 @@ export function TagInput({
   // Close suggestions when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (inputRef.current && !inputRef.current.contains(event.target as Node) &&
-          suggestionsRef.current && !suggestionsRef.current.contains(event.target as Node)) {
+      if (
+        inputRef.current &&
+        !inputRef.current.contains(event.target as Node) &&
+        suggestionsRef.current &&
+        !suggestionsRef.current.contains(event.target as Node)
+      ) {
         setShowSuggestions(false);
       }
     };
@@ -117,7 +127,13 @@ export function TagInput({
 
   return (
     <div className={className}>
-      {label && <label className="block text-sm font-medium text-slate-300 mb-1">{label}</label>}
+      {label && (
+        <label
+          htmlFor={inputId}
+          className="block text-sm font-medium text-slate-300 mb-1">
+          {label}
+        </label>
+      )}
 
       {/* Selected Tags Display */}
       {currentTags.length > 0 && (
@@ -125,15 +141,13 @@ export function TagInput({
           {currentTags.map((tag, index) => (
             <span
               key={`${tag}-${index}`}
-              className="inline-flex items-center gap-1 px-2.5 py-1 bg-safety/20 border border-safety/30 text-safety rounded-full text-xs font-medium"
-            >
+              className="inline-flex items-center gap-1 px-2.5 py-1 bg-safety/20 border border-safety/30 text-safety rounded-full text-xs font-medium">
               {tag}
               <button
                 type="button"
                 onClick={() => removeTag(index)}
-                className="p-0.5 hover:bg-safety/30 rounded-full transition-colors"
-                aria-label={`Remove ${tag}`}
-              >
+                className="p-0.5 hover:bg-safety/30 rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-safety"
+                aria-label={`Remove ${tag}`}>
                 <X size={12} />
               </button>
             </span>
@@ -144,6 +158,7 @@ export function TagInput({
       {/* Input Field */}
       <div className="relative">
         <input
+          id={inputId}
           ref={inputRef}
           type="text"
           value={value}
@@ -160,8 +175,7 @@ export function TagInput({
         {showSuggestions && filteredSuggestions.length > 0 && (
           <div
             ref={suggestionsRef}
-            className="absolute z-50 top-full left-0 right-0 mt-1 bg-surface border border-white/10 rounded-lg shadow-lg overflow-hidden max-h-60 overflow-y-auto"
-          >
+            className="absolute z-50 top-full left-0 right-0 mt-1 bg-surface border border-white/10 rounded-lg shadow-lg overflow-hidden max-h-60 overflow-y-auto">
             {filteredSuggestions.map((suggestion, index) => (
               <button
                 key={suggestion}
@@ -172,9 +186,8 @@ export function TagInput({
                   index === highlightedIndex
                     ? "bg-safety/20 text-safety"
                     : "text-slate-300 hover:bg-white/5"
-                }`}
-              >
-                <Tag size={14} className="mr-2 inline-block" />
+                }`}>
+                <Tag size={14} className="mr-2 inline-block" aria-hidden="true" />
                 {suggestion}
               </button>
             ))}
@@ -182,7 +195,7 @@ export function TagInput({
         )}
       </div>
 
-      <p className="text-xs text-slate-500 mt-1">{helperText}</p>
+      <p className="text-xs text-slate-400 mt-1">{helperText}</p>
     </div>
   );
 }

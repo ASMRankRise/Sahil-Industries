@@ -10,7 +10,7 @@ gsap.registerPlugin(ScrollTrigger);
 /**
  * GSAP Enhancements - Adds subtle, professional GSAP animations throughout the website
  * without changing any UI or functionality.
- * 
+ *
  * This component adds:
  * 1. Smooth scroll-triggered fade-up animations for sections
  * 2. Parallax effects on hero backgrounds
@@ -29,8 +29,10 @@ export function GSAPEnhancements() {
     if (prefersReducedMotion()) return;
 
     contextRef.current = gsap.context(() => {
-      // 1. Section fade-up animations with ScrollTrigger
-      const sections = document.querySelectorAll("section:not(.hero-section)");
+      // 1. Section fade-up animations with ScrollTrigger (skips hero and pinned timeline sections)
+      const sections = document.querySelectorAll(
+        "section:not(.hero-section):not([data-pinned-section])",
+      );
       sections.forEach((section) => {
         gsap.fromTo(
           section,
@@ -47,14 +49,18 @@ export function GSAPEnhancements() {
               toggleActions: "play none none reverse",
               once: true,
             },
-          }
+          },
         );
       });
 
       // 2. Parallax effect for hero background elements
-      const heroBackgrounds = document.querySelectorAll(".hero-bg-parallax, [data-parallax]");
+      const heroBackgrounds = document.querySelectorAll(
+        ".hero-bg-parallax, [data-parallax]",
+      );
       heroBackgrounds.forEach((bg) => {
-        const speed = parseFloat(bg.getAttribute("data-parallax-speed") || "0.3");
+        const speed = parseFloat(
+          bg.getAttribute("data-parallax-speed") || "0.3",
+        );
         gsap.to(bg, {
           yPercent: 50 * speed,
           ease: "none",
@@ -68,7 +74,9 @@ export function GSAPEnhancements() {
       });
 
       // 3. Staggered animations for grid items
-      const grids = document.querySelectorAll(".stagger-grid, .products-grid, .clients-grid, .why-choose-grid");
+      const grids = document.querySelectorAll(
+        ".stagger-grid, .products-grid, .clients-grid, .why-choose-grid",
+      );
       grids.forEach((grid) => {
         const items = grid.querySelectorAll(":scope > *");
         if (items.length > 0) {
@@ -87,17 +95,21 @@ export function GSAPEnhancements() {
                 toggleActions: "play none none reverse",
                 once: true,
               },
-            }
+            },
           );
         }
       });
 
       // 4. Magnetic hover effect for buttons and links
-      const magneticElements = document.querySelectorAll("[data-magnetic], .magnetic-btn, .magnetic-link");
+      const magneticElements = document.querySelectorAll(
+        "[data-magnetic], .magnetic-btn, .magnetic-link",
+      );
       magneticElements.forEach((el) => {
-        const strength = parseFloat(el.getAttribute("data-magnetic-strength") || "0.3");
+        const strength = parseFloat(
+          el.getAttribute("data-magnetic-strength") || "0.3",
+        );
         const area = parseFloat(el.getAttribute("data-magnetic-area") || "100");
-        
+
         const handleMouseMove = (e: MouseEvent) => {
           const rect = el.getBoundingClientRect();
           const centerX = rect.left + rect.width / 2;
@@ -107,12 +119,22 @@ export function GSAPEnhancements() {
           const distance = Math.sqrt(deltaX ** 2 + deltaY ** 2);
 
           if (distance < area) {
-            gsap.to(el, { x: deltaX, y: deltaY, duration: 0.3, ease: "power3.out" });
+            gsap.to(el, {
+              x: deltaX,
+              y: deltaY,
+              duration: 0.3,
+              ease: "power3.out",
+            });
           }
         };
 
         const handleMouseLeave = () => {
-          gsap.to(el, { x: 0, y: 0, duration: 0.5, ease: "elastic.out(1, 0.5)" });
+          gsap.to(el, {
+            x: 0,
+            y: 0,
+            duration: 0.5,
+            ease: "elastic.out(1, 0.5)",
+          });
         };
 
         el.addEventListener("mousemove", handleMouseMove as EventListener);
@@ -123,8 +145,13 @@ export function GSAPEnhancements() {
       const counters = document.querySelectorAll("[data-counter]");
       counters.forEach((counter) => {
         const end = parseFloat(counter.getAttribute("data-counter-end") || "0");
-        const duration = parseFloat(counter.getAttribute("data-counter-duration") || "2");
-        const decimals = parseInt(counter.getAttribute("data-counter-decimals") || "0", 10);
+        const duration = parseFloat(
+          counter.getAttribute("data-counter-duration") || "2",
+        );
+        const decimals = parseInt(
+          counter.getAttribute("data-counter-decimals") || "0",
+          10,
+        );
         const prefix = counter.getAttribute("data-counter-prefix") || "";
         const suffix = counter.getAttribute("data-counter-suffix") || "";
         const separator = counter.getAttribute("data-counter-separator") || ",";
@@ -158,7 +185,9 @@ export function GSAPEnhancements() {
       });
 
       // 6. Text reveal animations (split text lines)
-      const textReveals = document.querySelectorAll("[data-text-reveal], .text-reveal");
+      const textReveals = document.querySelectorAll(
+        "[data-text-reveal], .text-reveal",
+      );
       textReveals.forEach((el) => {
         const lines = el.querySelectorAll("p, h1, h2, h3, h4, h5, h6, span");
         if (lines.length > 0) {
@@ -177,13 +206,15 @@ export function GSAPEnhancements() {
                 toggleActions: "play none none reverse",
                 once: true,
               },
-            }
+            },
           );
         }
       });
 
       // 7. Image reveal with clip-path
-      const imageReveals = document.querySelectorAll("[data-image-reveal], .image-reveal");
+      const imageReveals = document.querySelectorAll(
+        "[data-image-reveal], .image-reveal",
+      );
       imageReveals.forEach((img) => {
         gsap.set(img, { clipPath: "inset(100% 0 0 0)", opacity: 0 });
         ScrollTrigger.create({
@@ -217,11 +248,17 @@ export function GSAPEnhancements() {
       }
 
       // 9. Floating animation for decorative elements
-      const floatingElements = document.querySelectorAll("[data-float], .float-element");
+      const floatingElements = document.querySelectorAll(
+        "[data-float], .float-element",
+      );
       floatingElements.forEach((el, index) => {
-        const duration = parseFloat(el.getAttribute("data-float-duration") || "3");
-        const distance = parseFloat(el.getAttribute("data-float-distance") || "10");
-        
+        const duration = parseFloat(
+          el.getAttribute("data-float-duration") || "3",
+        );
+        const distance = parseFloat(
+          el.getAttribute("data-float-distance") || "10",
+        );
+
         gsap.to(el, {
           y: distance,
           duration,
@@ -233,11 +270,16 @@ export function GSAPEnhancements() {
       });
 
       // 10. Rotate animation for decorative elements
-      const rotateElements = document.querySelectorAll("[data-rotate], .rotate-element");
+      const rotateElements = document.querySelectorAll(
+        "[data-rotate], .rotate-element",
+      );
       rotateElements.forEach((el, index) => {
-        const duration = parseFloat(el.getAttribute("data-rotate-duration") || "20");
-        const direction = el.getAttribute("data-rotate-direction") === "reverse" ? -1 : 1;
-        
+        const duration = parseFloat(
+          el.getAttribute("data-rotate-duration") || "20",
+        );
+        const direction =
+          el.getAttribute("data-rotate-direction") === "reverse" ? -1 : 1;
+
         gsap.to(el, {
           rotation: 360 * direction,
           duration,
@@ -248,7 +290,9 @@ export function GSAPEnhancements() {
       });
 
       // 11. Pulse animation for CTA buttons
-      const pulseButtons = document.querySelectorAll("[data-pulse], .pulse-btn");
+      const pulseButtons = document.querySelectorAll(
+        "[data-pulse], .pulse-btn",
+      );
       pulseButtons.forEach((btn) => {
         gsap.to(btn, {
           boxShadow: "0 0 20px rgba(246, 197, 21, 0.5)",
@@ -260,7 +304,9 @@ export function GSAPEnhancements() {
       });
 
       // 12. Reveal on scroll for cards with stagger
-      const cardGroups = document.querySelectorAll("[data-card-group], .card-group");
+      const cardGroups = document.querySelectorAll(
+        "[data-card-group], .card-group",
+      );
       cardGroups.forEach((group) => {
         const cards = group.querySelectorAll(":scope > *");
         gsap.fromTo(
@@ -279,12 +325,14 @@ export function GSAPEnhancements() {
               toggleActions: "play none none reverse",
               once: true,
             },
-          }
+          },
         );
       });
 
       // 13. Horizontal scroll animation for carousels
-      const horizontalScrolls = document.querySelectorAll("[data-horizontal-scroll], .horizontal-scroll");
+      const horizontalScrolls = document.querySelectorAll(
+        "[data-horizontal-scroll], .horizontal-scroll",
+      );
       horizontalScrolls.forEach((container) => {
         const content = container.firstElementChild as HTMLElement;
         if (content) {
@@ -337,7 +385,6 @@ export function GSAPEnhancements() {
           }
         });
       });
-
     }, document.body);
 
     return () => {
@@ -355,7 +402,7 @@ export function GSAPEnhancements() {
 export function useGSAPAnimation(
   selector: string,
   animation: gsap.TweenVars,
-  scrollTrigger?: ScrollTrigger.Vars
+  scrollTrigger?: ScrollTrigger.Vars,
 ) {
   const elementRef = useRef<HTMLElement | null>(null);
 
@@ -366,16 +413,20 @@ export function useGSAPAnimation(
       const elements = elementRef.current?.querySelectorAll(selector);
       if (elements) {
         elements.forEach((el) => {
-          gsap.fromTo(el, { opacity: 0, y: 20 }, {
-            ...animation,
-            scrollTrigger: {
-              trigger: el,
-              start: "top 80%",
-              toggleActions: "play none none reverse",
-              once: true,
-              ...scrollTrigger,
+          gsap.fromTo(
+            el,
+            { opacity: 0, y: 20 },
+            {
+              ...animation,
+              scrollTrigger: {
+                trigger: el,
+                start: "top 80%",
+                toggleActions: "play none none reverse",
+                once: true,
+                ...scrollTrigger,
+              },
             },
-          });
+          );
         });
       }
     });

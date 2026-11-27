@@ -1,6 +1,13 @@
 "use client";
 
-import { createContext, useContext, useState, useEffect, ReactNode, useCallback } from "react";
+import {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  ReactNode,
+  useCallback,
+} from "react";
 
 // Types
 export interface Customer {
@@ -117,98 +124,521 @@ interface AdminDataContextType {
   addCustomer: (customer: Omit<Customer, "id">) => void;
   updateCustomer: (id: string, updates: Partial<Customer>) => void;
   deleteCustomer: (id: string) => void;
-  
+
   // Products
   products: Product[];
   addProduct: (product: Omit<Product, "id">) => void;
   updateProduct: (id: string, updates: Partial<Product>) => void;
   deleteProduct: (id: string) => void;
-  
+
   // Orders
   orders: Order[];
   addOrder: (order: Omit<Order, "id">) => void;
   updateOrder: (id: string, updates: Partial<Order>) => void;
   deleteOrder: (id: string) => void;
-  
+
   // Enquiries
   enquiries: Enquiry[];
   addEnquiry: (enquiry: Omit<Enquiry, "id">) => void;
   updateEnquiry: (id: string, updates: Partial<Enquiry>) => void;
   deleteEnquiry: (id: string) => void;
-  
+
   // Gallery Images
   galleryImages: GalleryImage[];
-  addGalleryImage: (image: Omit<GalleryImage, "id">) => void;
-  updateGalleryImage: (id: string, updates: Partial<GalleryImage>) => void;
-  deleteGalleryImage: (id: string) => void;
-  uploadImage: (file: File, metadata: Partial<GalleryImage>) => Promise<GalleryImage>;
-  
+  addGalleryImage: (image: Omit<GalleryImage, "id">) => Promise<GalleryImage>;
+  updateGalleryImage: (
+    id: string,
+    updates: Partial<GalleryImage>,
+  ) => Promise<void>;
+  deleteGalleryImage: (id: string) => Promise<void>;
+  uploadImage: (
+    file: File,
+    metadata: Partial<GalleryImage>,
+  ) => Promise<GalleryImage>;
+
   // Analytics
   analytics: AnalyticsData;
-  
+
   // Settings
   settings: Record<string, string>;
   updateSettings: (settings: Record<string, string>) => void;
-  
-  // Auth (simulated login)
+
+  // Theme
+  theme: "dark" | "light";
+  setTheme: (theme: "dark" | "light") => void;
+  toggleTheme: () => void;
+
+  // Auth (server session; credentials never persist in the browser)
   isAuthenticated: boolean;
   user: { name: string; email: string } | null;
   login: (credentials: { email: string; password: string }) => Promise<void>;
-  logout: () => void;
-  
+  logout: () => Promise<void>;
+
   // Loading states
   loading: boolean;
+  galleryLoading: boolean;
 }
 
 // Initial mock data
 const initialCustomers: Customer[] = [
-  { id: "CUST-001", name: "Rajesh Kumar", email: "rajesh@company.com", phone: "+91 98765 43210", company: "Kumar Industries", city: "Mumbai", state: "Maharashtra", totalOrders: 12, totalSpent: "₹45,20,000", lastOrder: "2024-01-15", status: "Active", joined: "2022-03-15" },
-  { id: "CUST-002", name: "Priya Sharma", email: "priya@industries.in", phone: "+91 98765 43211", company: "Sharma Steel Works", city: "Pune", state: "Maharashtra", totalOrders: 8, totalSpent: "₹32,50,000", lastOrder: "2024-01-14", status: "Active", joined: "2021-11-20" },
-  { id: "CUST-003", name: "Amit Patel", email: "amit@manufacturing.com", phone: "+91 98765 43212", company: "Patel Manufacturing", city: "Ahmedabad", state: "Gujarat", totalOrders: 5, totalSpent: "₹18,75,000", lastOrder: "2024-01-13", status: "Active", joined: "2023-02-10" },
-  { id: "CUST-004", name: "Suresh Reddy", email: "suresh@engineering.co", phone: "+91 98765 43213", company: "Reddy Engineering", city: "Hyderabad", state: "Telangana", totalOrders: 3, totalSpent: "₹9,45,000", lastOrder: "2024-01-12", status: "Inactive", joined: "2023-06-05" },
-  { id: "CUST-005", name: "Neha Singh", email: "neha@construction.in", phone: "+91 98765 43214", company: "Singh Construction", city: "Delhi", state: "Delhi", totalOrders: 7, totalSpent: "₹28,90,000", lastOrder: "2024-01-11", status: "Active", joined: "2022-08-22" },
-  { id: "CUST-006", name: "Vikram Singh", email: "vikram@steelworks.com", phone: "+91 98765 43215", company: "Singh Steel Works", city: "Jamshedpur", state: "Jharkhand", totalOrders: 15, totalSpent: "₹67,80,000", lastOrder: "2024-01-10", status: "Active", joined: "2021-05-18" },
-  { id: "CUST-007", name: "Anita Desai", email: "anita@powergen.in", phone: "+91 98765 43216", company: "Desai Power Gen", city: "Vadodara", state: "Gujarat", totalOrders: 4, totalSpent: "₹15,60,000", lastOrder: "2024-01-09", status: "Active", joined: "2023-01-30" },
-  { id: "CUST-008", name: "Rohit Gupta", email: "rohit@infrabuild.com", phone: "+91 98765 43217", company: "Gupta Infra Build", city: "Bangalore", state: "Karnataka", totalOrders: 2, totalSpent: "₹5,20,000", lastOrder: "2024-01-08", status: "New", joined: "2023-12-01" },
-  { id: "CUST-009", name: "Kavya Nair", email: "kavya@shipyard.in", phone: "+91 98765 43218", company: "Nair Shipyard", city: "Kochi", state: "Kerala", totalOrders: 9, totalSpent: "₹42,30,000", lastOrder: "2024-01-07", status: "Active", joined: "2022-04-12" },
-  { id: "CUST-010", name: "Manoj Kumar", email: "manoj@cementworks.com", phone: "+91 98765 43219", company: "Kumar Cement", city: "Raipur", state: "Chhattisgarh", totalOrders: 1, totalSpent: "₹3,80,000", lastOrder: "2024-01-06", status: "Inactive", joined: "2023-09-25" },
+  {
+    id: "CUST-001",
+    name: "Rajesh Kumar",
+    email: "rajesh@company.com",
+    phone: "+91 98765 43210",
+    company: "Kumar Industries",
+    city: "Mumbai",
+    state: "Maharashtra",
+    totalOrders: 12,
+    totalSpent: "₹45,20,000",
+    lastOrder: "2024-01-15",
+    status: "Active",
+    joined: "2022-03-15",
+  },
+  {
+    id: "CUST-002",
+    name: "Priya Sharma",
+    email: "priya@industries.in",
+    phone: "+91 98765 43211",
+    company: "Sharma Steel Works",
+    city: "Pune",
+    state: "Maharashtra",
+    totalOrders: 8,
+    totalSpent: "₹32,50,000",
+    lastOrder: "2024-01-14",
+    status: "Active",
+    joined: "2021-11-20",
+  },
+  {
+    id: "CUST-003",
+    name: "Amit Patel",
+    email: "amit@manufacturing.com",
+    phone: "+91 98765 43212",
+    company: "Patel Manufacturing",
+    city: "Ahmedabad",
+    state: "Gujarat",
+    totalOrders: 5,
+    totalSpent: "₹18,75,000",
+    lastOrder: "2024-01-13",
+    status: "Active",
+    joined: "2023-02-10",
+  },
+  {
+    id: "CUST-004",
+    name: "Suresh Reddy",
+    email: "suresh@engineering.co",
+    phone: "+91 98765 43213",
+    company: "Reddy Engineering",
+    city: "Hyderabad",
+    state: "Telangana",
+    totalOrders: 3,
+    totalSpent: "₹9,45,000",
+    lastOrder: "2024-01-12",
+    status: "Inactive",
+    joined: "2023-06-05",
+  },
+  {
+    id: "CUST-005",
+    name: "Neha Singh",
+    email: "neha@construction.in",
+    phone: "+91 98765 43214",
+    company: "Singh Construction",
+    city: "Delhi",
+    state: "Delhi",
+    totalOrders: 7,
+    totalSpent: "₹28,90,000",
+    lastOrder: "2024-01-11",
+    status: "Active",
+    joined: "2022-08-22",
+  },
+  {
+    id: "CUST-006",
+    name: "Vikram Singh",
+    email: "vikram@steelworks.com",
+    phone: "+91 98765 43215",
+    company: "Singh Steel Works",
+    city: "Jamshedpur",
+    state: "Jharkhand",
+    totalOrders: 15,
+    totalSpent: "₹67,80,000",
+    lastOrder: "2024-01-10",
+    status: "Active",
+    joined: "2021-05-18",
+  },
+  {
+    id: "CUST-007",
+    name: "Anita Desai",
+    email: "anita@powergen.in",
+    phone: "+91 98765 43216",
+    company: "Desai Power Gen",
+    city: "Vadodara",
+    state: "Gujarat",
+    totalOrders: 4,
+    totalSpent: "₹15,60,000",
+    lastOrder: "2024-01-09",
+    status: "Active",
+    joined: "2023-01-30",
+  },
+  {
+    id: "CUST-008",
+    name: "Rohit Gupta",
+    email: "rohit@infrabuild.com",
+    phone: "+91 98765 43217",
+    company: "Gupta Infra Build",
+    city: "Bangalore",
+    state: "Karnataka",
+    totalOrders: 2,
+    totalSpent: "₹5,20,000",
+    lastOrder: "2024-01-08",
+    status: "New",
+    joined: "2023-12-01",
+  },
+  {
+    id: "CUST-009",
+    name: "Kavya Nair",
+    email: "kavya@shipyard.in",
+    phone: "+91 98765 43218",
+    company: "Nair Shipyard",
+    city: "Kochi",
+    state: "Kerala",
+    totalOrders: 9,
+    totalSpent: "₹42,30,000",
+    lastOrder: "2024-01-07",
+    status: "Active",
+    joined: "2022-04-12",
+  },
+  {
+    id: "CUST-010",
+    name: "Manoj Kumar",
+    email: "manoj@cementworks.com",
+    phone: "+91 98765 43219",
+    company: "Kumar Cement",
+    city: "Raipur",
+    state: "Chhattisgarh",
+    totalOrders: 1,
+    totalSpent: "₹3,80,000",
+    lastOrder: "2024-01-06",
+    status: "Inactive",
+    joined: "2023-09-25",
+  },
 ];
 
 const initialProducts: Product[] = [
-  { id: "PRD-001", name: "Single Girder EOT Crane", category: "EOT Cranes", sku: "SG-EOT-001", price: "₹2,45,000", stock: 15, minStock: 5, status: "Active", description: "Heavy-duty single girder overhead crane for industrial applications", image: "products/single-girder-eot-crane.jpg" },
-  { id: "PRD-002", name: "Double Girder EOT Crane", category: "EOT Cranes", sku: "DG-EOT-002", price: "₹4,80,000", stock: 8, minStock: 3, status: "Active", description: "High-capacity double girder crane for heavy manufacturing", image: "products/double-girder-eot-crane.jpg" },
-  { id: "PRD-003", name: "Electric Wire Rope Hoist", category: "Hoists", sku: "EWRH-003", price: "₹85,000", stock: 25, minStock: 10, status: "Active", description: "Precision electric hoist for material handling operations", image: "products/electric-wire-rope-hoist.jpg" },
-  { id: "PRD-004", name: "Goliath Gantry Crane", category: "Gantry Cranes", sku: "GGC-004", price: "₹12,50,000", stock: 3, minStock: 2, status: "Active", description: "Outdoor gantry crane for shipyard and construction sites", image: "products/goliath-gantry-crane.jpg" },
-  { id: "PRD-005", name: "JIB Crane", category: "JIB Cranes", sku: "JIB-005", price: "₹1,20,000", stock: 12, minStock: 5, status: "Active", description: "Articulating jib crane for workshop and assembly lines", image: "products/jib-crane.jpg" },
-  { id: "PRD-006", name: "Monorail Crane", category: "Monorail Systems", sku: "MRC-006", price: "₹6,75,000", stock: 6, minStock: 3, status: "Active", description: "Single-track monorail system for linear material transport", image: "products/monorail-crane.jpg" },
-  { id: "PRD-007", name: "Underslung Crane", category: "Underslung Cranes", sku: "USC-007", price: "₹3,10,000", stock: 9, minStock: 4, status: "Active", description: "Under-running crane system for low headroom applications", image: "products/underslung-cranes.jpg" },
-  { id: "PRD-008", name: "Electric Chain Hoist", category: "Hoists", sku: "ECH-008", price: "₹45,000", stock: 30, minStock: 15, status: "Active", description: "Compact electric chain hoist for light duty applications", image: "products/electric-wire-rope-hoist.jpg" },
-  { id: "PRD-009", name: "Semi-Goliath Crane", category: "Gantry Cranes", sku: "SGC-009", price: "₹8,90,000", stock: 4, minStock: 2, status: "Low Stock", description: "Semi-gantry crane for medium duty outdoor applications", image: "products/goliath-gantry-crane.jpg" },
-  { id: "PRD-010", name: "Wall Mounted JIB Crane", category: "JIB Cranes", sku: "WMJ-010", price: "₹95,000", stock: 0, minStock: 3, status: "Out of Stock", description: "Wall-mounted articulating jib crane for confined spaces", image: "products/jib-crane.jpg" },
+  {
+    id: "PRD-001",
+    name: "Single Girder EOT Crane",
+    category: "EOT Cranes",
+    sku: "SG-EOT-001",
+    price: "₹2,45,000",
+    stock: 15,
+    minStock: 5,
+    status: "Active",
+    description:
+      "Heavy-duty single girder overhead crane for industrial applications",
+    image: "products/single-girder-eot-crane.jpg",
+  },
+  {
+    id: "PRD-002",
+    name: "Double Girder EOT Crane",
+    category: "EOT Cranes",
+    sku: "DG-EOT-002",
+    price: "₹4,80,000",
+    stock: 8,
+    minStock: 3,
+    status: "Active",
+    description: "High-capacity double girder crane for heavy manufacturing",
+    image: "products/double-girder-eot-crane.jpg",
+  },
+  {
+    id: "PRD-003",
+    name: "Electric Wire Rope Hoist",
+    category: "Hoists",
+    sku: "EWRH-003",
+    price: "₹85,000",
+    stock: 25,
+    minStock: 10,
+    status: "Active",
+    description: "Precision electric hoist for material handling operations",
+    image: "products/electric-wire-rope-hoist.jpg",
+  },
+  {
+    id: "PRD-004",
+    name: "Goliath Gantry Crane",
+    category: "Gantry Cranes",
+    sku: "GGC-004",
+    price: "₹12,50,000",
+    stock: 3,
+    minStock: 2,
+    status: "Active",
+    description: "Outdoor gantry crane for shipyard and construction sites",
+    image: "products/goliath-gantry-crane.jpg",
+  },
+  {
+    id: "PRD-005",
+    name: "JIB Crane",
+    category: "JIB Cranes",
+    sku: "JIB-005",
+    price: "₹1,20,000",
+    stock: 12,
+    minStock: 5,
+    status: "Active",
+    description: "Articulating jib crane for workshop and assembly lines",
+    image: "products/jib-crane.jpg",
+  },
+  {
+    id: "PRD-006",
+    name: "Monorail Crane",
+    category: "Monorail Systems",
+    sku: "MRC-006",
+    price: "₹6,75,000",
+    stock: 6,
+    minStock: 3,
+    status: "Active",
+    description: "Single-track monorail system for linear material transport",
+    image: "products/monorail-crane.jpg",
+  },
+  {
+    id: "PRD-007",
+    name: "Underslung Crane",
+    category: "Underslung Cranes",
+    sku: "USC-007",
+    price: "₹3,10,000",
+    stock: 9,
+    minStock: 4,
+    status: "Active",
+    description: "Under-running crane system for low headroom applications",
+    image: "products/underslung-cranes.jpg",
+  },
+  {
+    id: "PRD-008",
+    name: "Electric Chain Hoist",
+    category: "Hoists",
+    sku: "ECH-008",
+    price: "₹45,000",
+    stock: 30,
+    minStock: 15,
+    status: "Active",
+    description: "Compact electric chain hoist for light duty applications",
+    image: "products/electric-wire-rope-hoist.jpg",
+  },
+  {
+    id: "PRD-009",
+    name: "Semi-Goliath Crane",
+    category: "Gantry Cranes",
+    sku: "SGC-009",
+    price: "₹8,90,000",
+    stock: 4,
+    minStock: 2,
+    status: "Low Stock",
+    description: "Semi-gantry crane for medium duty outdoor applications",
+    image: "products/goliath-gantry-crane.jpg",
+  },
+  {
+    id: "PRD-010",
+    name: "Wall Mounted JIB Crane",
+    category: "JIB Cranes",
+    sku: "WMJ-010",
+    price: "₹95,000",
+    stock: 0,
+    minStock: 3,
+    status: "Out of Stock",
+    description: "Wall-mounted articulating jib crane for confined spaces",
+    image: "products/jib-crane.jpg",
+  },
 ];
 
 const initialOrders: Order[] = [
-  { id: "ORD-001", customer: "Rajesh Kumar", email: "rajesh@company.com", product: "Single Girder EOT Crane", amount: "₹2,45,000", status: "Delivered", date: "2024-01-15", priority: "high" },
-  { id: "ORD-002", customer: "Priya Sharma", email: "priya@industries.in", product: "Double Girder EOT Crane", amount: "₹4,80,000", status: "In Progress", date: "2024-01-14", priority: "high" },
-  { id: "ORD-003", customer: "Amit Patel", email: "amit@manufacturing.com", product: "Electric Wire Rope Hoist", amount: "₹85,000", status: "Pending", date: "2024-01-13", priority: "medium" },
-  { id: "ORD-004", customer: "Suresh Reddy", email: "suresh@engineering.co", product: "JIB Crane", amount: "₹1,20,000", status: "Delivered", date: "2024-01-12", priority: "low" },
-  { id: "ORD-005", customer: "Neha Singh", email: "neha@construction.in", product: "Underslung Crane", amount: "₹3,10,000", status: "Shipped", date: "2024-01-11", priority: "medium" },
-  { id: "ORD-006", customer: "Vikram Singh", email: "vikram@steelworks.com", product: "Goliath Gantry Crane", amount: "₹12,50,000", status: "In Progress", date: "2024-01-10", priority: "high" },
-  { id: "ORD-007", customer: "Anita Desai", email: "anita@powergen.in", product: "Monorail Crane", amount: "₹6,75,000", status: "Pending", date: "2024-01-09", priority: "medium" },
-  { id: "ORD-008", customer: "Rohit Gupta", email: "rohit@infrabuild.com", product: "JIB Crane", amount: "₹1,85,000", status: "Delivered", date: "2024-01-08", priority: "low" },
-  { id: "ORD-009", customer: "Kavya Nair", email: "kavya@shipyard.in", product: "Double Girder EOT Crane", amount: "₹8,90,000", status: "Shipped", date: "2024-01-07", priority: "high" },
-  { id: "ORD-010", customer: "Manoj Kumar", email: "manoj@cementworks.com", product: "Electric Wire Rope Hoist", amount: "₹95,000", status: "Cancelled", date: "2024-01-06", priority: "low" },
+  {
+    id: "ORD-001",
+    customer: "Rajesh Kumar",
+    email: "rajesh@company.com",
+    product: "Single Girder EOT Crane",
+    amount: "₹2,45,000",
+    status: "Delivered",
+    date: "2024-01-15",
+    priority: "high",
+  },
+  {
+    id: "ORD-002",
+    customer: "Priya Sharma",
+    email: "priya@industries.in",
+    product: "Double Girder EOT Crane",
+    amount: "₹4,80,000",
+    status: "In Progress",
+    date: "2024-01-14",
+    priority: "high",
+  },
+  {
+    id: "ORD-003",
+    customer: "Amit Patel",
+    email: "amit@manufacturing.com",
+    product: "Electric Wire Rope Hoist",
+    amount: "₹85,000",
+    status: "Pending",
+    date: "2024-01-13",
+    priority: "medium",
+  },
+  {
+    id: "ORD-004",
+    customer: "Suresh Reddy",
+    email: "suresh@engineering.co",
+    product: "JIB Crane",
+    amount: "₹1,20,000",
+    status: "Delivered",
+    date: "2024-01-12",
+    priority: "low",
+  },
+  {
+    id: "ORD-005",
+    customer: "Neha Singh",
+    email: "neha@construction.in",
+    product: "Underslung Crane",
+    amount: "₹3,10,000",
+    status: "Shipped",
+    date: "2024-01-11",
+    priority: "medium",
+  },
+  {
+    id: "ORD-006",
+    customer: "Vikram Singh",
+    email: "vikram@steelworks.com",
+    product: "Goliath Gantry Crane",
+    amount: "₹12,50,000",
+    status: "In Progress",
+    date: "2024-01-10",
+    priority: "high",
+  },
+  {
+    id: "ORD-007",
+    customer: "Anita Desai",
+    email: "anita@powergen.in",
+    product: "Monorail Crane",
+    amount: "₹6,75,000",
+    status: "Pending",
+    date: "2024-01-09",
+    priority: "medium",
+  },
+  {
+    id: "ORD-008",
+    customer: "Rohit Gupta",
+    email: "rohit@infrabuild.com",
+    product: "JIB Crane",
+    amount: "₹1,85,000",
+    status: "Delivered",
+    date: "2024-01-08",
+    priority: "low",
+  },
+  {
+    id: "ORD-009",
+    customer: "Kavya Nair",
+    email: "kavya@shipyard.in",
+    product: "Double Girder EOT Crane",
+    amount: "₹8,90,000",
+    status: "Shipped",
+    date: "2024-01-07",
+    priority: "high",
+  },
+  {
+    id: "ORD-010",
+    customer: "Manoj Kumar",
+    email: "manoj@cementworks.com",
+    product: "Electric Wire Rope Hoist",
+    amount: "₹95,000",
+    status: "Cancelled",
+    date: "2024-01-06",
+    priority: "low",
+  },
 ];
 
 const initialEnquiries: Enquiry[] = [
-  { id: "ENQ-001", customer: "Rajesh Kumar", email: "rajesh@company.com", phone: "+91 98765 43210", subject: "Single Girder EOT Crane Inquiry", message: "Need pricing for 10-ton capacity crane for our new facility", status: "New", date: "2024-01-15", priority: "high" },
-  { id: "ENQ-002", customer: "Priya Sharma", email: "priya@industries.in", phone: "+91 98765 43211", subject: "Double Girder EOT Crane Quote", message: "Requesting quote for 20-ton double girder crane with 15m span", status: "In Progress", date: "2024-01-14", priority: "high" },
-  { id: "ENQ-003", customer: "Amit Patel", email: "amit@manufacturing.com", phone: "+91 98765 43212", subject: "Electric Wire Rope Hoist", message: "Looking for 5-ton electric hoist for warehouse operations", status: "Replied", date: "2024-01-13", priority: "medium" },
-  { id: "ENQ-004", customer: "Suresh Reddy", email: "suresh@engineering.co", phone: "+91 98765 43213", subject: "JIB Crane Specification", message: "Need technical specs for 3-ton articulating jib crane", status: "New", date: "2024-01-12", priority: "low" },
-  { id: "ENQ-005", customer: "Neha Singh", email: "neha@construction.in", phone: "+91 98765 43214", subject: "Underslung Crane Quote", message: "Requesting quote for 2-ton underslung crane system", status: "Closed", date: "2024-01-11", priority: "medium" },
-  { id: "ENQ-006", customer: "Vikram Singh", email: "vikram@steelworks.com", phone: "+91 98765 43215", subject: "Goliath Gantry Crane", message: "Need 50-ton gantry crane for shipyard project", status: "In Progress", date: "2024-01-10", priority: "high" },
-  { id: "ENQ-007", customer: "Anita Desai", email: "anita@powergen.in", phone: "+91 98765 43216", subject: "Monorail Crane System", message: "Looking for monorail system for production line", status: "Replied", date: "2024-01-09", priority: "medium" },
-  { id: "ENQ-008", customer: "Rohit Gupta", email: "rohit@infrabuild.com", phone: "+91 98765 43217", subject: "Custom Crane Solution", message: "Need custom crane for specialized application", status: "New", date: "2024-01-08", priority: "high" },
+  {
+    id: "ENQ-001",
+    customer: "Rajesh Kumar",
+    email: "rajesh@company.com",
+    phone: "+91 98765 43210",
+    subject: "Single Girder EOT Crane Inquiry",
+    message: "Need pricing for 10-ton capacity crane for our new facility",
+    status: "New",
+    date: "2024-01-15",
+    priority: "high",
+  },
+  {
+    id: "ENQ-002",
+    customer: "Priya Sharma",
+    email: "priya@industries.in",
+    phone: "+91 98765 43211",
+    subject: "Double Girder EOT Crane Quote",
+    message: "Requesting quote for 20-ton double girder crane with 15m span",
+    status: "In Progress",
+    date: "2024-01-14",
+    priority: "high",
+  },
+  {
+    id: "ENQ-003",
+    customer: "Amit Patel",
+    email: "amit@manufacturing.com",
+    phone: "+91 98765 43212",
+    subject: "Electric Wire Rope Hoist",
+    message: "Looking for 5-ton electric hoist for warehouse operations",
+    status: "Replied",
+    date: "2024-01-13",
+    priority: "medium",
+  },
+  {
+    id: "ENQ-004",
+    customer: "Suresh Reddy",
+    email: "suresh@engineering.co",
+    phone: "+91 98765 43213",
+    subject: "JIB Crane Specification",
+    message: "Need technical specs for 3-ton articulating jib crane",
+    status: "New",
+    date: "2024-01-12",
+    priority: "low",
+  },
+  {
+    id: "ENQ-005",
+    customer: "Neha Singh",
+    email: "neha@construction.in",
+    phone: "+91 98765 43214",
+    subject: "Underslung Crane Quote",
+    message: "Requesting quote for 2-ton underslung crane system",
+    status: "Closed",
+    date: "2024-01-11",
+    priority: "medium",
+  },
+  {
+    id: "ENQ-006",
+    customer: "Vikram Singh",
+    email: "vikram@steelworks.com",
+    phone: "+91 98765 43215",
+    subject: "Goliath Gantry Crane",
+    message: "Need 50-ton gantry crane for shipyard project",
+    status: "In Progress",
+    date: "2024-01-10",
+    priority: "high",
+  },
+  {
+    id: "ENQ-007",
+    customer: "Anita Desai",
+    email: "anita@powergen.in",
+    phone: "+91 98765 43216",
+    subject: "Monorail Crane System",
+    message: "Looking for monorail system for production line",
+    status: "Replied",
+    date: "2024-01-09",
+    priority: "medium",
+  },
+  {
+    id: "ENQ-008",
+    customer: "Rohit Gupta",
+    email: "rohit@infrabuild.com",
+    phone: "+91 98765 43217",
+    subject: "Custom Crane Solution",
+    message: "Need custom crane for specialized application",
+    status: "New",
+    date: "2024-01-08",
+    priority: "high",
+  },
 ];
 
 const initialAnalytics: AnalyticsData = {
@@ -219,12 +649,48 @@ const initialAnalytics: AnalyticsData = {
     conversionRate: 3.42,
   },
   revenueData: [
-    { month: "Jan", revenue: 48.5, orders: 124, customers: 45, conversion: 3.2 },
-    { month: "Feb", revenue: 52.3, orders: 138, customers: 52, conversion: 3.5 },
-    { month: "Mar", revenue: 45.8, orders: 112, customers: 38, conversion: 2.9 },
-    { month: "Apr", revenue: 61.2, orders: 156, customers: 61, conversion: 3.8 },
-    { month: "May", revenue: 55.7, orders: 142, customers: 55, conversion: 3.4 },
-    { month: "Jun", revenue: 68.9, orders: 178, customers: 68, conversion: 4.1 },
+    {
+      month: "Jan",
+      revenue: 48.5,
+      orders: 124,
+      customers: 45,
+      conversion: 3.2,
+    },
+    {
+      month: "Feb",
+      revenue: 52.3,
+      orders: 138,
+      customers: 52,
+      conversion: 3.5,
+    },
+    {
+      month: "Mar",
+      revenue: 45.8,
+      orders: 112,
+      customers: 38,
+      conversion: 2.9,
+    },
+    {
+      month: "Apr",
+      revenue: 61.2,
+      orders: 156,
+      customers: 61,
+      conversion: 3.8,
+    },
+    {
+      month: "May",
+      revenue: 55.7,
+      orders: 142,
+      customers: 55,
+      conversion: 3.4,
+    },
+    {
+      month: "Jun",
+      revenue: 68.9,
+      orders: 178,
+      customers: 68,
+      conversion: 4.1,
+    },
   ],
   statusDistribution: [
     { label: "Delivered", count: 847, percent: 68 },
@@ -248,11 +714,41 @@ const initialAnalytics: AnalyticsData = {
     { name: "Individual", value: 8, color: "bg-yellow-500" },
   ],
   topCustomers: [
-    { name: "Vikram Singh", company: "Singh Steel Works", revenue: "₹67.8L", orders: 15, growth: 22 },
-    { name: "Kavya Nair", company: "Nair Shipyard", revenue: "₹42.3L", orders: 9, growth: 15 },
-    { name: "Rajesh Kumar", company: "Kumar Industries", revenue: "₹45.2L", orders: 12, growth: 8 },
-    { name: "Priya Sharma", company: "Sharma Steel Works", revenue: "₹32.5L", orders: 8, growth: 12 },
-    { name: "Neha Singh", company: "Singh Construction", revenue: "₹28.9L", orders: 7, growth: 5 },
+    {
+      name: "Vikram Singh",
+      company: "Singh Steel Works",
+      revenue: "₹67.8L",
+      orders: 15,
+      growth: 22,
+    },
+    {
+      name: "Kavya Nair",
+      company: "Nair Shipyard",
+      revenue: "₹42.3L",
+      orders: 9,
+      growth: 15,
+    },
+    {
+      name: "Rajesh Kumar",
+      company: "Kumar Industries",
+      revenue: "₹45.2L",
+      orders: 12,
+      growth: 8,
+    },
+    {
+      name: "Priya Sharma",
+      company: "Sharma Steel Works",
+      revenue: "₹32.5L",
+      orders: 8,
+      growth: 12,
+    },
+    {
+      name: "Neha Singh",
+      company: "Singh Construction",
+      revenue: "₹28.9L",
+      orders: 7,
+      growth: 5,
+    },
   ],
 };
 
@@ -386,269 +882,420 @@ const initialGalleryImages: GalleryImage[] = [
   },
 ];
 
-const AdminDataContext = createContext<AdminDataContextType | undefined>(undefined);
+const AdminDataContext = createContext<AdminDataContextType | undefined>(
+  undefined,
+);
 
 export function AdminDataProvider({ children }: { children: ReactNode }) {
-  const [customers, setCustomers] = useState<Customer[]>(() => {
-    if (typeof window !== "undefined") {
-      const stored = localStorage.getItem("admin_customers");
-      if (stored) return JSON.parse(stored);
-    }
-    return initialCustomers;
-  });
-  
-  const [products, setProducts] = useState<Product[]>(() => {
-    if (typeof window !== "undefined") {
-      const stored = localStorage.getItem("admin_products");
-      if (stored) return JSON.parse(stored);
-    }
-    return initialProducts;
-  });
-  
-  const [orders, setOrders] = useState<Order[]>(() => {
-    if (typeof window !== "undefined") {
-      const stored = localStorage.getItem("admin_orders");
-      if (stored) return JSON.parse(stored);
-    }
-    return initialOrders;
-  });
-  
-  const [enquiries, setEnquiries] = useState<Enquiry[]>(() => {
-    if (typeof window !== "undefined") {
-      const stored = localStorage.getItem("admin_enquiries");
-      if (stored) return JSON.parse(stored);
-    }
-    return initialEnquiries;
-  });
-  
+  const [customers, setCustomers] = useState<Customer[]>(initialCustomers);
+
+  const [products, setProducts] = useState<Product[]>(initialProducts);
+
+  const [orders, setOrders] = useState<Order[]>(initialOrders);
+
+  const [enquiries, setEnquiries] = useState<Enquiry[]>(initialEnquiries);
+
   const [analytics] = useState<AnalyticsData>(initialAnalytics);
-  const [settings, setSettings] = useState<Record<string, string>>(() => {
-    if (typeof window !== "undefined") {
-      const stored = localStorage.getItem("admin_settings");
-      if (stored) return JSON.parse(stored);
-    }
-    return initialSettings;
-  });
-  
-    const [galleryImages, setGalleryImages] = useState<GalleryImage[]>(() => {
-      if (typeof window !== "undefined") {
-        const stored = localStorage.getItem("admin_gallery_images");
-        if (stored) return JSON.parse(stored);
-      }
-      return initialGalleryImages;
-    });
-  
-    const [loading, setLoading] = useState(false);
+  const [settings, setSettings] =
+    useState<Record<string, string>>(initialSettings);
 
-  // Auth state (simulated login — persisted in localStorage)
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
-    if (typeof window !== "undefined") {
-      const stored = localStorage.getItem("admin_auth");
-      if (stored) {
-        try { return JSON.parse(stored).isAuthenticated === true; } catch { return false; }
-      }
-    }
-    return false;
-  });
-  const [user, setUser] = useState<{ name: string; email: string } | null>(() => {
-    if (typeof window !== "undefined") {
-      const stored = localStorage.getItem("admin_auth");
-      if (stored) {
-        try { return JSON.parse(stored).user ?? null; } catch { return null; }
-      }
-    }
-    return null;
-  });
+  const [galleryImages, setGalleryImages] =
+    useState<GalleryImage[]>(initialGalleryImages);
 
-  const SIMULATED_CREDENTIALS = {
-    email: "admin@sahilcranes.in",
-    password: "admin123",
-  };
+  const [loading, setLoading] = useState(true);
+  const [galleryLoading, setGalleryLoading] = useState(true);
 
-  const login = useCallback(async (credentials: { email: string; password: string }) => {
-    // Simulate network request
-    await new Promise(resolve => setTimeout(resolve, 800));
-    if (credentials.email === SIMULATED_CREDENTIALS.email && credentials.password === SIMULATED_CREDENTIALS.password) {
-      const authUser = { name: "Admin User", email: credentials.email };
-      setUser(authUser);
-      setIsAuthenticated(true);
-      localStorage.setItem("admin_auth", JSON.stringify({ isAuthenticated: true, user: authUser }));
-    } else {
-      throw new Error("Invalid email or password");
+  // Theme management with localStorage persistence and DOM synchronization
+  const [theme, setThemeState] = useState<"dark" | "light">("dark");
+
+  useEffect(() => {
+    try {
+      const savedTheme = localStorage.getItem("admin_theme") as
+        | "dark"
+        | "light"
+        | null;
+      const initial =
+        savedTheme === "light" || savedTheme === "dark" ? savedTheme : "dark";
+      setThemeState(initial);
+      document.documentElement.setAttribute("data-admin-theme", initial);
+      document.documentElement.classList.toggle("dark", initial === "dark");
+    } catch {
+      document.documentElement.setAttribute("data-admin-theme", "dark");
+      document.documentElement.classList.add("dark");
     }
   }, []);
 
-  const logout = useCallback(() => {
+  const setTheme = useCallback((newTheme: "dark" | "light") => {
+    setThemeState(newTheme);
+    try {
+      localStorage.setItem("admin_theme", newTheme);
+    } catch {}
+    document.documentElement.setAttribute("data-admin-theme", newTheme);
+    document.documentElement.classList.toggle("dark", newTheme === "dark");
+  }, []);
+
+  const toggleTheme = useCallback(() => {
+    setThemeState((prev) => {
+      const next = prev === "dark" ? "light" : "dark";
+      try {
+        localStorage.setItem("admin_theme", next);
+      } catch {}
+      document.documentElement.setAttribute("data-admin-theme", next);
+      document.documentElement.classList.toggle("dark", next === "dark");
+      return next;
+    });
+  }, []);
+
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [user, setUser] = useState<{ name: string; email: string } | null>(
+    null,
+  );
+
+  // Business data is server-backed. Remove keys created by the former
+  // localStorage-based admin implementation so stale temporary data cannot
+  // remain in a browser after upgrading.
+  useEffect(() => {
+    [
+      "admin_auth",
+      "admin_customers",
+      "admin_products",
+      "admin_orders",
+      "admin_enquiries",
+      "admin_settings",
+      "admin_gallery_images",
+    ].forEach((key) => localStorage.removeItem(key));
+  }, []);
+
+  useEffect(() => {
+    fetch("/api/auth/session")
+      .then(async (response) => {
+        if (!response.ok) return;
+        const data = await response.json();
+        if (data.authenticated) {
+          setUser(data.user);
+          setIsAuthenticated(true);
+        }
+      })
+      .catch(() => undefined)
+      .finally(() => setLoading(false));
+  }, []);
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      setGalleryImages([]);
+      setGalleryLoading(false);
+      return;
+    }
+
+    let cancelled = false;
+    setGalleryLoading(true);
+    fetch("/api/admin/gallery")
+      .then(async (response) => {
+        if (!response.ok) throw new Error("Unable to load gallery");
+        const data = await response.json();
+        if (cancelled) return;
+        setGalleryImages(
+          (data.images || []).map(
+            (image: Record<string, unknown>, index: number) => ({
+              id: String(image.id),
+              title: String(image.title || ""),
+              description: String(image.description || ""),
+              url: String(
+                image.url ||
+                  `/api/gallery/${encodeURIComponent(String(image.object_key))}`,
+              ),
+              thumbnailUrl: String(
+                image.thumbnail_url ||
+                  image.url ||
+                  `/api/gallery/${encodeURIComponent(String(image.object_key))}`,
+              ),
+              category: (image.category || "other") as GalleryImage["category"],
+              status: (image.status === "published"
+                ? "active"
+                : image.status || "draft") as GalleryImage["status"],
+              tags: Array.isArray(image.tags)
+                ? (image.tags as string[])
+                : typeof image.tags === "string"
+                  ? (() => {
+                      try {
+                        return JSON.parse(image.tags as string);
+                      } catch {
+                        return [];
+                      }
+                    })()
+                  : [],
+              altText: String(image.alt_text || ""),
+              isFeatured: Boolean(image.is_featured),
+              date: String(image.created_at || new Date().toISOString()),
+              size: Number(image.size || 0),
+              width: Number(image.width || 0),
+              height: Number(image.height || 0),
+              order: Number(image.order || index + 1),
+            }),
+          ),
+        );
+      })
+      .catch(() => {
+        if (!cancelled) setGalleryImages([]);
+      })
+      .finally(() => {
+        if (!cancelled) setGalleryLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [isAuthenticated]);
+
+  const login = useCallback(
+    async (credentials: { email: string; password: string }) => {
+      const response = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(credentials),
+      });
+      const data = await response.json();
+      if (!response.ok)
+        throw new Error(data.error || "Invalid email or password");
+      setUser(data.user);
+      setIsAuthenticated(true);
+    },
+    [],
+  );
+
+  const logout = useCallback(async () => {
+    await fetch("/api/auth/logout", { method: "POST" });
     setUser(null);
     setIsAuthenticated(false);
-    localStorage.removeItem("admin_auth");
   }, []);
-
-  // Persist to localStorage
-  useEffect(() => { localStorage.setItem("admin_customers", JSON.stringify(customers)); }, [customers]);
-  useEffect(() => { localStorage.setItem("admin_products", JSON.stringify(products)); }, [products]);
-  useEffect(() => { localStorage.setItem("admin_orders", JSON.stringify(orders)); }, [orders]);
-  useEffect(() => { localStorage.setItem("admin_enquiries", JSON.stringify(enquiries)); }, [enquiries]);
-  useEffect(() => { localStorage.setItem("admin_settings", JSON.stringify(settings)); }, [settings]);
-    useEffect(() => { localStorage.setItem("admin_gallery_images", JSON.stringify(galleryImages)); }, [galleryImages]);
 
   // Customer CRUD
-  const addCustomer = useCallback((customer: Omit<Customer, "id">) => {
-    const newCustomer: Customer = {
-      ...customer,
-      id: `CUST-${String(customers.length + 1).padStart(3, "0")}`,
-    };
-    setCustomers(prev => [newCustomer, ...prev]);
-  }, [customers.length]);
+  const addCustomer = useCallback(
+    (customer: Omit<Customer, "id">) => {
+      const newCustomer: Customer = {
+        ...customer,
+        id: `CUST-${String(customers.length + 1).padStart(3, "0")}`,
+      };
+      setCustomers((prev) => [newCustomer, ...prev]);
+    },
+    [customers.length],
+  );
 
-  const updateCustomer = useCallback((id: string, updates: Partial<Customer>) => {
-    setCustomers(prev => prev.map(c => c.id === id ? { ...c, ...updates } : c));
-  }, []);
+  const updateCustomer = useCallback(
+    (id: string, updates: Partial<Customer>) => {
+      setCustomers((prev) =>
+        prev.map((c) => (c.id === id ? { ...c, ...updates } : c)),
+      );
+    },
+    [],
+  );
 
   const deleteCustomer = useCallback((id: string) => {
-    setCustomers(prev => prev.filter(c => c.id !== id));
+    setCustomers((prev) => prev.filter((c) => c.id !== id));
   }, []);
 
   // Product CRUD
-  const addProduct = useCallback((product: Omit<Product, "id">) => {
-    const newProduct: Product = {
-      ...product,
-      id: `PRD-${String(products.length + 1).padStart(3, "0")}`,
-    };
-    setProducts(prev => [newProduct, ...prev]);
-  }, [products.length]);
+  const addProduct = useCallback(
+    (product: Omit<Product, "id">) => {
+      const newProduct: Product = {
+        ...product,
+        id: `PRD-${String(products.length + 1).padStart(3, "0")}`,
+      };
+      setProducts((prev) => [newProduct, ...prev]);
+    },
+    [products.length],
+  );
 
   const updateProduct = useCallback((id: string, updates: Partial<Product>) => {
-    setProducts(prev => prev.map(p => p.id === id ? { ...p, ...updates } : p));
+    setProducts((prev) =>
+      prev.map((p) => (p.id === id ? { ...p, ...updates } : p)),
+    );
   }, []);
 
   const deleteProduct = useCallback((id: string) => {
-    setProducts(prev => prev.filter(p => p.id !== id));
+    setProducts((prev) => prev.filter((p) => p.id !== id));
   }, []);
 
   // Order CRUD
-  const addOrder = useCallback((order: Omit<Order, "id">) => {
-    const newOrder: Order = {
-      ...order,
-      id: `ORD-${String(orders.length + 1).padStart(3, "0")}`,
-    };
-    setOrders(prev => [newOrder, ...prev]);
-  }, [orders.length]);
+  const addOrder = useCallback(
+    (order: Omit<Order, "id">) => {
+      const newOrder: Order = {
+        ...order,
+        id: `ORD-${String(orders.length + 1).padStart(3, "0")}`,
+      };
+      setOrders((prev) => [newOrder, ...prev]);
+    },
+    [orders.length],
+  );
 
   const updateOrder = useCallback((id: string, updates: Partial<Order>) => {
-    setOrders(prev => prev.map(o => o.id === id ? { ...o, ...updates } : o));
+    setOrders((prev) =>
+      prev.map((o) => (o.id === id ? { ...o, ...updates } : o)),
+    );
   }, []);
 
   const deleteOrder = useCallback((id: string) => {
-    setOrders(prev => prev.filter(o => o.id !== id));
+    setOrders((prev) => prev.filter((o) => o.id !== id));
   }, []);
 
   // Enquiry CRUD
-  const addEnquiry = useCallback((enquiry: Omit<Enquiry, "id">) => {
-    const newEnquiry: Enquiry = {
-      ...enquiry,
-      id: `ENQ-${String(enquiries.length + 1).padStart(3, "0")}`,
-    };
-    setEnquiries(prev => [newEnquiry, ...prev]);
-  }, [enquiries.length]);
+  const addEnquiry = useCallback(
+    (enquiry: Omit<Enquiry, "id">) => {
+      const newEnquiry: Enquiry = {
+        ...enquiry,
+        id: `ENQ-${String(enquiries.length + 1).padStart(3, "0")}`,
+      };
+      setEnquiries((prev) => [newEnquiry, ...prev]);
+    },
+    [enquiries.length],
+  );
 
   const updateEnquiry = useCallback((id: string, updates: Partial<Enquiry>) => {
-    setEnquiries(prev => prev.map(e => e.id === id ? { ...e, ...updates } : e));
+    setEnquiries((prev) =>
+      prev.map((e) => (e.id === id ? { ...e, ...updates } : e)),
+    );
   }, []);
 
   const deleteEnquiry = useCallback((id: string) => {
-    setEnquiries(prev => prev.filter(e => e.id !== id));
+    setEnquiries((prev) => prev.filter((e) => e.id !== id));
   }, []);
 
   const updateSettings = useCallback((newSettings: Record<string, string>) => {
-    setSettings(prev => ({ ...prev, ...newSettings }));
+    setSettings((prev) => ({ ...prev, ...newSettings }));
   }, []);
 
-    // Gallery Image CRUD
-    const addGalleryImage = useCallback((image: Omit<GalleryImage, "id">) => {
-      const maxOrder = galleryImages.length > 0 ? Math.max(...galleryImages.map(img => img.order || 0)) : 0;
-      const newImage: GalleryImage = {
-        ...image,
-        id: `GAL-${String(galleryImages.length + 1).padStart(3, "0")}`,
-        order: image.order || maxOrder + 1,
-      };
-      setGalleryImages(prev => [newImage, ...prev]);
-    }, [galleryImages.length]);
-
-    const updateGalleryImage = useCallback((id: string, updates: Partial<GalleryImage>) => {
-      setGalleryImages(prev => prev.map(img => img.id === id ? { ...img, ...updates } : img));
-    }, []);
-
-    const deleteGalleryImage = useCallback((id: string) => {
-      setGalleryImages(prev => prev.filter(img => img.id !== id));
-    }, []);
-
-    const uploadImage = useCallback(async (file: File, metadata: Partial<GalleryImage>) => {
-      // Simulate upload delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
-    
-      // Create object URL for preview
-      const url = URL.createObjectURL(file);
-    
-      const maxOrder = galleryImages.length > 0 ? Math.max(...galleryImages.map(img => img.order || 0)) : 0;
-    
-      const newImage: GalleryImage = {
-        id: `GAL-${String(galleryImages.length + 1).padStart(3, "0")}`,
-        title: metadata.title || file.name.replace(/\.[^/.]+$/, ""),
-        description: metadata.description || "",
-        url: url,
-        thumbnailUrl: url,
-        category: metadata.category || "products",
-        status: metadata.status || "draft",
-        tags: metadata.tags || [],
-        altText: metadata.altText || "",
-        isFeatured: metadata.isFeatured || false,
-        date: new Date().toISOString().split("T")[0],
-        size: file.size,
-        width: 1920,
-        height: 1080,
-        order: metadata.order || maxOrder + 1,
-      };
-    
-      setGalleryImages(prev => [newImage, ...prev]);
+  // Gallery Image CRUD
+  const addGalleryImage = useCallback(
+    async (image: Omit<GalleryImage, "id">) => {
+      const response = await fetch("/api/admin/gallery", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...image, object_key: image.url }),
+      });
+      const result = await response.json();
+      if (!response.ok)
+        throw new Error(result.error || "Unable to create image");
+      const newImage = { ...image, id: result.id };
+      setGalleryImages((prev) => [newImage, ...prev]);
       return newImage;
-    }, [galleryImages.length]);
+    },
+    [],
+  );
 
-    return (
-    <AdminDataContext.Provider value={{
-      customers,
-      addCustomer,
-      updateCustomer,
-      deleteCustomer,
-      products,
-      addProduct,
-      updateProduct,
-      deleteProduct,
-      orders,
-      addOrder,
-      updateOrder,
-      deleteOrder,
-      enquiries,
-      addEnquiry,
-      updateEnquiry,
-      deleteEnquiry,
-          galleryImages,
-          addGalleryImage,
-          updateGalleryImage,
-          deleteGalleryImage,
-          uploadImage,
-          analytics,
-          settings,
-          updateSettings,
-          isAuthenticated,
-          user,
-          login,
-          logout,
-          loading,
-        }}>
-          {children}
-        </AdminDataContext.Provider>
+  const updateGalleryImage = useCallback(
+    async (id: string, updates: Partial<GalleryImage>) => {
+      const response = await fetch(
+        `/api/admin/gallery/${encodeURIComponent(id)}`,
+        {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(updates),
+        },
       );
+      const result = await response.json();
+      if (!response.ok)
+        throw new Error(result.error || "Unable to update image");
+      setGalleryImages((prev) =>
+        prev.map((img) => (img.id === id ? { ...img, ...updates } : img)),
+      );
+    },
+    [],
+  );
+
+  const deleteGalleryImage = useCallback(async (id: string) => {
+    const response = await fetch(
+      `/api/admin/gallery/${encodeURIComponent(id)}`,
+      { method: "DELETE" },
+    );
+    if (!response.ok) throw new Error("Unable to delete image");
+    setGalleryImages((prev) => prev.filter((img) => img.id !== id));
+  }, []);
+
+  const uploadImage = useCallback(
+    async (file: File, metadata: Partial<GalleryImage>) => {
+      const form = new FormData();
+      form.append("file", file);
+      if (metadata.title) form.append("title", metadata.title);
+      if (metadata.altText) form.append("alt_text", metadata.altText);
+      form.append("status", metadata.status || "active");
+      const response = await fetch("/api/admin/gallery/upload", {
+        method: "POST",
+        body: form,
+      });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error || "Upload failed");
+
+      let createdImage!: GalleryImage;
+      setGalleryImages((prev) => {
+        const maxOrder =
+          prev.length > 0 ? Math.max(...prev.map((img) => img.order || 0)) : 0;
+
+        createdImage = {
+          id: result.id,
+          title: result.title,
+          description: metadata.description || "",
+          url: result.url,
+          thumbnailUrl: result.url,
+          category: metadata.category || "products",
+          status: metadata.status || "active",
+          tags: metadata.tags || [],
+          altText: metadata.altText || "",
+          isFeatured: metadata.isFeatured || false,
+          date: new Date().toISOString().split("T")[0],
+          size: file.size,
+          width: result.width,
+          height: result.height,
+          order: metadata.order || maxOrder + 1,
+        };
+
+        return [createdImage, ...prev];
+      });
+
+      return createdImage;
+    },
+    [],
+  );
+
+  return (
+    <AdminDataContext.Provider
+      value={{
+        customers,
+        addCustomer,
+        updateCustomer,
+        deleteCustomer,
+        products,
+        addProduct,
+        updateProduct,
+        deleteProduct,
+        orders,
+        addOrder,
+        updateOrder,
+        deleteOrder,
+        enquiries,
+        addEnquiry,
+        updateEnquiry,
+        deleteEnquiry,
+        galleryImages,
+        addGalleryImage,
+        updateGalleryImage,
+        deleteGalleryImage,
+        uploadImage,
+        analytics,
+        settings,
+        updateSettings,
+        theme,
+        setTheme,
+        toggleTheme,
+        isAuthenticated,
+        user,
+        login,
+        logout,
+        loading,
+        galleryLoading,
+      }}>
+      {children}
+    </AdminDataContext.Provider>
+  );
 }
 
 export function useAdminData() {

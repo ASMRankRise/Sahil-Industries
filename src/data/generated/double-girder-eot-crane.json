@@ -87,9 +87,7 @@
     "/sahilcrane/products/monorail-crane.jpg",
     "/sahilcrane/logo/logo-footer.png"
   ],
-  "pdfs": [
-    "/sahilcrane/broucher/girder-eot-crane.pdf"
-  ],
+  "pdfs": ["/sahilcrane/broucher/girder-eot-crane.pdf"],
   "featureLists": [
     [
       "Modular construction makes it possible to supply cranes for any class, application, speed as required",
@@ -116,11 +114,7 @@
       "Independent moving pendent",
       "Load indicator"
     ],
-    [
-      "Radio remote Control",
-      "Alarm",
-      "Bridge lights"
-    ]
+    ["Radio remote Control", "Alarm", "Bridge lights"]
   ],
   "tables": [
     [

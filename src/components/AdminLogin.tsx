@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useId, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Mail, Lock, Zap, ArrowRight, AlertCircle } from "lucide-react";
+import { Mail, Lock, ArrowRight, AlertCircle } from "lucide-react";
 import { useAdminData } from "@/context/AdminDataContext";
 
 export default function AdminLogin() {
@@ -10,9 +11,26 @@ export default function AdminLogin() {
   const { login, isAuthenticated } = useAdminData();
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [email, setEmail] = useState("");
+  const [rememberMe, setRememberMe] = useState(false);
+  const emailId = useId();
+  const passwordId = useId();
+
+  useEffect(() => {
+    const savedEmail = window.localStorage.getItem("admin_remembered_email");
+    if (savedEmail) {
+      setEmail(savedEmail);
+      setRememberMe(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      router.replace("/admin");
+    }
+  }, [isAuthenticated, router]);
 
   if (isAuthenticated) {
-    router.push("/admin");
     return null;
   }
 
@@ -22,8 +40,12 @@ export default function AdminLogin() {
     setIsLoading(true);
     try {
       const formData = new FormData(e.currentTarget as HTMLFormElement);
+      const submittedEmail = formData.get("email") as string;
+      if (rememberMe)
+        window.localStorage.setItem("admin_remembered_email", submittedEmail);
+      else window.localStorage.removeItem("admin_remembered_email");
       await login({
-        email: formData.get("email") as string,
+        email: submittedEmail,
         password: formData.get("password") as string,
       });
       router.push("/admin");
@@ -39,77 +61,132 @@ export default function AdminLogin() {
     <div className="min-h-screen bg-ink flex items-center justify-center px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full">
         {/* Brand */}
-        <div className="flex items-center gap-3 mb-8">
-          <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-safety to-yellow-400 flex items-center justify-center shadow-md shadow-safety/25">
-            <Zap size={20} className="text-ink" />
+        <div className="mb-8 flex flex-col items-center justify-center">
+          <div className="flex h-16 w-20 items-center justify-center rounded-xl border border-safety/50 bg-safety/10 shadow-lg shadow-safety/10">
+            <img
+              src="/media/logo/logo%20svg1.svg"
+              alt="Sahil Industries"
+              className="h-12 w-16 object-contain"
+            />
           </div>
-          <div>
-            <span className="text-xs font-extrabold uppercase tracking-widest text-white">SAHIL</span>
-            <span className="text-[10px] font-medium text-safety uppercase tracking-wider block">INDUSTRIES</span>
+          <div className="mt-2 text-center">
+            <span className="text-xs font-extrabold uppercase tracking-widest text-white">
+              SAHIL
+            </span>
+            <span className="text-[10px] font-medium text-safety uppercase tracking-wider block">
+              INDUSTRIES
+            </span>
           </div>
         </div>
 
         {/* Login Card */}
         <div className="bg-surface border border-white/10 rounded-2xl shadow-2xl p-8 sm:p-10">
-          <h2 className="text-2xl font-bold tracking-tight text-white mb-1">Admin Login</h2>
-          <p className="text-slate-400 text-sm mb-6">Sign in to manage Sahil Industries</p>
+          <h1 className="text-2xl font-bold tracking-tight text-white mb-1">
+            Admin Login
+          </h1>
+          <p className="text-slate-400 text-sm mb-6">
+            Sign in to manage Sahil Industries
+          </p>
 
           {error && (
-            <div className="mb-6 p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm flex items-center gap-2">
-              <AlertCircle size={16} />
+            <div
+              role="alert"
+              className="mb-6 p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm flex items-center gap-2">
+              <AlertCircle size={16} aria-hidden="true" />
               {error}
             </div>
           )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <label className="block text-xs font-medium text-slate-300 uppercase tracking-wider">Email Address</label>
+              <label
+                htmlFor={emailId}
+                className="block text-xs font-medium text-slate-300 uppercase tracking-wider">
+                Email Address
+              </label>
               <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                <Mail
+                  className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+                  size={18}
+                  aria-hidden="true"
+                />
                 <input
+                  id={emailId}
                   name="email"
                   type="email"
+                  value={email}
+                  onChange={(event) => setEmail(event.target.value)}
                   autoComplete="email"
                   required
                   placeholder="admin@sahilcranes.in"
-                  className="w-full pl-10 pr-4 py-3.5 bg-white/5 border border-white/10 rounded-xl text-white placeholder:text-slate-500 focus:outline-none focus:border-safety/50 focus:ring-1 focus:ring-safety transition-all"
+                  className="w-full pl-10 pr-4 py-3.5 bg-white/5 border border-white/10 rounded-xl text-white placeholder:text-slate-400 focus:outline-none focus:border-safety/50 focus:ring-1 focus:ring-safety transition-all"
                 />
               </div>
             </div>
 
             <div className="space-y-2">
-              <label className="block text-xs font-medium text-slate-300 uppercase tracking-wider">Password</label>
+              <label
+                htmlFor={passwordId}
+                className="block text-xs font-medium text-slate-300 uppercase tracking-wider">
+                Password
+              </label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                <Lock
+                  className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+                  size={18}
+                  aria-hidden="true"
+                />
                 <input
+                  id={passwordId}
                   name="password"
                   type="password"
                   autoComplete="current-password"
                   required
                   placeholder="••••••••"
-                  className="w-full pl-10 pr-4 py-3.5 bg-white/5 border border-white/10 rounded-xl text-white placeholder:text-slate-500 focus:outline-none focus:border-safety/50 focus:ring-1 focus:ring-safety transition-all"
+                  className="w-full pl-10 pr-4 py-3.5 bg-white/5 border border-white/10 rounded-xl text-white placeholder:text-slate-400 focus:outline-none focus:border-safety/50 focus:ring-1 focus:ring-safety transition-all"
                 />
               </div>
             </div>
 
             <div className="flex items-center justify-between">
               <label className="flex items-center gap-2 text-sm text-slate-300 cursor-pointer select-none">
-                <input type="checkbox" className="rounded bg-white/5 border border-white/10 text-safety focus:ring-safety" />
+                <input
+                  type="checkbox"
+                  checked={rememberMe}
+                  onChange={(event) => setRememberMe(event.target.checked)}
+                  className="rounded bg-white/5 border border-white/10 text-safety focus:ring-safety"
+                />
                 <span>Remember me</span>
               </label>
-              <a href="/" className="text-xs text-safety hover:text-safety/80 underline underline-offset-4">Back to website</a>
+              <Link
+                href="/"
+                className="text-xs text-safety hover:text-safety/80 underline underline-offset-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-safety rounded">
+                Back to website
+              </Link>
             </div>
 
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full flex items-center justify-center gap-2 px-4 py-3.5 bg-safety text-ink font-bold rounded-xl hover:bg-yellow-400 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg shadow-safety/20 hover:shadow-safety/30"
-            >
+              className="w-full flex items-center justify-center gap-2 px-4 py-3.5 bg-safety text-ink font-bold rounded-xl hover:bg-yellow-400 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg shadow-safety/20 hover:shadow-safety/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white">
               {isLoading ? (
                 <>
-                  <svg className="animate-spin h-5 w-5 text-ink" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  <svg
+                    className="animate-spin h-5 w-5 text-ink"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24">
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                   </svg>
                   Signing in...
                 </>
@@ -121,16 +198,15 @@ export default function AdminLogin() {
             </button>
           </form>
 
-          <div className="mt-8 pt-6 border-t border-white/10 flex items-center justify-center text-xs text-slate-500">
-            <span className="mr-2">Demo credentials</span>
-            <span className="text-safety font-mono text-[11px]">admin@sahilcranes.in</span>
-            <span className="ml-2 text-slate-500">/</span>
-            <span className="ml-2 text-safety font-mono text-[11px]">admin123</span>
-          </div>
+          <p className="mt-8 pt-6 border-t border-white/10 text-center text-xs text-slate-400">
+            Use an administrator account provisioned by your deployment
+            administrator.
+          </p>
         </div>
 
-        <p className="mt-6 text-center text-[11px] text-slate-500">
-          Sahil Industries &copy; {new Date().getFullYear()} &bull; Management Portal (Demo)
+        <p className="mt-6 text-center text-[11px] text-slate-400">
+          Sahil Industries &copy; {new Date().getFullYear()} &bull; Management
+          Portal
         </p>
       </div>
     </div>

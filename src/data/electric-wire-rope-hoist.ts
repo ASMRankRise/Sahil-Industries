@@ -1,4 +1,4 @@
-import source from '@/data/generated/electric-wire-rope-hoist.json';
+import source from "@/data/generated/electric-wire-rope-hoist.json";
 
 export const electricWireRopeHoistProduct = {
   title: source.headings[7],

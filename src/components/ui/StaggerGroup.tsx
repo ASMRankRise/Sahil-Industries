@@ -99,7 +99,10 @@ const itemVariants: Record<string, any> = {
     visible: {
       opacity: 1,
       y: 0,
-      transition: { duration: STAGGER_ITEM_TRANSITION_DURATION, ease: STAGGER_ITEM_TRANSITION_EASE },
+      transition: {
+        duration: STAGGER_ITEM_TRANSITION_DURATION,
+        ease: STAGGER_ITEM_TRANSITION_EASE,
+      },
     },
   },
   fadeDown: {
@@ -107,7 +110,10 @@ const itemVariants: Record<string, any> = {
     visible: {
       opacity: 1,
       y: 0,
-      transition: { duration: STAGGER_ITEM_TRANSITION_DURATION, ease: STAGGER_ITEM_TRANSITION_EASE },
+      transition: {
+        duration: STAGGER_ITEM_TRANSITION_DURATION,
+        ease: STAGGER_ITEM_TRANSITION_EASE,
+      },
     },
   },
   fadeLeft: {
@@ -115,7 +121,10 @@ const itemVariants: Record<string, any> = {
     visible: {
       opacity: 1,
       x: 0,
-      transition: { duration: STAGGER_ITEM_TRANSITION_DURATION, ease: STAGGER_ITEM_TRANSITION_EASE },
+      transition: {
+        duration: STAGGER_ITEM_TRANSITION_DURATION,
+        ease: STAGGER_ITEM_TRANSITION_EASE,
+      },
     },
   },
   fadeRight: {
@@ -123,7 +132,10 @@ const itemVariants: Record<string, any> = {
     visible: {
       opacity: 1,
       x: 0,
-      transition: { duration: STAGGER_ITEM_TRANSITION_DURATION, ease: STAGGER_ITEM_TRANSITION_EASE },
+      transition: {
+        duration: STAGGER_ITEM_TRANSITION_DURATION,
+        ease: STAGGER_ITEM_TRANSITION_EASE,
+      },
     },
   },
   scale: {
@@ -131,7 +143,10 @@ const itemVariants: Record<string, any> = {
     visible: {
       opacity: 1,
       scale: 1,
-      transition: { duration: STAGGER_ITEM_SCALE_DURATION, ease: STAGGER_ITEM_TRANSITION_EASE },
+      transition: {
+        duration: STAGGER_ITEM_SCALE_DURATION,
+        ease: STAGGER_ITEM_TRANSITION_EASE,
+      },
     },
   },
   flipX: {
@@ -139,7 +154,10 @@ const itemVariants: Record<string, any> = {
     visible: {
       opacity: 1,
       rotateX: 0,
-      transition: { duration: STAGGER_ITEM_FLIP_DURATION, ease: STAGGER_ITEM_TRANSITION_EASE },
+      transition: {
+        duration: STAGGER_ITEM_FLIP_DURATION,
+        ease: STAGGER_ITEM_TRANSITION_EASE,
+      },
     },
   },
   flipY: {
@@ -147,7 +165,10 @@ const itemVariants: Record<string, any> = {
     visible: {
       opacity: 1,
       rotateY: 0,
-      transition: { duration: STAGGER_ITEM_FLIP_DURATION, ease: STAGGER_ITEM_TRANSITION_EASE },
+      transition: {
+        duration: STAGGER_ITEM_FLIP_DURATION,
+        ease: STAGGER_ITEM_TRANSITION_EASE,
+      },
     },
   },
 };
@@ -187,7 +208,10 @@ export function StaggerItem({
 export function createStaggerVariants(
   staggerChildren = STAGGER_GROUP_DEFAULT_STAGGER,
   delayChildren = STAGGER_GROUP_DEFAULT_DELAY,
-  staggerDirection: "forward" | "reverse" | "random" = STAGGER_GROUP_DEFAULT_DIRECTION,
+  staggerDirection:
+    | "forward"
+    | "reverse"
+    | "random" = STAGGER_GROUP_DEFAULT_DIRECTION,
 ) {
   return {
     hidden: { opacity: 1 },

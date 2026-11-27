@@ -79,9 +79,7 @@
     "/sahilcrane/products/monorail-crane.jpg",
     "/sahilcrane/logo/logo-footer.png"
   ],
-  "pdfs": [
-    "/sahilcrane/broucher/girder-eot-crane.pdf"
-  ],
+  "pdfs": ["/sahilcrane/broucher/girder-eot-crane.pdf"],
   "featureLists": [
     [
       "Standard Single Speed Motors",
@@ -113,11 +111,7 @@
       "Independent moving pendent",
       "Load indicator"
     ],
-    [
-      "Radio remote Control",
-      "Alarm",
-      "Bridge lights"
-    ]
+    ["Radio remote Control", "Alarm", "Bridge lights"]
   ],
   "tables": [
     [

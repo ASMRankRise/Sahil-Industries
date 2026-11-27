@@ -1,16 +1,24 @@
-'use client';
+"use client";
 
-import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
-import { useEffect, useState } from 'react';
+import {
+  AnimatePresence,
+  motion,
+  useMotionValue,
+  useReducedMotion,
+  useSpring,
+} from "framer-motion";
+import { useEffect, useState } from "react";
+import type { PointerEvent } from "react";
 
 // Standardized constants for HeroSliderBackdrop
-const SLIDES = ['/media/slider/slider-01.jpg', '/media/slider/slider-02.jpg'];
-const SLIDE_CLASS = "absolute inset-0 bg-cover bg-center opacity-50 saturate-[.72] contrast-110";
+const SLIDES = ["/media/slider/slider-01.jpg", "/media/slider/slider-02.jpg"];
+const SLIDE_CLASS =
+  "absolute inset-0 bg-cover bg-center opacity-50 saturate-[.72] contrast-110";
 const SLIDE_INITIAL = { opacity: 0, scale: 1.04 };
 const SLIDE_ANIMATE = { opacity: 0.5, scale: 1 };
 const SLIDE_EXIT = { opacity: 0 };
 const SLIDE_TRANSITION_OPACITY = { duration: 0.75 };
-const SLIDE_TRANSITION_SCALE = { duration: 6.2, ease: 'linear' as const };
+const SLIDE_TRANSITION_SCALE = { duration: 6.2, ease: "linear" as const };
 const DOTS_BOTTOM = "bottom-[150px]";
 const DOTS_RIGHT = "right-[clamp(22px,4vw,65px)]";
 const DOTS_GAP = "gap-2.5";
@@ -22,34 +30,70 @@ const DOT_INACTIVE = "bg-transparent";
 export function HeroSliderBackdrop() {
   const [active, setActive] = useState(0);
   const reducedMotion = useReducedMotion();
-  
+  const pointerX = useSpring(useMotionValue(0), { stiffness: 45, damping: 20 });
+  const pointerY = useSpring(useMotionValue(0), { stiffness: 45, damping: 20 });
+  const handlePointerMove = (event: PointerEvent<HTMLDivElement>) => {
+    if (reducedMotion || event.pointerType === "touch") return;
+    const bounds = event.currentTarget.getBoundingClientRect();
+    pointerX.set(((event.clientX - bounds.left) / bounds.width - 0.5) * -10);
+    pointerY.set(((event.clientY - bounds.top) / bounds.height - 0.5) * -6);
+  };
+
   useEffect(() => {
     if (reducedMotion) return;
-    const timer = window.setInterval(() => setActive((current) => (current + 1) % SLIDES.length), 6200);
+    const timer = window.setInterval(
+      () => setActive((current) => (current + 1) % SLIDES.length),
+      6200,
+    );
     return () => window.clearInterval(timer);
   }, [reducedMotion]);
 
   return (
     <>
-      <div className="absolute inset-0" aria-hidden="true">
+      <div
+        className="absolute inset-0"
+        aria-hidden="true"
+        onPointerMove={handlePointerMove}
+        onPointerLeave={() => {
+          pointerX.set(0);
+          pointerY.set(0);
+        }}>
         <AnimatePresence initial={false}>
-          {SLIDES.map((src, index) => index === active && (
-            <motion.div
-              key={src}
-              className={SLIDE_CLASS}
-              style={{ backgroundImage: `url(${src})` }}
-              initial={SLIDE_INITIAL}
-              animate={SLIDE_ANIMATE}
-              exit={SLIDE_EXIT}
-              transition={{
-                opacity: { duration: reducedMotion ? 0 : SLIDE_TRANSITION_OPACITY.duration },
-                scale: { duration: reducedMotion ? 0 : SLIDE_TRANSITION_SCALE.duration, ease: SLIDE_TRANSITION_SCALE.ease },
-              }}
-            />
-          ))}
+          {SLIDES.map(
+            (src, index) =>
+              index === active && (
+                <motion.div
+                  key={src}
+                  className={SLIDE_CLASS}
+                  style={{
+                    backgroundImage: `url(${src})`,
+                    x: pointerX,
+                    y: pointerY,
+                  }}
+                  initial={SLIDE_INITIAL}
+                  animate={SLIDE_ANIMATE}
+                  exit={SLIDE_EXIT}
+                  transition={{
+                    opacity: {
+                      duration: reducedMotion
+                        ? 0
+                        : SLIDE_TRANSITION_OPACITY.duration,
+                    },
+                    scale: {
+                      duration: reducedMotion
+                        ? 0
+                        : SLIDE_TRANSITION_SCALE.duration,
+                      ease: SLIDE_TRANSITION_SCALE.ease,
+                    },
+                  }}
+                />
+              ),
+          )}
         </AnimatePresence>
       </div>
-      <div className={`absolute ${DOTS_BOTTOM} ${DOTS_RIGHT} z-10 grid ${DOTS_GAP}`} aria-label="Hero slides">
+      <div
+        className={`absolute ${DOTS_BOTTOM} ${DOTS_RIGHT} z-10 grid ${DOTS_GAP}`}
+        aria-label="Hero slides">
         {SLIDES.map((_, index) => (
           <button
             key={index}

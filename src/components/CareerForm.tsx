@@ -2,7 +2,22 @@
 
 import { useState, useCallback, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { CheckCircle, AlertCircle, Loader2, Mail, Phone, User, MessageSquare, Check, X, Info, Upload, FileText, RefreshCw, Shield } from "lucide-react";
+import {
+  CheckCircle,
+  AlertCircle,
+  Loader2,
+  Mail,
+  Phone,
+  User,
+  MessageSquare,
+  Check,
+  X,
+  Info,
+  Upload,
+  FileText,
+  RefreshCw,
+  Shield,
+} from "lucide-react";
 
 interface CareerFormData {
   fullname: string;
@@ -65,8 +80,8 @@ const initialFieldState: CareerFieldState = {
 const generateCaptcha = (): CaptchaState => {
   const num1 = Math.floor(Math.random() * 10) + 1;
   const num2 = Math.floor(Math.random() * 10) + 1;
-  const operator = Math.random() > 0.5 ? '+' : '-';
-  const answer = operator === '+' ? num1 + num2 : num1 - num2;
+  const operator = Math.random() > 0.5 ? "+" : "-";
+  const answer = operator === "+" ? num1 + num2 : num1 - num2;
   const question = `${num1} ${operator} ${num2}`;
   return { question, answer, userAnswer: "" };
 };
@@ -98,7 +113,8 @@ const validationRules: ValidationRules = {
     minLength: 2,
     maxLength: 100,
     pattern: /^[a-zA-Z\s\-\.']+$/,
-    patternMessage: "Name can only contain letters, spaces, hyphens, apostrophes, and periods",
+    patternMessage:
+      "Name can only contain letters, spaces, hyphens, apostrophes, and periods",
   },
   email: {
     required: true,
@@ -108,7 +124,8 @@ const validationRules: ValidationRules = {
   },
   mobile: {
     required: true,
-    pattern: /^[\+]?[(]?[0-9]{1,3}[)]?[-\s\.]?[(]?[0-9]{1,3}[)]?[-\s\.]?[0-9]{4,10}$/,
+    pattern:
+      /^[\+]?[(]?[0-9]{1,3}[)]?[-\s\.]?[(]?[0-9]{1,3}[)]?[-\s\.]?[0-9]{4,10}$/,
     patternMessage: "Please enter a valid phone number (e.g., +91 98765 43210)",
     format: true,
   },
@@ -117,7 +134,8 @@ const validationRules: ValidationRules = {
     minLength: 2,
     maxLength: 50,
     pattern: /^[a-zA-Z\s\-\.']+$/,
-    patternMessage: "City name can only contain letters, spaces, hyphens, apostrophes, and periods",
+    patternMessage:
+      "City name can only contain letters, spaces, hyphens, apostrophes, and periods",
   },
   message: {
     required: true,
@@ -137,7 +155,9 @@ const validationRules: ValidationRules = {
 
 export function CareerForm({ onSuccess }: CareerFormProps) {
   const [formData, setFormData] = useState<CareerFormData>(initialFormData);
-  const [fieldStates, setFieldStates] = useState<Record<keyof CareerFormData, CareerFieldState>>({
+  const [fieldStates, setFieldStates] = useState<
+    Record<keyof CareerFormData, CareerFieldState>
+  >({
     fullname: initialFieldState,
     email: initialFieldState,
     mobile: initialFieldState,
@@ -147,40 +167,51 @@ export function CareerForm({ onSuccess }: CareerFormProps) {
     captcha: initialFieldState,
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitStatus, setSubmitStatus] = useState<"idle" | "success" | "error">("idle");
+  const [submitStatus, setSubmitStatus] = useState<
+    "idle" | "success" | "error"
+  >("idle");
   const [errorMessage, setErrorMessage] = useState("");
-  const [touchedFields, setTouchedFields] = useState<Set<keyof CareerFormData>>(new Set());
-  
+  const [touchedFields, setTouchedFields] = useState<Set<keyof CareerFormData>>(
+    new Set(),
+  );
+
   // Captcha state - generate on client side only to avoid hydration mismatch
   const [captcha, setCaptcha] = useState<CaptchaState>(() => {
-    if (typeof window !== 'undefined') {
+    if (typeof window !== "undefined") {
       return generateCaptcha();
     }
     // Return a placeholder that will be replaced on client
     return { question: "? + ?", answer: 0, userAnswer: "" };
   });
-  
+
   // Track if we're on client side
   const [isClient, setIsClient] = useState(false);
-  
+
   useEffect(() => {
     setIsClient(true);
     // Generate captcha on client mount
     setCaptcha(generateCaptcha());
   }, []);
-  
+
   const validationTimeouts = useRef<Record<string, NodeJS.Timeout>>({});
   const asyncValidationCache = useRef<Record<string, boolean>>({});
 
   // Refresh captcha
   const refreshCaptcha = useCallback(() => {
     setCaptcha(generateCaptcha);
-    setFormData(prev => ({ ...prev, captcha: "" }));
-    setFieldStates(prev => ({
+    setFormData((prev) => ({ ...prev, captcha: "" }));
+    setFieldStates((prev) => ({
       ...prev,
-      captcha: { ...prev.captcha, value: "", error: undefined, warning: undefined, isDirty: false, isTouched: false }
+      captcha: {
+        ...prev.captcha,
+        value: "",
+        error: undefined,
+        warning: undefined,
+        isDirty: false,
+        isTouched: false,
+      },
     }));
-    setTouchedFields(prev => {
+    setTouchedFields((prev) => {
       const next = new Set(prev);
       next.delete("captcha");
       return next;
@@ -188,191 +219,250 @@ export function CareerForm({ onSuccess }: CareerFormProps) {
   }, []);
 
   // Validate captcha
-  const validateCaptcha = useCallback((value: string): { error?: string } => {
-    const answer = value.trim();
-    if (!/^-?\d+$/.test(answer)) {
-      return { error: "Please enter the answer to the math question" };
-    }
-    const userAnswer = Number(answer);
-    if (userAnswer !== captcha.answer) {
-      return { error: "Incorrect answer. Please try again." };
-    }
-    return {};
-  }, [captcha.answer]);
+  const validateCaptcha = useCallback(
+    (value: string): { error?: string } => {
+      const answer = value.trim();
+      if (!/^-?\d+$/.test(answer)) {
+        return { error: "Please enter the answer to the math question" };
+      }
+      const userAnswer = Number(answer);
+      if (userAnswer !== captcha.answer) {
+        return { error: "Incorrect answer. Please try again." };
+      }
+      return {};
+    },
+    [captcha.answer],
+  );
 
   // Debounced validation
-  const validateField = useCallback((name: keyof CareerFormData, value: string, isBlur = false): Promise<{ error?: string; warning?: string }> => {
-    const rules = validationRules[name];
-    if (!rules) return Promise.resolve({});
+  const validateField = useCallback(
+    (
+      name: keyof CareerFormData,
+      value: string,
+      isBlur = false,
+    ): Promise<{ error?: string; warning?: string }> => {
+      const rules = validationRules[name];
+      if (!rules) return Promise.resolve({});
 
-    // Clear existing timeout
-    if (validationTimeouts.current[name]) {
-      clearTimeout(validationTimeouts.current[name]);
-    }
+      // Clear existing timeout
+      if (validationTimeouts.current[name]) {
+        clearTimeout(validationTimeouts.current[name]);
+      }
 
-    // For blur events, validate immediately
-    // For change events, debounce
-    const delay = isBlur ? 0 : 300;
+      // For blur events, validate immediately
+      // For change events, debounce
+      const delay = isBlur ? 0 : 300;
 
-    return new Promise<{ error?: string; warning?: string }>((resolve) => {
-      validationTimeouts.current[name] = setTimeout(() => {
-        let error: string | undefined;
-        let warning: string | undefined;
+      return new Promise<{ error?: string; warning?: string }>((resolve) => {
+        validationTimeouts.current[name] = setTimeout(() => {
+          let error: string | undefined;
+          let warning: string | undefined;
 
-        // Special handling for captcha
-        if (name === "captcha") {
-          const captchaResult = validateCaptcha(value);
-          if (captchaResult.error) {
-            error = captchaResult.error;
-          }
-          resolve({ error, warning });
-          return;
-        }
-
-        // Required validation
-        if (rules.required && !value.trim()) {
-          error = `${name.charAt(0).toUpperCase() + name.slice(1)} is required`;
-        }
-        // Min length
-        else if (rules.minLength && value.trim().length > 0 && value.trim().length < (rules.minLength ?? 0)) {
-          error = `Must be at least ${rules.minLength} characters`;
-        }
-        // Max length
-        else if (rules.maxLength && value.length > rules.maxLength) {
-          error = `Must not exceed ${rules.maxLength} characters`;
-        }
-        // Pattern validation
-        else if (rules.pattern && value.trim() && !rules.pattern.test(value)) {
-          error = rules.patternMessage;
-        }
-        // Async validation simulation (e.g., check if email exists)
-        else if (rules.asyncValidate && value.trim() && rules.pattern?.test(value)) {
-          setFieldStates(prevState => ({
-            ...prevState,
-            [name]: { ...prevState[name], isValidating: true }
-          }));
-          
-          // Simulate API call
-          setTimeout(() => {
-            const isTaken = asyncValidationCache.current[value.toLowerCase()] || false;
-            // For demo, mark common test emails as "taken"
-            if (value.toLowerCase().includes('test@') || value.toLowerCase().includes('admin@')) {
-              asyncValidationCache.current[value.toLowerCase()] = true;
-              resolve({ warning: "This email is already registered. Did you mean to log in?" });
-            } else {
-              resolve({});
+          // Special handling for captcha
+          if (name === "captcha") {
+            const captchaResult = validateCaptcha(value);
+            if (captchaResult.error) {
+              error = captchaResult.error;
             }
-            setFieldStates(prevState => ({
-              ...prevState,
-              [name]: { ...prevState[name], isValidating: false }
-            }));
-          }, 500);
-          return;
-        }
+            resolve({ error, warning });
+            return;
+          }
 
-        resolve({ error, warning });
-      }, delay);
-    });
-  }, [validateCaptcha]);
+          // Required validation
+          if (rules.required && !value.trim()) {
+            error = `${name.charAt(0).toUpperCase() + name.slice(1)} is required`;
+          }
+          // Min length
+          else if (
+            rules.minLength &&
+            value.trim().length > 0 &&
+            value.trim().length < (rules.minLength ?? 0)
+          ) {
+            error = `Must be at least ${rules.minLength} characters`;
+          }
+          // Max length
+          else if (rules.maxLength && value.length > rules.maxLength) {
+            error = `Must not exceed ${rules.maxLength} characters`;
+          }
+          // Pattern validation
+          else if (
+            rules.pattern &&
+            value.trim() &&
+            !rules.pattern.test(value)
+          ) {
+            error = rules.patternMessage;
+          }
+          // Async validation simulation (e.g., check if email exists)
+          else if (
+            rules.asyncValidate &&
+            value.trim() &&
+            rules.pattern?.test(value)
+          ) {
+            setFieldStates((prevState) => ({
+              ...prevState,
+              [name]: { ...prevState[name], isValidating: true },
+            }));
+
+            // Simulate API call
+            setTimeout(() => {
+              // This form does not look up accounts or registrations. Keep the
+              // async check as a harmless debounce without making claims about
+              // whether an email address is already registered.
+              asyncValidationCache.current[value.toLowerCase()] = true;
+              resolve({});
+              setFieldStates((prevState) => ({
+                ...prevState,
+                [name]: { ...prevState[name], isValidating: false },
+              }));
+            }, 500);
+            return;
+          }
+
+          resolve({ error, warning });
+        }, delay);
+      });
+    },
+    [validateCaptcha],
+  );
 
   // Handle field change with real-time validation
-  const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
-    const fieldName = name as keyof CareerFormData;
-    
-    // Format phone number as user types (skip for captcha)
-    let formattedValue = value;
-    if (fieldName === 'mobile' && validationRules.mobile.format) {
-      formattedValue = formatPhoneNumber(value);
-    }
+  const handleChange = useCallback(
+    (
+      e: React.ChangeEvent<
+        HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+      >,
+    ) => {
+      const { name, value } = e.target;
+      const fieldName = name as keyof CareerFormData;
 
-    setFormData((prev) => ({ ...prev, [fieldName]: formattedValue }));
-    setFieldStates((prevState) => ({
-      ...prevState,
-      [fieldName]: { ...prevState[fieldName], value: formattedValue, isDirty: true }
-    }));
-
-    // Real-time validation on change (debounced)
-    validateField(fieldName, formattedValue).then(({ error, warning }) => {
-      if (error || warning) {
-        setFieldStates((prevState) => ({
-          ...prevState,
-          [fieldName]: { ...prevState[fieldName], error, warning }
-        }));
-      } else {
-        // Check if field was touched using the current fieldStates
-        setFieldStates((prevState) => {
-          if (prevState[fieldName].isTouched) {
-            // Clear error if field was touched and now valid
-            return {
-              ...prevState,
-              [fieldName]: { ...prevState[fieldName], error: undefined, warning: undefined }
-            };
-          }
-          return prevState;
-        });
+      // Format phone number as user types (skip for captcha)
+      let formattedValue = value;
+      if (fieldName === "mobile" && validationRules.mobile.format) {
+        formattedValue = formatPhoneNumber(value);
       }
-    });
-  }, [validateField]);
+
+      setFormData((prev) => ({ ...prev, [fieldName]: formattedValue }));
+      setFieldStates((prevState) => ({
+        ...prevState,
+        [fieldName]: {
+          ...prevState[fieldName],
+          value: formattedValue,
+          isDirty: true,
+        },
+      }));
+
+      // Real-time validation on change (debounced)
+      validateField(fieldName, formattedValue).then(({ error, warning }) => {
+        if (error || warning) {
+          setFieldStates((prevState) => ({
+            ...prevState,
+            [fieldName]: { ...prevState[fieldName], error, warning },
+          }));
+        } else {
+          // Check if field was touched using the current fieldStates
+          setFieldStates((prevState) => {
+            if (prevState[fieldName].isTouched) {
+              // Clear error if field was touched and now valid
+              return {
+                ...prevState,
+                [fieldName]: {
+                  ...prevState[fieldName],
+                  error: undefined,
+                  warning: undefined,
+                },
+              };
+            }
+            return prevState;
+          });
+        }
+      });
+    },
+    [validateField],
+  );
 
   // Handle file input change
-  const handleFileChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      // Validate file type
-      const allowedTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
-      if (!allowedTypes.includes(file.type)) {
-        setFieldStates(prev => ({
-          ...prev,
-          resume: { ...prev.resume, error: "Please upload a PDF, DOC, or DOCX file" }
-        }));
-        return;
-      }
-      
-      // Validate file size (max 5MB)
-      if (file.size > 5 * 1024 * 1024) {
-        setFieldStates(prev => ({
-          ...prev,
-          resume: { ...prev.resume, error: "File size must be less than 5MB" }
-        }));
-        return;
-      }
+  const handleFileChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0];
+      if (file) {
+        // Validate file type
+        const allowedTypes = [
+          "application/pdf",
+          "application/msword",
+          "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        ];
+        if (!allowedTypes.includes(file.type)) {
+          setFieldStates((prev) => ({
+            ...prev,
+            resume: {
+              ...prev.resume,
+              error: "Please upload a PDF, DOC, or DOCX file",
+            },
+          }));
+          return;
+        }
 
-      setFormData(prev => ({ ...prev, resume: file }));
-      setFieldStates(prev => ({
-        ...prev,
-        resume: { ...prev.resume, value: file.name, isDirty: true, error: undefined }
-      }));
-    }
-  }, []);
+        // Validate file size (max 5MB)
+        if (file.size > 5 * 1024 * 1024) {
+          setFieldStates((prev) => ({
+            ...prev,
+            resume: {
+              ...prev.resume,
+              error: "File size must be less than 5MB",
+            },
+          }));
+          return;
+        }
+
+        setFormData((prev) => ({ ...prev, resume: file }));
+        setFieldStates((prev) => ({
+          ...prev,
+          resume: {
+            ...prev.resume,
+            value: file.name,
+            isDirty: true,
+            error: undefined,
+          },
+        }));
+      }
+    },
+    [],
+  );
 
   // Handle field blur - validate immediately and mark as touched
-  const handleBlur = useCallback((e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
-    const fieldName = name as keyof CareerFormData;
-    
-    setTouchedFields(prev => new Set(prev).add(fieldName));
-    setFieldStates(prev => ({
-      ...prev,
-      [fieldName]: { ...prev[fieldName], isTouched: true }
-    }));
+  const handleBlur = useCallback(
+    (
+      e: React.FocusEvent<
+        HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+      >,
+    ) => {
+      const { name, value } = e.target;
+      const fieldName = name as keyof CareerFormData;
 
-    // Immediate validation on blur
-    validateField(fieldName, value, true).then(({ error, warning }) => {
-      setFieldStates(prev => ({
+      setTouchedFields((prev) => new Set(prev).add(fieldName));
+      setFieldStates((prev) => ({
         ...prev,
-        [fieldName]: { ...prev[fieldName], error, warning }
+        [fieldName]: { ...prev[fieldName], isTouched: true },
       }));
-    });
-  }, []);
+
+      // Immediate validation on blur
+      validateField(fieldName, value, true).then(({ error, warning }) => {
+        setFieldStates((prev) => ({
+          ...prev,
+          [fieldName]: { ...prev[fieldName], error, warning },
+        }));
+      });
+    },
+    [validateField],
+  );
 
   // Format phone number
   const formatPhoneNumber = (value: string): string => {
-    const digits = value.replace(/\D/g, '');
-    if (digits.length === 0) return '';
-    
+    const digits = value.replace(/\D/g, "");
+    if (digits.length === 0) return "";
+
     // Indian phone number format: +91 XXXXX XXXXX
-    if (digits.startsWith('91') && digits.length > 2) {
+    if (digits.startsWith("91") && digits.length > 2) {
       const rest = digits.slice(2);
       if (rest.length <= 5) return `+91 ${rest}`;
       return `+91 ${rest.slice(0, 5)} ${rest.slice(5, 10)}`;
@@ -389,37 +479,56 @@ export function CareerForm({ onSuccess }: CareerFormProps) {
     let isValid = true;
     const newFieldStates = { ...fieldStates };
 
-    (Object.keys(formData) as Array<keyof CareerFormData>).forEach(fieldName => {
-      const value = fieldName === 'resume' ? (formData[fieldName] as File)?.name || '' : formData[fieldName] as string;
-      const rules = validationRules[fieldName];
-      if (!rules) return;
+    (Object.keys(formData) as Array<keyof CareerFormData>).forEach(
+      (fieldName) => {
+        const value =
+          fieldName === "resume"
+            ? (formData[fieldName] as File)?.name || ""
+            : (formData[fieldName] as string);
+        const rules = validationRules[fieldName];
+        if (!rules) return;
 
-      let error: string | undefined;
-      
-      // Special handling for captcha
-      if (fieldName === "captcha") {
-        const captchaResult = validateCaptcha(value);
-        if (captchaResult.error) {
-          error = captchaResult.error;
+        let error: string | undefined;
+
+        // Special handling for captcha
+        if (fieldName === "captcha") {
+          const captchaResult = validateCaptcha(value);
+          if (captchaResult.error) {
+            error = captchaResult.error;
+          }
+        } else if (rules.required && !value.trim()) {
+          error = `${fieldName.charAt(0).toUpperCase() + fieldName.slice(1)} is required`;
+        } else if (
+          rules.minLength &&
+          value.trim().length > 0 &&
+          value.trim().length < (rules.minLength ?? 0)
+        ) {
+          error = `Must be at least ${rules.minLength} characters`;
+        } else if (rules.maxLength && value.length > rules.maxLength) {
+          error = `Must not exceed ${rules.maxLength} characters`;
+        } else if (
+          rules.pattern &&
+          value.trim() &&
+          !rules.pattern.test(value)
+        ) {
+          error = rules.patternMessage;
         }
-      } else if (rules.required && !value.trim()) {
-        error = `${fieldName.charAt(0).toUpperCase() + fieldName.slice(1)} is required`;
-      } else if (rules.minLength && value.trim().length > 0 && value.trim().length < (rules.minLength ?? 0)) {
-        error = `Must be at least ${rules.minLength} characters`;
-      } else if (rules.maxLength && value.length > rules.maxLength) {
-        error = `Must not exceed ${rules.maxLength} characters`;
-      } else if (rules.pattern && value.trim() && !rules.pattern.test(value)) {
-        error = rules.patternMessage;
-      }
 
-      if (error) {
-        isValid = false;
-        newFieldStates[fieldName] = { ...newFieldStates[fieldName], error, isTouched: true };
-      }
-    });
+        if (error) {
+          isValid = false;
+          newFieldStates[fieldName] = {
+            ...newFieldStates[fieldName],
+            error,
+            isTouched: true,
+          };
+        }
+      },
+    );
 
     setFieldStates(newFieldStates);
-    setTouchedFields(new Set(Object.keys(formData) as Array<keyof CareerFormData>));
+    setTouchedFields(
+      new Set(Object.keys(formData) as Array<keyof CareerFormData>),
+    );
     return isValid;
   }, [formData, fieldStates, validateCaptcha]);
 
@@ -435,32 +544,38 @@ export function CareerForm({ onSuccess }: CareerFormProps) {
     try {
       // Create FormData for multipart/form-data submission
       const formDataToSubmit = new FormData();
-      formDataToSubmit.append('fullname', formData.fullname);
-      formDataToSubmit.append('email', formData.email);
-      formDataToSubmit.append('mobile', formData.mobile);
-      formDataToSubmit.append('city', formData.city);
-      formDataToSubmit.append('message', formData.message);
-      formDataToSubmit.append('captcha', formData.captcha);
+      formDataToSubmit.append("fullname", formData.fullname);
+      formDataToSubmit.append("email", formData.email);
+      formDataToSubmit.append("mobile", formData.mobile);
+      formDataToSubmit.append("city", formData.city);
+      formDataToSubmit.append("message", formData.message);
+      formDataToSubmit.append("captcha", formData.captcha);
       // Send the question as well so the server can verify the answer; client
       // validation alone is not a security control.
-      formDataToSubmit.append('captchaQuestion', captcha.question);
-      
+      formDataToSubmit.append("captchaQuestion", captcha.question);
+
       if (formData.resume) {
-        formDataToSubmit.append('uploaded_file', formData.resume);
+        formDataToSubmit.append("uploaded_file", formData.resume);
       }
 
       // Add hidden values
       const hiddenValues = [
-        ["a", "NjY1K3VPSys4VTBmM2gzelpaeUN1T0NMVlBrU0haTU8yZ1NqNmsyL0xtNlowcU52UWdSZzZHYXI0bzRQeE5YTg=="],
+        [
+          "a",
+          "NjY1K3VPSys4VTBmM2gzelpaeUN1T0NMVlBrU0haTU8yZ1NqNmsyL0xtNlowcU52UWdSZzZHYXI0bzRQeE5YTg==",
+        ],
         ["b", "Y1YrTnRUbDBaejVObXNlaFFEZEpteDhZa25WUXpRcFBoZG04Y1M3akp5Zz0="],
         ["c", "QnZTN1RyT0RWM09QaHZqUzlJSUkxZz09"],
         ["d", "WnZPREw0QlJmVG00MllmcHNxL0J0SVFKT3FuWk1wT3kyZ1F6SFVENGhpST0="],
         ["e", "UldVWTJiSmM2MzhjRGtVWHZ1YXBYZz09"],
         ["f", "Y29mWHExN3VNc1dRdFhaZGJ5Y1lSdz09"],
         ["g", "ZzdXc3B3YUt4TGpLejRQaHJJM0lmUDN4TTBkdXlwYU5PZGdDSmhWNkJPdz0="],
-        ["i", "OW9MMk9GaHlBTGMvdERtZkQ5ZU5yVFF1bGNNRnpicHA0R0o0bHBScmdDVHRnZ1BHd3ZFZjRjc0VlTnJ3SEptUndDeGl1Q29EWW1nZjdWM0lOcUNkNmRtRVk0b3ZWVVQvV1FkZlU4WWlZTHpnMGlnOGZ0Q2VhdFg0VUMxUmZkTmE4S0p6dWoxVEdKMk56TzNqY0VSK0xxazVCbGcremtkM1VCQVJ3QjlFajVJTjN0VitWZUpsNmcxMEsxVEJzekVkRG9MZ0Fodkl4S2kwbDduTTdvS3hnZDltek5qRmt6aXZ0aTZQbFcvZjRIaz0="],
+        [
+          "i",
+          "OW9MMk9GaHlBTGMvdERtZkQ5ZU5yVFF1bGNNRnpicHA0R0o0bHBScmdDVHRnZ1BHd3ZFZjRjc0VlTnJ3SEptUndDeGl1Q29EWW1nZjdWM0lOcUNkNmRtRVk0b3ZWVVQvV1FkZlU4WWlZTHpnMGlnOGZ0Q2VhdFg0VUMxUmZkTmE4S0p6dWoxVEdKMk56TzNqY0VSK0xxazVCbGcremtkM1VCQVJ3QjlFajVJTjN0VitWZUpsNmcxMEsxVEJzekVkRG9MZ0Fodkl4S2kwbDduTTdvS3hnZDltek5qRmt6aXZ0aTZQbFcvZjRIaz0=",
+        ],
       ];
-      
+
       hiddenValues.forEach(([name, value]) => {
         formDataToSubmit.append(name, value);
       });
@@ -491,7 +606,11 @@ export function CareerForm({ onSuccess }: CareerFormProps) {
       onSuccess?.();
     } catch (error) {
       setSubmitStatus("error");
-      setErrorMessage(error instanceof Error ? error.message : "Something went wrong. Please try again.");
+      setErrorMessage(
+        error instanceof Error
+          ? error.message
+          : "Something went wrong. Please try again.",
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -499,29 +618,34 @@ export function CareerForm({ onSuccess }: CareerFormProps) {
 
   // Check if form is valid for submit button
   const isFormValid = useCallback(() => {
-      // Don't validate captcha until client-side hydration
-      if (!isClient) return false;
-    
-      const captchaValid = /^-?\d+$/.test(formData.captcha.trim()) &&
-        Number(formData.captcha.trim()) === captcha.answer;
-    
-      return (
-        formData.fullname.trim().length >= (validationRules.fullname.minLength ?? 2) &&
-        validationRules.fullname.pattern?.test(formData.fullname.trim()) &&
-        formData.email.trim().length > 0 &&
-        validationRules.email.pattern?.test(formData.email) &&
-        formData.mobile.trim().length > 0 &&
-        validationRules.mobile.pattern?.test(formData.mobile) &&
-        formData.message.trim().length >= (validationRules.message.minLength ?? 10) &&
-        formData.resume !== null &&
-        captchaValid
-      );
-    }, [formData, captcha.answer, isClient]);
+    // Don't validate captcha until client-side hydration
+    if (!isClient) return false;
+
+    const captchaValid =
+      /^-?\d+$/.test(formData.captcha.trim()) &&
+      Number(formData.captcha.trim()) === captcha.answer;
+
+    return (
+      formData.fullname.trim().length >=
+        (validationRules.fullname.minLength ?? 2) &&
+      validationRules.fullname.pattern?.test(formData.fullname.trim()) &&
+      formData.email.trim().length > 0 &&
+      validationRules.email.pattern?.test(formData.email) &&
+      formData.mobile.trim().length > 0 &&
+      validationRules.mobile.pattern?.test(formData.mobile) &&
+      formData.message.trim().length >=
+        (validationRules.message.minLength ?? 10) &&
+      formData.resume !== null &&
+      captchaValid
+    );
+  }, [formData, captcha.answer, isClient]);
 
   // Cleanup timeouts on unmount
   useEffect(() => {
     return () => {
-      Object.values(validationTimeouts.current).forEach(timeout => clearTimeout(timeout));
+      Object.values(validationTimeouts.current).forEach((timeout) =>
+        clearTimeout(timeout),
+      );
     };
   }, []);
 
@@ -529,12 +653,16 @@ export function CareerForm({ onSuccess }: CareerFormProps) {
     const state = fieldStates[name];
     const isTouched = touchedFields.has(name) || state.isTouched;
     const showValidation = isTouched || state.isDirty;
-    
+
     return {
       ...state,
       isTouched,
       showValidation,
-      isValid: showValidation && !state.error && !state.isValidating && state.value.trim().length > 0,
+      isValid:
+        showValidation &&
+        !state.error &&
+        !state.isValidating &&
+        state.value.trim().length > 0,
       isInvalid: showValidation && !!state.error,
       isWarning: showValidation && !!state.warning,
     };
@@ -549,12 +677,15 @@ export function CareerForm({ onSuccess }: CareerFormProps) {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -15, scale: 0.95 }}
             className="flex items-center gap-2 p-3 bg-green-500/10 border border-green-500/30 rounded-lg text-green-400"
-            role="alert"
-          >
+            role="alert">
             <CheckCircle className="w-5 h-5 flex-shrink-0" />
             <div>
-              <p className="font-semibold text-sm">Application Submitted Successfully!</p>
-              <p className="text-xs opacity-90">We'll review your application and get back to you soon.</p>
+              <p className="font-semibold text-sm">
+                Application Submitted Successfully!
+              </p>
+              <p className="text-xs opacity-90">
+                We'll review your application and get back to you soon.
+              </p>
             </div>
           </motion.div>
         )}
@@ -564,18 +695,19 @@ export function CareerForm({ onSuccess }: CareerFormProps) {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -15, scale: 0.95 }}
             className="flex items-center gap-2 p-3 bg-red-500/10 border border-red-500/30 rounded-lg text-red-400"
-            role="alert"
-          >
+            role="alert">
             <AlertCircle className="w-5 h-5 flex-shrink-0" />
             <div>
-              <p className="font-semibold text-sm">Failed to Submit Application</p>
+              <p className="font-semibold text-sm">
+                Failed to Submit Application
+              </p>
               <p className="text-xs opacity-90">{errorMessage}</p>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
         <CareerField
           name="fullname"
           label="Full Name"
@@ -606,7 +738,7 @@ export function CareerForm({ onSuccess }: CareerFormProps) {
         />
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
         <CareerField
           name="mobile"
           label="Mobile Number"
@@ -651,7 +783,9 @@ export function CareerForm({ onSuccess }: CareerFormProps) {
       />
 
       <div className="form-group space-y-1.5">
-        <label htmlFor="resume" className="block text-xs font-bold uppercase tracking-industrial text-ink flex items-center gap-1">
+        <label
+          htmlFor="resume"
+          className="block text-xs font-bold uppercase tracking-industrial text-ink flex items-center gap-1">
           Upload Resume <span className="text-safety">*</span>
         </label>
         <div className="relative">
@@ -669,27 +803,31 @@ export function CareerForm({ onSuccess }: CareerFormProps) {
             required
             disabled={isSubmitting}
             aria-invalid={getFieldState("resume").isInvalid}
-            aria-describedby={getFieldState("resume").isInvalid ? "resume-message" : undefined}
+            aria-describedby={
+              getFieldState("resume").isInvalid ? "resume-message" : undefined
+            }
           />
-          {(getFieldState("resume").isValid || (formData.resume?.name || "").length > 0) && !getFieldState("resume").isValidating && (
-            <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1">
-              <Check className="w-5 h-5 text-green-500" />
-            </div>
-          )}
+          {(getFieldState("resume").isValid ||
+            (formData.resume?.name || "").length > 0) &&
+            !getFieldState("resume").isValidating && (
+              <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1">
+                <Check className="w-5 h-5 text-green-500" />
+              </div>
+            )}
         </div>
         <AnimatePresence>
-          {getFieldState("resume").isInvalid && getFieldState("resume").showValidation && (
-            <motion.p
-              id="resume-message"
-              initial={{ opacity: 0, y: -5 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -5 }}
-              className="text-xs text-red-500 flex items-center gap-1"
-            >
-              <AlertCircle className="w-3 h-3" />
-              {getFieldState("resume").error}
-            </motion.p>
-          )}
+          {getFieldState("resume").isInvalid &&
+            getFieldState("resume").showValidation && (
+              <motion.p
+                id="resume-message"
+                initial={{ opacity: 0, y: -5 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -5 }}
+                className="text-xs text-red-500 flex items-center gap-1">
+                <AlertCircle className="w-3 h-3" />
+                {getFieldState("resume").error}
+              </motion.p>
+            )}
         </AnimatePresence>
         {(formData.resume?.name || "").length > 0 && (
           <p className="text-xs text-green-500 flex items-center gap-1">
@@ -706,53 +844,56 @@ export function CareerForm({ onSuccess }: CareerFormProps) {
         <div className="space-y-1.5">
           <div className="flex items-center gap-2 p-3 bg-slate-50 border border-ink/20 rounded-lg">
             <Shield className="w-5 h-5 text-safety flex-shrink-0" />
-                    <span className="text-base font-mono font-bold text-ink">
-                      {isClient ? captcha.question : "Loading..."} =
-                    </span>
-                    <input
-                      type="text"
-                      name="captcha"
-                      id="captcha"
-                      value={formData.captcha}
-                      onChange={handleChange}
-                      onBlur={handleBlur}
-                      className={`form-control w-auto min-w-[80px] pl-3 pr-3 py-1.5 border border-ink/20 bg-white text-ink outline-none transition-all duration-200 text-center font-mono text-base ${
-                        getFieldState("captcha").isInvalid ? "border-red-500/50 focus:border-red-500 bg-red-500/5" :
-                        getFieldState("captcha").isValid ? "border-green-500/50 focus:border-green-500 bg-green-500/5" :
-                        "focus:border-safety/50 focus:bg-white focus:ring-2 focus:ring-safety/20"
-                      } ${isSubmitting || !isClient ? "opacity-50 cursor-not-allowed" : ""}`}
-                      placeholder="Answer"
-                      required
-                      disabled={isSubmitting || !isClient}
-                      autoComplete="off"
-                      aria-invalid={getFieldState("captcha").isInvalid}
-                      aria-describedby="captcha-message"
-                    />
-                    <button
-                      type="button"
-                      onClick={refreshCaptcha}
-                      disabled={isSubmitting || !isClient}
-                      className="p-1.5 text-slate-400 hover:text-safety transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                      aria-label="Refresh captcha"
-                    >
-                      <RefreshCw className="w-4 h-4" />
-                    </button>
-                  </div>
+            <span className="text-base font-mono font-bold text-ink">
+              {isClient ? captcha.question : "Loading..."} =
+            </span>
+            <input
+              type="text"
+              name="captcha"
+              id="captcha"
+              value={formData.captcha}
+              onChange={handleChange}
+              onBlur={handleBlur}
+              className={`form-control w-auto min-w-[80px] pl-3 pr-3 py-1.5 border border-ink/20 bg-white text-ink outline-none transition-all duration-200 text-center font-mono text-base ${
+                getFieldState("captcha").isInvalid
+                  ? "border-red-500/50 focus:border-red-500 bg-red-500/5"
+                  : getFieldState("captcha").isValid
+                    ? "border-green-500/50 focus:border-green-500 bg-green-500/5"
+                    : "focus:border-safety/50 focus:bg-white focus:ring-2 focus:ring-safety/20"
+              } ${isSubmitting || !isClient ? "opacity-50 cursor-not-allowed" : ""}`}
+              placeholder="Answer"
+              required
+              disabled={isSubmitting || !isClient}
+              autoComplete="off"
+              aria-invalid={getFieldState("captcha").isInvalid}
+              aria-describedby="captcha-message"
+            />
+            <button
+              type="button"
+              onClick={refreshCaptcha}
+              disabled={isSubmitting || !isClient}
+              className="p-1.5 text-slate-400 hover:text-safety transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              aria-label="Refresh captcha">
+              <RefreshCw className="w-4 h-4" />
+            </button>
+          </div>
           <AnimatePresence>
-            {getFieldState("captcha").isInvalid && getFieldState("captcha").showValidation && (
-              <motion.p
-                id="captcha-message"
-                initial={{ opacity: 0, y: -5 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -5 }}
-                className="text-xs text-red-500 flex items-center gap-1"
-              >
-                <AlertCircle className="w-3 h-3" />
-                {getFieldState("captcha").error}
-              </motion.p>
-            )}
+            {getFieldState("captcha").isInvalid &&
+              getFieldState("captcha").showValidation && (
+                <motion.p
+                  id="captcha-message"
+                  initial={{ opacity: 0, y: -5 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -5 }}
+                  className="text-xs text-red-500 flex items-center gap-1">
+                  <AlertCircle className="w-3 h-3" />
+                  {getFieldState("captcha").error}
+                </motion.p>
+              )}
           </AnimatePresence>
-          <p className="text-xs text-slate-400">Solve the math question to verify you're human</p>
+          <p className="text-xs text-slate-400">
+            Solve the math question to verify you're human
+          </p>
         </div>
       </div>
 
@@ -765,10 +906,9 @@ export function CareerForm({ onSuccess }: CareerFormProps) {
           isSubmitting
             ? "bg-safety/50 cursor-not-allowed"
             : isFormValid()
-            ? "bg-gradient-to-r from-safety to-yellow-400 hover:from-yellow-400 hover:to-yellow-300 shadow-lg shadow-safety/25"
-            : "bg-white/10 text-slate-400 cursor-not-allowed"
-        }`}
-      >
+              ? "bg-gradient-to-r from-safety to-yellow-400 hover:from-yellow-400 hover:to-yellow-300 shadow-lg shadow-safety/25"
+              : "bg-white/10 text-slate-400 cursor-not-allowed"
+        }`}>
         {isSubmitting ? (
           <>
             <Loader2 className="w-4 h-4 animate-spin" />
@@ -784,9 +924,13 @@ export function CareerForm({ onSuccess }: CareerFormProps) {
 
       <p className="text-xs text-slate-400 text-center">
         By submitting this application, you agree to our{" "}
-        <a href="/privacy" className="text-safety hover:underline">Privacy Policy</a>
-        {" "}and{" "}
-        <a href="/terms" className="text-safety hover:underline">Terms of Service</a>
+        <a href="/privacy-policy" className="text-safety hover:underline">
+          Privacy Policy
+        </a>{" "}
+        and{" "}
+        <a href="/terms-of-service" className="text-safety hover:underline">
+          Terms of Service
+        </a>
       </p>
     </form>
   );
@@ -821,14 +965,42 @@ interface CareerFieldProps {
   isSubmitting: boolean;
 }
 
-function CareerField({ name, label, type, placeholder, icon: Icon, required, autoComplete, value, onChange, onBlur, fieldState, isSubmitting }: CareerFieldProps) {
-  const { isValid, isInvalid, isWarning, isValidating, error, warning, showValidation } = fieldState;
-  
+function CareerField({
+  name,
+  label,
+  type,
+  placeholder,
+  icon: Icon,
+  required,
+  autoComplete,
+  value,
+  onChange,
+  onBlur,
+  fieldState,
+  isSubmitting,
+}: CareerFieldProps) {
+  const {
+    isValid,
+    isInvalid,
+    isWarning,
+    isValidating,
+    error,
+    warning,
+    showValidation,
+  } = fieldState;
+
   return (
     <div className="form-group space-y-1.5">
-      <label htmlFor={name} className="block text-xs font-bold uppercase tracking-industrial text-ink flex items-center gap-1">
+      <label
+        htmlFor={name}
+        className="block text-xs font-bold uppercase tracking-industrial text-ink flex items-center gap-1">
         {label} {required && <span className="text-safety">*</span>}
-        {isValidating && <Loader2 className="w-3 h-3 text-safety animate-spin" aria-label="Validating..." />}
+        {isValidating && (
+          <Loader2
+            className="w-3 h-3 text-safety animate-spin"
+            aria-label="Validating..."
+          />
+        )}
       </label>
       <div className="relative">
         <div className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 transition-colors">
@@ -842,17 +1014,22 @@ function CareerField({ name, label, type, placeholder, icon: Icon, required, aut
           onChange={onChange}
           onBlur={onBlur}
           className={`form-control min-h-[44px] w-full pl-11 pr-11 py-2 border border-ink/20 bg-white text-ink outline-none transition-all duration-200 ${
-            isInvalid ? "border-red-500/50 focus:border-red-500 bg-red-500/5" :
-            isValid ? "border-green-500/50 focus:border-green-500 bg-green-500/5" :
-            isWarning ? "border-yellow-500/50 focus:border-yellow-500 bg-yellow-500/5" :
-            "focus:border-safety/50 focus:bg-white focus:ring-2 focus:ring-safety/20"
+            isInvalid
+              ? "border-red-500/50 focus:border-red-500 bg-red-500/5"
+              : isValid
+                ? "border-green-500/50 focus:border-green-500 bg-green-500/5"
+                : isWarning
+                  ? "border-yellow-500/50 focus:border-yellow-500 bg-yellow-500/5"
+                  : "focus:border-safety/50 focus:bg-white focus:ring-2 focus:ring-safety/20"
           } ${isSubmitting ? "opacity-50 cursor-not-allowed" : ""}`}
           placeholder={placeholder}
           required={required}
           disabled={isSubmitting}
           autoComplete={autoComplete}
           aria-invalid={isInvalid}
-          aria-describedby={isInvalid || isWarning ? `${name}-message` : undefined}
+          aria-describedby={
+            isInvalid || isWarning ? `${name}-message` : undefined
+          }
         />
         {(isValid || isInvalid || isWarning) && !isValidating && (
           <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1">
@@ -874,8 +1051,7 @@ function CareerField({ name, label, type, placeholder, icon: Icon, required, aut
             initial={{ opacity: 0, y: -5 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -5 }}
-            className={`text-xs flex items-center gap-1 ${isInvalid ? "text-red-500" : "text-yellow-500"}`}
-          >
+            className={`text-xs flex items-center gap-1 ${isInvalid ? "text-red-500" : "text-yellow-500"}`}>
             {isInvalid && <AlertCircle className="w-3 h-3" />}
             {isWarning && <Info className="w-3 h-3" />}
             {error || warning}
@@ -901,15 +1077,37 @@ interface CareerTextareaFieldProps {
   rows?: number;
 }
 
-function CareerTextareaField({ name, label, placeholder, required, value, onChange, onBlur, fieldState, isSubmitting, maxLength, rows = 3 }: CareerTextareaFieldProps) {
-  const { isValid, isInvalid, isWarning, isValidating, error, warning, showValidation } = fieldState;
+function CareerTextareaField({
+  name,
+  label,
+  placeholder,
+  required,
+  value,
+  onChange,
+  onBlur,
+  fieldState,
+  isSubmitting,
+  maxLength,
+  rows = 3,
+}: CareerTextareaFieldProps) {
+  const {
+    isValid,
+    isInvalid,
+    isWarning,
+    isValidating,
+    error,
+    warning,
+    showValidation,
+  } = fieldState;
   const charCount = value.length;
   const isNearLimit = charCount > maxLength * 0.8;
   const isOverLimit = charCount > maxLength;
-  
+
   return (
     <div className="form-group space-y-1.5">
-      <label htmlFor={name} className="block text-xs font-bold uppercase tracking-industrial text-ink flex items-center gap-1">
+      <label
+        htmlFor={name}
+        className="block text-xs font-bold uppercase tracking-industrial text-ink flex items-center gap-1">
         {label} {required && <span className="text-safety">*</span>}
       </label>
       <div className="relative">
@@ -922,10 +1120,13 @@ function CareerTextareaField({ name, label, placeholder, required, value, onChan
           rows={rows}
           maxLength={maxLength}
           className={`form-control min-h-[80px] w-full px-3 py-2 border border-ink/20 bg-white text-ink outline-none transition-all duration-200 resize-none ${
-            isInvalid ? "border-red-500/50 focus:border-red-500 bg-red-500/5" :
-            isValid ? "border-green-500/50 focus:border-green-500 bg-green-500/5" :
-            isWarning ? "border-yellow-500/50 focus:border-yellow-500 bg-yellow-500/5" :
-            "focus:border-safety/50 focus:bg-white focus:ring-2 focus:ring-safety/20"
+            isInvalid
+              ? "border-red-500/50 focus:border-red-500 bg-red-500/5"
+              : isValid
+                ? "border-green-500/50 focus:border-green-500 bg-green-500/5"
+                : isWarning
+                  ? "border-yellow-500/50 focus:border-yellow-500 bg-yellow-500/5"
+                  : "focus:border-safety/50 focus:bg-white focus:ring-2 focus:ring-safety/20"
           } ${isSubmitting ? "opacity-50 cursor-not-allowed" : ""}`}
           placeholder={placeholder}
           required={required}
@@ -948,17 +1149,22 @@ function CareerTextareaField({ name, label, placeholder, required, value, onChan
             initial={{ opacity: 0, y: -5 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -5 }}
-            className={`text-xs flex items-center gap-1 ${isInvalid ? "text-red-500" : "text-yellow-500"}`}
-          >
+            className={`text-xs flex items-center gap-1 ${isInvalid ? "text-red-500" : "text-yellow-500"}`}>
             {isInvalid && <AlertCircle className="w-3 h-3" />}
             {isWarning && <Info className="w-3 h-3" />}
             {error || warning}
           </motion.p>
         )}
       </AnimatePresence>
-      <p id={`${name}-counter`} className={`text-xs text-right transition-colors ${
-        isOverLimit ? "text-red-500" : isNearLimit ? "text-yellow-500" : "text-slate-400"
-      }`}>
+      <p
+        id={`${name}-counter`}
+        className={`text-xs text-right transition-colors ${
+          isOverLimit
+            ? "text-red-500"
+            : isNearLimit
+              ? "text-yellow-500"
+              : "text-slate-400"
+        }`}>
         {charCount}/{maxLength} characters
       </p>
     </div>
@@ -978,13 +1184,33 @@ interface CareerFileFieldProps {
   isSubmitting: boolean;
 }
 
-function CareerFileField({ name, label, placeholder, required, value, onChange, onBlur, fieldState, isSubmitting }: CareerFileFieldProps) {
-  const { isValid, isInvalid, isWarning, isValidating, error, warning, showValidation } = fieldState;
+function CareerFileField({
+  name,
+  label,
+  placeholder,
+  required,
+  value,
+  onChange,
+  onBlur,
+  fieldState,
+  isSubmitting,
+}: CareerFileFieldProps) {
+  const {
+    isValid,
+    isInvalid,
+    isWarning,
+    isValidating,
+    error,
+    warning,
+    showValidation,
+  } = fieldState;
   const hasFile = value.length > 0;
-  
+
   return (
     <div className="form-group space-y-2">
-      <label htmlFor={name} className="block text-xs font-bold uppercase tracking-industrial text-ink flex items-center gap-1">
+      <label
+        htmlFor={name}
+        className="block text-xs font-bold uppercase tracking-industrial text-ink flex items-center gap-1">
         {label} {required && <span className="text-safety">*</span>}
       </label>
       <div className="relative">
@@ -998,20 +1224,27 @@ function CareerFileField({ name, label, placeholder, required, value, onChange, 
           onChange={onChange}
           onBlur={onBlur}
           className={`form-control min-h-[54px] w-full pl-12 pr-12 py-3 border border-ink/20 bg-white text-ink outline-none transition-all duration-200 ${
-            isInvalid ? "border-red-500/50 focus:border-red-500 bg-red-500/5" :
-            isValid || hasFile ? "border-green-500/50 focus:border-green-500 bg-green-500/5" :
-            isWarning ? "border-yellow-500/50 focus:border-yellow-500 bg-yellow-500/5" :
-            "focus:border-safety/50 focus:bg-white focus:ring-2 focus:ring-safety/20"
+            isInvalid
+              ? "border-red-500/50 focus:border-red-500 bg-red-500/5"
+              : isValid || hasFile
+                ? "border-green-500/50 focus:border-green-500 bg-green-500/5"
+                : isWarning
+                  ? "border-yellow-500/50 focus:border-yellow-500 bg-yellow-500/5"
+                  : "focus:border-safety/50 focus:bg-white focus:ring-2 focus:ring-safety/20"
           } ${isSubmitting ? "opacity-50 cursor-not-allowed" : ""}`}
           accept=".pdf,.doc,.docx"
           required={required}
           disabled={isSubmitting}
           aria-invalid={isInvalid}
-          aria-describedby={isInvalid || isWarning ? `${name}-message` : undefined}
+          aria-describedby={
+            isInvalid || isWarning ? `${name}-message` : undefined
+          }
         />
         {(isValid || isInvalid || isWarning || hasFile) && !isValidating && (
           <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-1">
-            {(isValid || hasFile) && <Check className="w-5 h-5 text-green-500" />}
+            {(isValid || hasFile) && (
+              <Check className="w-5 h-5 text-green-500" />
+            )}
             {isInvalid && <X className="w-5 h-5 text-red-500" />}
             {isWarning && <Info className="w-5 h-5 text-yellow-500" />}
           </div>
@@ -1029,8 +1262,7 @@ function CareerFileField({ name, label, placeholder, required, value, onChange, 
             initial={{ opacity: 0, y: -5 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -5 }}
-            className={`text-xs flex items-center gap-1 ${isInvalid ? "text-red-500" : "text-yellow-500"}`}
-          >
+            className={`text-xs flex items-center gap-1 ${isInvalid ? "text-red-500" : "text-yellow-500"}`}>
             {isInvalid && <AlertCircle className="w-3 h-3" />}
             {isWarning && <Info className="w-3 h-3" />}
             {error || warning}

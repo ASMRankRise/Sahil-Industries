@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Trash2, Archive, Edit, Download, Flag, Filter, ChevronDown } from "lucide-react";
+import { Filter, ChevronDown } from "lucide-react";
 import { forwardRef } from "react";
 
 interface BulkAction {
@@ -26,7 +26,21 @@ interface BulkActionsBarProps {
 }
 
 export const BulkActionsBar = forwardRef<HTMLDivElement, BulkActionsBarProps>(
-  ({ count, label, onClear, actions, statusOptions, categoryOptions, onStatusChange, onCategoryChange, showStatusFilter = false, showCategoryFilter = false }, ref) => {
+  (
+    {
+      count,
+      label,
+      onClear,
+      actions,
+      statusOptions,
+      categoryOptions,
+      onStatusChange,
+      onCategoryChange,
+      showStatusFilter = false,
+      showCategoryFilter = false,
+    },
+    ref,
+  ) => {
     if (count === 0) return null;
 
     const getVariantClasses = (variant: string) => {
@@ -48,61 +62,89 @@ export const BulkActionsBar = forwardRef<HTMLDivElement, BulkActionsBarProps>(
         initial={{ opacity: 0, y: -10, height: 0 }}
         animate={{ opacity: 1, y: 0, height: "auto" }}
         exit={{ opacity: 0, y: -10, height: 0 }}
-        className="bg-surface border border-safety/30 rounded-2xl p-4"
-      >
+        className="bg-surface border border-safety/30 rounded-2xl p-4">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div className="flex items-center gap-4">
             <span className="text-sm font-medium text-safety">
-              {count} {label}{count > 1 ? "s" : ""} selected
+              {count} {label}
+              {count > 1 ? "s" : ""} selected
             </span>
             <button
+              type="button"
               onClick={onClear}
-              className="text-sm text-slate-400 hover:text-white transition-colors"
-            >
+              className="text-sm text-slate-400 hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-safety rounded">
               Clear selection
             </button>
           </div>
           <div className="flex flex-wrap items-center gap-2">
             {showStatusFilter && statusOptions && (
               <div className="relative">
-                <Filter className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={14} />
+                <Filter
+                  className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+                  size={14}
+                  aria-hidden="true"
+                />
                 <select
-                  defaultValue=""
-                  onChange={(e) => e.target.value && onStatusChange?.(e.target.value)}
-                  className="h-9 pl-9 pr-8 bg-white/5 border border-white/10 rounded-lg text-sm text-white focus:outline-none focus:border-safety/50 appearance-none cursor-pointer"
-                >
-                  <option value="" disabled>Change Status</option>
-                  {statusOptions.map(opt => (
-                    <option key={opt.value} value={opt.value}>{opt.label}</option>
+                  aria-label="Bulk change status"
+                  value=""
+                  onChange={(e) =>
+                    e.target.value && onStatusChange?.(e.target.value)
+                  }
+                  className="h-9 pl-9 pr-8 bg-white/5 border border-white/10 rounded-lg text-sm text-white focus:outline-none focus:border-safety/50 focus-visible:ring-2 focus-visible:ring-safety appearance-none cursor-pointer">
+                  <option value="" disabled>
+                    Change Status
+                  </option>
+                  {statusOptions.map((opt) => (
+                    <option key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </option>
                   ))}
                 </select>
-                <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400" size={14} />
+                <ChevronDown
+                  className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-slate-400"
+                  size={14}
+                  aria-hidden="true"
+                />
               </div>
             )}
             {showCategoryFilter && categoryOptions && (
               <div className="relative">
-                <Filter className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={14} />
+                <Filter
+                  className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+                  size={14}
+                  aria-hidden="true"
+                />
                 <select
-                  defaultValue=""
-                  onChange={(e) => e.target.value && onCategoryChange?.(e.target.value)}
-                  className="h-9 pl-9 pr-8 bg-white/5 border border-white/10 rounded-lg text-sm text-white focus:outline-none focus:border-safety/50 appearance-none cursor-pointer"
-                >
-                  <option value="" disabled>Change Category</option>
-                  {categoryOptions.map(opt => (
-                    <option key={opt.value} value={opt.value}>{opt.label}</option>
+                  aria-label="Bulk change category"
+                  value=""
+                  onChange={(e) =>
+                    e.target.value && onCategoryChange?.(e.target.value)
+                  }
+                  className="h-9 pl-9 pr-8 bg-white/5 border border-white/10 rounded-lg text-sm text-white focus:outline-none focus:border-safety/50 focus-visible:ring-2 focus-visible:ring-safety appearance-none cursor-pointer">
+                  <option value="" disabled>
+                    Change Category
+                  </option>
+                  {categoryOptions.map((opt) => (
+                    <option key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </option>
                   ))}
                 </select>
-                <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400" size={14} />
+                <ChevronDown
+                  className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-slate-400"
+                  size={14}
+                  aria-hidden="true"
+                />
               </div>
             )}
             {actions.map((action, index) => (
               <button
                 key={index}
+                type="button"
                 onClick={action.onClick}
                 disabled={action.disabled}
-                className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${getVariantClasses(action.variant || "default")} ${action.disabled ? "opacity-50 cursor-not-allowed" : ""}`}
-              >
-                <span>{action.icon}</span>
+                className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-safety ${getVariantClasses(action.variant || "default")} ${action.disabled ? "opacity-50 cursor-not-allowed" : ""}`}>
+                <span aria-hidden="true">{action.icon}</span>
                 {action.label}
               </button>
             ))}
@@ -110,7 +152,7 @@ export const BulkActionsBar = forwardRef<HTMLDivElement, BulkActionsBarProps>(
         </div>
       </motion.div>
     );
-  }
+  },
 );
 
 BulkActionsBar.displayName = "BulkActionsBar";
