@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   ChevronDown,
   Download,
@@ -13,6 +13,8 @@ import {
 } from "lucide-react";
 import { AdminDashboardLayoutWrapper } from "@/components/AdminDashboardLayout";
 import { AdminTableSkeleton } from "@/components/AdminSkeleton";
+import { ConfirmModal } from "@/components/admin";
+import { useToast } from "@/context/ToastContext";
 
 type RecordItem = {
   id: string;
@@ -38,6 +40,7 @@ const statusColors: Record<string, string> = {
 };
 
 export default function EnquiriesPage() {
+  const { toast } = useToast();
   const [items, setItems] = useState<RecordItem[]>([]);
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("all");
@@ -47,6 +50,8 @@ export default function EnquiriesPage() {
   const [selected, setSelected] = useState<RecordItem | null>(null);
   const [savingId, setSavingId] = useState<string | null>(null);
   const [statusOpen, setStatusOpen] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState<RecordItem | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -115,18 +120,33 @@ export default function EnquiriesPage() {
       ),
     );
   };
-  const remove = async (item: RecordItem) => {
-    if (!confirm(`Delete this ${item.kind}?`)) return;
-    const response = await fetch(
-      `/api/admin/enquiries?id=${encodeURIComponent(item.id)}`,
-      { method: "DELETE" },
-    );
-    if (response.ok) {
-      setItems((xs) =>
-        xs.filter((x) => !(x.kind === item.kind && x.id === item.id)),
+  const remove = (item: RecordItem) => {
+    setItemToDelete(item);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!itemToDelete) return;
+    setIsDeleting(true);
+    try {
+      const response = await fetch(
+        `/api/admin/enquiries?id=${encodeURIComponent(itemToDelete.id)}`,
+        { method: "DELETE" },
       );
-      if (selected?.id === item.id) setSelected(null);
-    } else setError("Unable to delete enquiry.");
+      if (!response.ok) throw new Error("Failed to delete enquiry");
+      setItems((xs) =>
+        xs.filter(
+          (x) =>
+            !(x.kind === itemToDelete.kind && x.id === itemToDelete.id),
+        ),
+      );
+      if (selected?.id === itemToDelete.id) setSelected(null);
+      toast.success("Enquiry deleted successfully");
+      setItemToDelete(null);
+    } catch {
+      toast.error("Unable to delete enquiry. Please try again.");
+    } finally {
+      setIsDeleting(false);
+    }
   };
   const updateStatus = async (item: RecordItem, nextStatus: string) => {
     setSavingId(item.id);
@@ -143,8 +163,10 @@ export default function EnquiriesPage() {
       setSelected((x) =>
         x?.id === item.id ? { ...x, status: nextStatus } : x,
       );
+      toast.success(`Status updated to "${nextStatus}"`);
     } catch {
       setError("Unable to update enquiry status.");
+      toast.error("Unable to update enquiry status.");
     } finally {
       setSavingId(null);
     }
@@ -348,7 +370,7 @@ export default function EnquiriesPage() {
         </div>
         {selected && (
           <div
-            className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/70 p-4 sm:items-center"
+            className="fixed inset-0 z-[100] flex items-start justify-center overflow-y-auto bg-black/80 backdrop-blur-sm p-4 sm:items-center"
             onClick={() => setSelected(null)}>
             <div
               className="my-auto flex max-h-[min(720px,calc(100dvh-2rem))] w-full max-w-xl flex-col overflow-hidden rounded-2xl border border-white/10 bg-surface shadow-2xl"
@@ -460,6 +482,19 @@ export default function EnquiriesPage() {
             </button>
           </div>
         </div>
+
+        {/* Custom Confirmation Modal */}
+        <ConfirmModal
+          isOpen={Boolean(itemToDelete)}
+          onClose={() => !isDeleting && setItemToDelete(null)}
+          onConfirm={handleConfirmDelete}
+          title={`Delete ${itemToDelete?.kind === "enquiry" ? "Enquiry" : "Item"}`}
+          message={`Are you sure you want to delete the enquiry from "${itemToDelete?.name || itemToDelete?.email}"? This action cannot be undone.`}
+          confirmLabel="Delete"
+          cancelLabel="Cancel"
+          variant="danger"
+          isLoading={isDeleting}
+        />
       </div>
     </AdminDashboardLayoutWrapper>
   );

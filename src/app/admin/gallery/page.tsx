@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useEffect, useMemo, useCallback, useRef } from "react";
+import { useToast } from "@/context/ToastContext";
+import { ConfirmModal } from "@/components/admin";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Image as LucideImage,
@@ -83,6 +85,7 @@ const categoryConfig = {
 };
 
 export default function GalleryPage() {
+  const { toast } = useToast();
   const {
     galleryImages,
     addGalleryImage,
@@ -99,8 +102,13 @@ export default function GalleryPage() {
     direction: "asc" | "desc";
   }>({ key: "date", direction: "desc" });
   const [selectedImages, setSelectedImages] = useState<string[]>([]);
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [deletingImage, setDeletingImage] = useState<string | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<
+    | { type: "single"; image: GalleryImage }
+    | { type: "bulk"; ids: string[] }
+    | null
+  >(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState<string | null>(null);
   const [showBulkEditModal, setShowBulkEditModal] = useState(false);
@@ -198,15 +206,34 @@ export default function GalleryPage() {
   };
 
   const handleDelete = (id: string) => {
-    setDeletingImage(id);
-    setShowDeleteModal(true);
+    const image = galleryImages.find((img) => img.id === id);
+    if (!image) return;
+    setDeleteTarget({ type: "single", image });
   };
 
-  const confirmDelete = () => {
-    if (deletingImage) {
-      deleteGalleryImage(deletingImage);
-      setShowDeleteModal(false);
-      setDeletingImage(null);
+  const handleConfirmDelete = async () => {
+    if (!deleteTarget) return;
+    setIsDeleting(true);
+    try {
+      if (deleteTarget.type === "single") {
+        await deleteGalleryImage(deleteTarget.image.id);
+        setSelectedImages((prev) =>
+          prev.filter((id) => id !== deleteTarget.image.id),
+        );
+        toast.success("Image deleted successfully");
+      } else {
+        const count = deleteTarget.ids.length;
+        await Promise.all(
+          deleteTarget.ids.map((id) => deleteGalleryImage(id)),
+        );
+        setSelectedImages([]);
+        toast.success(`${count} image${count > 1 ? "s" : ""} deleted successfully`);
+      }
+      setDeleteTarget(null);
+    } catch {
+      toast.error("Failed to delete image(s). Please try again.");
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -215,6 +242,7 @@ export default function GalleryPage() {
     newStatus: GalleryImage["status"],
   ) => {
     updateGalleryImage(id, { status: newStatus });
+    toast.success(`Image status updated to "${newStatus}"`);
   };
 
   const handleFileUpload = async (files: FileList) => {
@@ -316,19 +344,18 @@ export default function GalleryPage() {
   );
 
   const handleBulkArchive = useCallback(() => {
+    const count = selectedImages.length;
     selectedImages.forEach((id) => {
       updateGalleryImage(id, { status: "archived" });
     });
     setSelectedImages([]);
-  }, [selectedImages, updateGalleryImage]);
+    toast.success(`${count} image${count > 1 ? "s" : ""} archived`);
+  }, [selectedImages, updateGalleryImage, toast]);
 
   const handleBulkDelete = useCallback(() => {
-    selectedImages.forEach((id) => {
-      deleteGalleryImage(id);
-    });
-    setSelectedImages([]);
-    setShowDeleteModal(false);
-  }, [selectedImages, deleteGalleryImage]);
+    if (selectedImages.length === 0) return;
+    setDeleteTarget({ type: "bulk", ids: [...selectedImages] });
+  }, [selectedImages]);
 
   const handleBulkTagAdd = useCallback(
     (tags: string[]) => {
@@ -368,13 +395,15 @@ export default function GalleryPage() {
   }, [selectedImages.length]);
 
   const handleBulkEditSave = useCallback(() => {
+    const count = selectedImages.length;
     selectedImages.forEach((id) => {
       updateGalleryImage(id, bulkEditData);
     });
     setShowBulkEditModal(false);
     setBulkEditData({});
     setSelectedImages([]);
-  }, [selectedImages, bulkEditData, updateGalleryImage]);
+    toast.success(`Updated ${count} image${count > 1 ? "s" : ""}`);
+  }, [selectedImages, bulkEditData, updateGalleryImage, toast]);
 
   const openReplaceImageModal = useCallback((imageId: string) => {
     setShowReplaceImageModal(imageId);
@@ -547,10 +576,7 @@ export default function GalleryPage() {
                   Archive
                 </button>
                 <button
-                  onClick={() => {
-                    setDeletingImage(selectedImages[0]);
-                    setShowDeleteModal(true);
-                  }}
+                  onClick={handleBulkDelete}
                   className="flex items-center gap-2 px-3 py-2 bg-red-500/10 border border-red-500/20 text-red-400 rounded-lg text-sm font-medium hover:bg-red-500/20 transition-colors">
                   <Trash2 size={14} />
                   Delete
@@ -797,7 +823,7 @@ export default function GalleryPage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
+            className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
             onClick={() => setShowUploadModal(false)}>
             <motion.div
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
@@ -894,7 +920,7 @@ export default function GalleryPage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
+            className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
             onClick={() => setShowEditModal(null)}>
             <motion.div
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
@@ -923,49 +949,6 @@ export default function GalleryPage() {
         )}
       </AnimatePresence>
 
-      {/* Delete Confirmation Modal */}
-      <AnimatePresence>
-        {showDeleteModal && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
-            onClick={() => setShowDeleteModal(false)}>
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="bg-surface border border-white/10 rounded-2xl w-full max-w-md"
-              onClick={(e) => e.stopPropagation()}>
-              <div className="p-6 text-center">
-                <div className="h-14 w-14 rounded-full bg-red-500/10 flex items-center justify-center mx-auto mb-4">
-                  <AlertCircle className="text-red-400" size={28} />
-                </div>
-                <h3 className="text-lg font-bold text-white mb-2">
-                  Delete Image
-                </h3>
-                <p className="text-slate-400 mb-6">
-                  Are you sure you want to delete this image? This action cannot
-                  be undone.
-                </p>
-                <div className="flex gap-3 justify-center">
-                  <button
-                    onClick={() => setShowDeleteModal(false)}
-                    className="px-4 py-2 border border-white/10 rounded-lg text-sm font-medium hover:bg-white/5 transition-colors">
-                    Cancel
-                  </button>
-                  <button
-                    onClick={confirmDelete}
-                    className="px-4 py-2 bg-red-500/20 border border-red-500/30 text-red-400 rounded-lg text-sm font-medium hover:bg-red-500/30 transition-colors">
-                    Delete
-                  </button>
-                </div>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
 
       {/* Bulk Edit Modal */}
       <AnimatePresence>
@@ -974,7 +957,7 @@ export default function GalleryPage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
+            className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
             onClick={() => setShowBulkEditModal(false)}>
             <motion.div
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
@@ -1014,7 +997,7 @@ export default function GalleryPage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
+            className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
             onClick={() => setShowReplaceImageModal(null)}>
             <motion.div
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
@@ -1047,6 +1030,31 @@ export default function GalleryPage() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Custom Confirmation Modal */}
+      <ConfirmModal
+        isOpen={Boolean(deleteTarget)}
+        onClose={() => !isDeleting && setDeleteTarget(null)}
+        onConfirm={handleConfirmDelete}
+        title={
+          deleteTarget?.type === "bulk"
+            ? `Delete ${deleteTarget.ids.length} Images`
+            : "Delete Image"
+        }
+        message={
+          deleteTarget?.type === "bulk"
+            ? `Are you sure you want to permanently delete these ${deleteTarget.ids.length} images? This action cannot be undone.`
+            : `Are you sure you want to delete "${deleteTarget?.image?.title || "this image"}"? This action cannot be undone.`
+        }
+        confirmLabel={
+          deleteTarget?.type === "bulk"
+            ? `Delete ${deleteTarget.ids.length} Images`
+            : "Delete Image"
+        }
+        cancelLabel="Cancel"
+        variant="danger"
+        isLoading={isDeleting}
+      />
     </AdminDashboardLayoutWrapper>
   );
 }

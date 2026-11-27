@@ -13,6 +13,7 @@ import {
   Heart,
   Loader2,
   Info,
+  Check,
 } from "lucide-react";
 import { useState, useEffect, useCallback, useRef } from "react";
 
@@ -44,6 +45,7 @@ export function GalleryLightbox({
   const [isLoading, setIsLoading] = useState(true);
   const [showInfo, setShowInfo] = useState(true);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [copied, setCopied] = useState(false);
   const [zoom, setZoom] = useState(1);
   const [pan, setPan] = useState({ x: 0, y: 0 });
   const imgRef = useRef<HTMLImageElement>(null);
@@ -219,8 +221,13 @@ export function GalleryLightbox({
         console.log("Share cancelled");
       }
     } else {
-      navigator.clipboard.writeText(window.location.origin + imageSrc);
-      alert("Image link copied to clipboard!");
+      try {
+        await navigator.clipboard.writeText(window.location.origin + imageSrc);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      } catch (err) {
+        console.error("Clipboard copy failed", err);
+      }
     }
   };
 
@@ -417,10 +424,18 @@ export function GalleryLightbox({
             e.stopPropagation();
             handleShare();
           }}
-          className="p-2.5 text-slate-300 hover:text-white hover:bg-white/10 rounded-xl transition-all cursor-pointer"
-          aria-label="Share"
-          title="Share image">
-          <Share2 size={20} strokeWidth={2.2} />
+          className={`p-2.5 rounded-xl transition-all cursor-pointer ${
+            copied
+              ? "text-green-400 bg-green-500/10 border border-green-500/20"
+              : "text-slate-300 hover:text-white hover:bg-white/10"
+          }`}
+          aria-label={copied ? "Link copied" : "Share"}
+          title={copied ? "Link copied to clipboard!" : "Share image"}>
+          {copied ? (
+            <Check size={20} strokeWidth={2.5} className="text-green-400" />
+          ) : (
+            <Share2 size={20} strokeWidth={2.2} />
+          )}
         </button>
 
         <button
@@ -519,9 +534,22 @@ export function GalleryLightbox({
                   e.stopPropagation();
                   handleShare();
                 }}
-                className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-slate-800 text-white font-semibold border border-white/20 rounded-xl hover:bg-slate-700 transition-all text-sm cursor-pointer">
-                <Share2 size={16} strokeWidth={2.2} />
-                Share
+                className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl font-semibold transition-all text-sm cursor-pointer ${
+                  copied
+                    ? "bg-green-500/20 border border-green-500/40 text-green-300"
+                    : "bg-slate-800 text-white border border-white/20 hover:bg-slate-700"
+                }`}>
+                {copied ? (
+                  <>
+                    <Check size={16} strokeWidth={2.5} className="text-green-400" />
+                    Copied!
+                  </>
+                ) : (
+                  <>
+                    <Share2 size={16} strokeWidth={2.2} />
+                    Share
+                  </>
+                )}
               </button>
             </div>
 
@@ -569,6 +597,20 @@ export function GalleryLightbox({
                 </div>
               </div>
             </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Copied Link Toast Indicator */}
+      <AnimatePresence>
+        {copied && (
+          <motion.div
+            initial={{ opacity: 0, y: 10, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 10, scale: 0.95 }}
+            className="absolute bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 px-4 py-2 bg-slate-900/95 border border-green-500/40 text-white rounded-full shadow-2xl backdrop-blur-md text-xs font-semibold">
+            <Check size={14} className="text-green-400" strokeWidth={2.5} />
+            <span>Image link copied to clipboard</span>
           </motion.div>
         )}
       </AnimatePresence>

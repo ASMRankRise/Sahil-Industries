@@ -1,4 +1,5 @@
 import { AdminDataProvider } from "@/context/AdminDataContext";
+import { ToastProvider } from "@/context/ToastContext";
 import { ReactNode } from "react";
 
 export const metadata = {
@@ -11,12 +12,14 @@ export const metadata = {
 export default function AdminLayout({ children }: { children: ReactNode }) {
   return (
     <AdminDataProvider>
-      <script
-        dangerouslySetInnerHTML={{
-          __html: `(function(){try{var t=localStorage.getItem("admin_theme")||"dark";document.documentElement.setAttribute("data-admin-theme",t);if(t==="dark"){document.documentElement.classList.add("dark");}else{document.documentElement.classList.remove("dark");}}catch(e){}})();`,
-        }}
-      />
-      {children}
+      <ToastProvider>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var t=localStorage.getItem("admin_theme")||"dark";document.documentElement.setAttribute("data-admin-theme",t);if(t==="dark"){document.documentElement.classList.add("dark");}else{document.documentElement.classList.remove("dark");}}catch(e){}})();`,
+          }}
+        />
+        {children}
+      </ToastProvider>
     </AdminDataProvider>
   );
 }
