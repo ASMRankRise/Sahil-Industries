@@ -1,15 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import {
-  Trash2,
-  Archive,
-  Edit,
-  Download,
-  Flag,
-  Filter,
-  ChevronDown,
-} from "lucide-react";
+import { Filter, ChevronDown } from "lucide-react";
 import { forwardRef } from "react";
 
 interface BulkAction {
@@ -78,8 +70,9 @@ export const BulkActionsBar = forwardRef<HTMLDivElement, BulkActionsBarProps>(
               {count > 1 ? "s" : ""} selected
             </span>
             <button
+              type="button"
               onClick={onClear}
-              className="text-sm text-slate-400 hover:text-white transition-colors">
+              className="text-sm text-slate-400 hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-safety rounded">
               Clear selection
             </button>
           </div>
@@ -87,15 +80,17 @@ export const BulkActionsBar = forwardRef<HTMLDivElement, BulkActionsBarProps>(
             {showStatusFilter && statusOptions && (
               <div className="relative">
                 <Filter
-                  className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+                  className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
                   size={14}
+                  aria-hidden="true"
                 />
                 <select
-                  defaultValue=""
+                  aria-label="Bulk change status"
+                  value=""
                   onChange={(e) =>
                     e.target.value && onStatusChange?.(e.target.value)
                   }
-                  className="h-9 pl-9 pr-8 bg-white/5 border border-white/10 rounded-lg text-sm text-white focus:outline-none focus:border-safety/50 appearance-none cursor-pointer">
+                  className="h-9 pl-9 pr-8 bg-white/5 border border-white/10 rounded-lg text-sm text-white focus:outline-none focus:border-safety/50 focus-visible:ring-2 focus-visible:ring-safety appearance-none cursor-pointer">
                   <option value="" disabled>
                     Change Status
                   </option>
@@ -106,23 +101,26 @@ export const BulkActionsBar = forwardRef<HTMLDivElement, BulkActionsBarProps>(
                   ))}
                 </select>
                 <ChevronDown
-                  className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400"
+                  className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-slate-400"
                   size={14}
+                  aria-hidden="true"
                 />
               </div>
             )}
             {showCategoryFilter && categoryOptions && (
               <div className="relative">
                 <Filter
-                  className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+                  className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
                   size={14}
+                  aria-hidden="true"
                 />
                 <select
-                  defaultValue=""
+                  aria-label="Bulk change category"
+                  value=""
                   onChange={(e) =>
                     e.target.value && onCategoryChange?.(e.target.value)
                   }
-                  className="h-9 pl-9 pr-8 bg-white/5 border border-white/10 rounded-lg text-sm text-white focus:outline-none focus:border-safety/50 appearance-none cursor-pointer">
+                  className="h-9 pl-9 pr-8 bg-white/5 border border-white/10 rounded-lg text-sm text-white focus:outline-none focus:border-safety/50 focus-visible:ring-2 focus-visible:ring-safety appearance-none cursor-pointer">
                   <option value="" disabled>
                     Change Category
                   </option>
@@ -133,18 +131,20 @@ export const BulkActionsBar = forwardRef<HTMLDivElement, BulkActionsBarProps>(
                   ))}
                 </select>
                 <ChevronDown
-                  className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400"
+                  className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-slate-400"
                   size={14}
+                  aria-hidden="true"
                 />
               </div>
             )}
             {actions.map((action, index) => (
               <button
                 key={index}
+                type="button"
                 onClick={action.onClick}
                 disabled={action.disabled}
-                className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${getVariantClasses(action.variant || "default")} ${action.disabled ? "opacity-50 cursor-not-allowed" : ""}`}>
-                <span>{action.icon}</span>
+                className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-safety ${getVariantClasses(action.variant || "default")} ${action.disabled ? "opacity-50 cursor-not-allowed" : ""}`}>
+                <span aria-hidden="true">{action.icon}</span>
                 {action.label}
               </button>
             ))}

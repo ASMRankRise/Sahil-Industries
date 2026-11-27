@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useId, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Mail, Lock, ArrowRight, AlertCircle } from "lucide-react";
 import { useAdminData } from "@/context/AdminDataContext";
@@ -12,6 +13,8 @@ export default function AdminLogin() {
   const [isLoading, setIsLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
+  const emailId = useId();
+  const passwordId = useId();
 
   useEffect(() => {
     const savedEmail = window.localStorage.getItem("admin_remembered_email");
@@ -21,8 +24,13 @@ export default function AdminLogin() {
     }
   }, []);
 
+  useEffect(() => {
+    if (isAuthenticated) {
+      router.replace("/admin");
+    }
+  }, [isAuthenticated, router]);
+
   if (isAuthenticated) {
-    router.push("/admin");
     return null;
   }
 
@@ -53,7 +61,7 @@ export default function AdminLogin() {
     <div className="min-h-screen bg-ink flex items-center justify-center px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full">
         {/* Brand */}
-        <div className="mb-8 flex translate-y-2 flex-col items-center justify-center">
+        <div className="mb-8 flex flex-col items-center justify-center">
           <div className="flex h-16 w-20 items-center justify-center rounded-xl border border-safety/50 bg-safety/10 shadow-lg shadow-safety/10">
             <img
               src="/media/logo/logo%20svg1.svg"
@@ -73,31 +81,37 @@ export default function AdminLogin() {
 
         {/* Login Card */}
         <div className="bg-surface border border-white/10 rounded-2xl shadow-2xl p-8 sm:p-10">
-          <h2 className="text-2xl font-bold tracking-tight text-white mb-1">
+          <h1 className="text-2xl font-bold tracking-tight text-white mb-1">
             Admin Login
-          </h2>
+          </h1>
           <p className="text-slate-400 text-sm mb-6">
             Sign in to manage Sahil Industries
           </p>
 
           {error && (
-            <div className="mb-6 p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm flex items-center gap-2">
-              <AlertCircle size={16} />
+            <div
+              role="alert"
+              className="mb-6 p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm flex items-center gap-2">
+              <AlertCircle size={16} aria-hidden="true" />
               {error}
             </div>
           )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <label className="block text-xs font-medium text-slate-300 uppercase tracking-wider">
+              <label
+                htmlFor={emailId}
+                className="block text-xs font-medium text-slate-300 uppercase tracking-wider">
                 Email Address
               </label>
               <div className="relative">
                 <Mail
-                  className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+                  className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
                   size={18}
+                  aria-hidden="true"
                 />
                 <input
+                  id={emailId}
                   name="email"
                   type="email"
                   value={email}
@@ -105,27 +119,31 @@ export default function AdminLogin() {
                   autoComplete="email"
                   required
                   placeholder="admin@sahilcranes.in"
-                  className="w-full pl-10 pr-4 py-3.5 bg-white/5 border border-white/10 rounded-xl text-white placeholder:text-slate-500 focus:outline-none focus:border-safety/50 focus:ring-1 focus:ring-safety transition-all"
+                  className="w-full pl-10 pr-4 py-3.5 bg-white/5 border border-white/10 rounded-xl text-white placeholder:text-slate-400 focus:outline-none focus:border-safety/50 focus:ring-1 focus:ring-safety transition-all"
                 />
               </div>
             </div>
 
             <div className="space-y-2">
-              <label className="block text-xs font-medium text-slate-300 uppercase tracking-wider">
+              <label
+                htmlFor={passwordId}
+                className="block text-xs font-medium text-slate-300 uppercase tracking-wider">
                 Password
               </label>
               <div className="relative">
                 <Lock
-                  className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+                  className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
                   size={18}
+                  aria-hidden="true"
                 />
                 <input
+                  id={passwordId}
                   name="password"
                   type="password"
                   autoComplete="current-password"
                   required
                   placeholder="••••••••"
-                  className="w-full pl-10 pr-4 py-3.5 bg-white/5 border border-white/10 rounded-xl text-white placeholder:text-slate-500 focus:outline-none focus:border-safety/50 focus:ring-1 focus:ring-safety transition-all"
+                  className="w-full pl-10 pr-4 py-3.5 bg-white/5 border border-white/10 rounded-xl text-white placeholder:text-slate-400 focus:outline-none focus:border-safety/50 focus:ring-1 focus:ring-safety transition-all"
                 />
               </div>
             </div>
@@ -140,17 +158,17 @@ export default function AdminLogin() {
                 />
                 <span>Remember me</span>
               </label>
-              <a
+              <Link
                 href="/"
-                className="text-xs text-safety hover:text-safety/80 underline underline-offset-4">
+                className="text-xs text-safety hover:text-safety/80 underline underline-offset-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-safety rounded">
                 Back to website
-              </a>
+              </Link>
             </div>
 
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full flex items-center justify-center gap-2 px-4 py-3.5 bg-safety text-ink font-bold rounded-xl hover:bg-yellow-400 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg shadow-safety/20 hover:shadow-safety/30">
+              className="w-full flex items-center justify-center gap-2 px-4 py-3.5 bg-safety text-ink font-bold rounded-xl hover:bg-yellow-400 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg shadow-safety/20 hover:shadow-safety/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white">
               {isLoading ? (
                 <>
                   <svg
@@ -180,13 +198,13 @@ export default function AdminLogin() {
             </button>
           </form>
 
-          <p className="mt-8 pt-6 border-t border-white/10 text-center text-xs text-slate-500">
+          <p className="mt-8 pt-6 border-t border-white/10 text-center text-xs text-slate-400">
             Use an administrator account provisioned by your deployment
             administrator.
           </p>
         </div>
 
-        <p className="mt-6 text-center text-[11px] text-slate-500">
+        <p className="mt-6 text-center text-[11px] text-slate-400">
           Sahil Industries &copy; {new Date().getFullYear()} &bull; Management
           Portal
         </p>

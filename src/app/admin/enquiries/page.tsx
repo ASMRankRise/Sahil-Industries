@@ -9,12 +9,23 @@ import {
   Mail,
   Search,
   Trash2,
-  X,
 } from "lucide-react";
 import { AdminDashboardLayoutWrapper } from "@/components/AdminDashboardLayout";
 import { AdminTableSkeleton } from "@/components/AdminSkeleton";
-import { ConfirmModal } from "@/components/admin";
+import { ConfirmModal, Modal } from "@/components/admin";
 import { useToast } from "@/context/ToastContext";
+
+type ApiEnquiry = {
+  id: string;
+  name: string;
+  email: string;
+  phone?: string;
+  subject?: string;
+  city?: string;
+  message: string;
+  status?: string;
+  created_at: string;
+};
 
 type RecordItem = {
   id: string;
@@ -52,28 +63,48 @@ export default function EnquiriesPage() {
   const [statusOpen, setStatusOpen] = useState(false);
   const [itemToDelete, setItemToDelete] = useState<RecordItem | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const statusDropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!statusOpen) return;
+    const handlePointerDown = (event: MouseEvent) => {
+      if (
+        statusDropdownRef.current &&
+        !statusDropdownRef.current.contains(event.target as Node)
+      ) {
+        setStatusOpen(false);
+      }
+    };
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setStatusOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handlePointerDown);
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("mousedown", handlePointerDown);
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [statusOpen]);
 
   const load = useCallback(async () => {
     setLoading(true);
     setError("");
     try {
-      const enquiries = await fetch("/api/admin/enquiries", {
+      const enquiries = (await fetch("/api/admin/enquiries", {
         cache: "no-store",
-      }).then((r) => (r.ok ? r.json() : Promise.reject(r)));
+      }).then((r) => (r.ok ? r.json() : Promise.reject(r)))) as {
+        enquiries?: ApiEnquiry[];
+      };
       const read = JSON.parse(
         localStorage.getItem("admin_read_records") || "[]",
       ) as string[];
       setItems(
-        [
-          ...(enquiries.enquiries || []).map((x: any) => ({
-            ...x,
-            name: x.name,
-            phone: x.phone,
-            kind: "enquiry",
-            read: read.includes(`enquiry:${x.id}`),
-          })),
-        ].map((x) => ({
+        (enquiries.enquiries || []).map((x) => ({
           ...x,
+          kind: "enquiry" as const,
+          read: read.includes(`enquiry:${x.id}`),
           status: String(x.status || "new").toLowerCase(),
         })),
       );
@@ -214,38 +245,42 @@ export default function EnquiriesPage() {
       <div className="space-y-6">
         <div className="flex justify-end">
           <button
+            type="button"
             onClick={exportCsv}
-            className="flex items-center gap-2 px-4 py-2.5 border border-white/10 rounded-lg text-sm hover:bg-white/5">
-            <Download size={15} /> Export CSV
+            className="flex items-center gap-2 px-4 py-2.5 border border-white/10 rounded-lg text-sm hover:bg-white/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-safety">
+            <Download size={15} aria-hidden="true" /> Export CSV
           </button>
         </div>
         <div className="bg-surface border border-white/10 rounded-2xl p-4 flex flex-wrap gap-3">
           <div className="relative flex-1 min-w-[220px]">
             <Search
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+              className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
               size={16}
+              aria-hidden="true"
             />
             <input
+              aria-label="Search enquiries"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search name, email, subject..."
-              className="h-10 w-full pl-10 pr-3 bg-white/5 border border-white/10 rounded-lg text-sm text-white"
+              className="h-10 w-full pl-10 pr-3 bg-white/5 border border-white/10 rounded-lg text-sm text-white placeholder:text-slate-400 focus:outline-none focus:border-safety/50"
             />
           </div>
-          <div className="relative">
+          <div className="relative" ref={statusDropdownRef}>
             <button
               type="button"
               aria-haspopup="listbox"
               aria-expanded={statusOpen}
               onClick={() => setStatusOpen((open) => !open)}
-              className="flex h-10 min-w-[146px] items-center gap-2 rounded-lg border border-white/10 bg-white/5 pl-3 pr-2 text-sm text-white">
-              <Filter className="shrink-0 text-slate-400" size={14} />
-              <span className="flex-1 text-left">
+              className="flex h-10 min-w-[146px] items-center gap-2 rounded-lg border border-white/10 bg-white/5 pl-3 pr-2 text-sm text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-safety">
+              <Filter className="shrink-0 text-slate-400" size={14} aria-hidden="true" />
+              <span className="flex-1 text-left capitalize">
                 {status === "all" ? "All statuses" : status}
               </span>
               <ChevronDown
                 size={15}
                 className={`text-slate-400 transition-transform ${statusOpen ? "rotate-180" : ""}`}
+                aria-hidden="true"
               />
             </button>
             {statusOpen && (
@@ -341,21 +376,27 @@ export default function EnquiriesPage() {
                       {new Date(x.created_at).toLocaleDateString()}
                     </td>
                     <td className="p-4">
-                      <button
-                        title="View details"
-                        onClick={() => {
-                          markRead(x);
-                          setSelected(x);
-                        }}
-                        className="p-2 text-slate-400 hover:text-safety">
-                        <Eye size={15} />
-                      </button>
-                      <button
-                        title="Delete"
-                        onClick={() => remove(x)}
-                        className="p-2 text-slate-400 hover:text-red-400">
-                        <Trash2 size={15} />
-                      </button>
+                      <div className="flex items-center gap-1">
+                        <button
+                          type="button"
+                          aria-label={`View enquiry from ${x.name}`}
+                          title="View details"
+                          onClick={() => {
+                            markRead(x);
+                            setSelected(x);
+                          }}
+                          className="grid size-10 place-items-center rounded-lg text-slate-400 hover:bg-white/5 hover:text-safety focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-safety">
+                          <Eye size={16} aria-hidden="true" />
+                        </button>
+                        <button
+                          type="button"
+                          aria-label={`Delete enquiry from ${x.name}`}
+                          title="Delete"
+                          onClick={() => remove(x)}
+                          className="grid size-10 place-items-center rounded-lg text-slate-400 hover:bg-white/5 hover:text-red-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400">
+                          <Trash2 size={16} aria-hidden="true" />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -368,97 +409,80 @@ export default function EnquiriesPage() {
             </div>
           )}
         </div>
-        {selected && (
-          <div
-            className="fixed inset-0 z-[100] flex items-start justify-center overflow-y-auto bg-black/80 backdrop-blur-sm p-4 sm:items-center"
-            onClick={() => setSelected(null)}>
-            <div
-              className="my-auto flex max-h-[min(720px,calc(100dvh-2rem))] w-full max-w-xl flex-col overflow-hidden rounded-2xl border border-white/10 bg-surface shadow-2xl"
-              onClick={(e) => e.stopPropagation()}>
-              <div className="flex shrink-0 items-start justify-between border-b border-white/10 bg-white/[.03] px-6 py-5">
+        <Modal
+          isOpen={Boolean(selected)}
+          onClose={() => setSelected(null)}
+          title={selected?.subject || "Customer enquiry"}
+          size="md">
+          {selected && (
+            <div className="space-y-5">
+              <p className="text-xs text-slate-400">
+                Received {new Date(selected.created_at).toLocaleString()}
+              </p>
+              <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-white/10 bg-white/[.03] p-4">
                 <div>
-                  <p className="mb-1 text-xs font-medium uppercase tracking-wider text-safety">
-                    Enquiry details
-                  </p>
-                  <h2 className="text-xl font-bold text-white">
-                    {selected.subject || "Customer enquiry"}
-                  </h2>
-                  <p className="mt-1 text-xs text-slate-400">
-                    Received {new Date(selected.created_at).toLocaleString()}
-                  </p>
+                  <p className="font-semibold text-white">{selected.name}</p>
+                  <a
+                    className="text-sm text-safety hover:underline"
+                    href={`mailto:${selected.email}`}>
+                    {selected.email}
+                  </a>
                 </div>
+                <span
+                  className={`admin-status-badge status-${selected.status.replaceAll(" ", "-")} rounded-full px-3 py-1 text-xs font-medium capitalize text-white`}
+                  style={{
+                    backgroundColor:
+                      statusColors[selected.status] || "#475569",
+                  }}>
+                  {selected.status}
+                </span>
+              </div>
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div className="rounded-xl border border-white/10 p-4">
+                  <p className="mb-1 text-xs uppercase tracking-wide text-slate-400">
+                    Phone
+                  </p>
+                  {selected.phone ? (
+                    <a
+                      className="text-sm text-white hover:text-safety"
+                      href={`tel:${selected.phone}`}>
+                      {selected.phone}
+                    </a>
+                  ) : (
+                    <p className="text-sm text-slate-400">Not provided</p>
+                  )}
+                </div>
+                <div className="rounded-xl border border-white/10 p-4">
+                  <p className="mb-1 text-xs uppercase tracking-wide text-slate-400">
+                    Reference
+                  </p>
+                  <p className="text-sm text-white break-all">{selected.id}</p>
+                </div>
+              </div>
+              <div>
+                <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-400">
+                  Message
+                </p>
+                <div className="min-h-28 max-h-48 overflow-y-auto overscroll-contain whitespace-pre-wrap rounded-xl border border-white/10 bg-black/10 p-4 text-sm leading-6 text-slate-200">
+                  {selected.message}
+                </div>
+              </div>
+              <div className="flex justify-end gap-3 border-t border-white/10 pt-4">
+                <a
+                  href={`mailto:${selected.email}`}
+                  className="rounded-lg bg-safety px-4 py-2 text-sm font-semibold text-slate-950 transition hover:brightness-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white">
+                  Reply by email
+                </a>
                 <button
-                  aria-label="Close enquiry details"
+                  type="button"
                   onClick={() => setSelected(null)}
-                  className="rounded-lg p-2 text-slate-400 transition hover:bg-white/10 hover:text-white">
-                  <X size={18} />
+                  className="rounded-lg border border-white/10 px-4 py-2 text-sm text-slate-300 transition hover:bg-white/5 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-safety">
+                  Close
                 </button>
               </div>
-              <div className="min-h-0 flex-1 space-y-5 overflow-y-auto overscroll-contain p-6">
-                <div className="flex items-center justify-between rounded-xl border border-white/10 bg-white/[.03] p-4">
-                  <div>
-                    <p className="font-semibold text-white">{selected.name}</p>
-                    <a
-                      className="text-sm text-safety hover:underline"
-                      href={`mailto:${selected.email}`}>
-                      {selected.email}
-                    </a>
-                  </div>
-                  <span
-                    className={`admin-status-badge status-${selected.status.replaceAll(" ", "-")} rounded-full px-3 py-1 text-xs font-medium capitalize text-white`}
-                    style={{
-                      backgroundColor:
-                        statusColors[selected.status] || "#475569",
-                    }}>
-                    {selected.status}
-                  </span>
-                </div>
-                <div className="grid gap-3 sm:grid-cols-2">
-                  <div className="rounded-xl border border-white/10 p-4">
-                    <p className="mb-1 text-xs uppercase tracking-wide text-slate-500">
-                      Phone
-                    </p>
-                    {selected.phone ? (
-                      <a
-                        className="text-sm text-white hover:text-safety"
-                        href={`tel:${selected.phone}`}>
-                        {selected.phone}
-                      </a>
-                    ) : (
-                      <p className="text-sm text-slate-400">Not provided</p>
-                    )}
-                  </div>
-                  <div className="rounded-xl border border-white/10 p-4">
-                    <p className="mb-1 text-xs uppercase tracking-wide text-slate-500">
-                      Reference
-                    </p>
-                    <p className="text-sm text-white">{selected.id}</p>
-                  </div>
-                </div>
-                <div>
-                  <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">
-                    Message
-                  </p>
-                  <div className="min-h-28 max-h-48 overflow-y-auto overscroll-contain whitespace-pre-wrap rounded-xl border border-white/10 bg-black/10 p-4 text-sm leading-6 text-slate-200">
-                    {selected.message}
-                  </div>
-                </div>
-                <div className="flex justify-end gap-3 border-t border-white/10 pt-4">
-                  <a
-                    href={`mailto:${selected.email}`}
-                    className="rounded-lg bg-safety px-4 py-2 text-sm font-semibold text-slate-950 transition hover:brightness-110">
-                    Reply by email
-                  </a>
-                  <button
-                    onClick={() => setSelected(null)}
-                    className="rounded-lg border border-white/10 px-4 py-2 text-sm text-slate-300 transition hover:bg-white/5 hover:text-white">
-                    Close
-                  </button>
-                </div>
-              </div>
             </div>
-          </div>
-        )}
+          )}
+        </Modal>
         <div className="flex items-center justify-between text-sm text-slate-400">
           <span>
             Showing {filtered.length ? (page - 1) * PAGE_SIZE + 1 : 0}–

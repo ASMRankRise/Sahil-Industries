@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
-import { X, Tag, ChevronDown } from "lucide-react";
+import { useState, useRef, useEffect, useId } from "react";
+import { X, Tag } from "lucide-react";
 
 interface TagInputProps {
   value: string;
@@ -28,6 +28,7 @@ export function TagInput({
   const [highlightedIndex, setHighlightedIndex] = useState(-1);
   const inputRef = useRef<HTMLInputElement>(null);
   const suggestionsRef = useRef<HTMLDivElement>(null);
+  const inputId = useId();
 
   // Parse current tags from the comma-separated value
   const currentTags = value
@@ -35,8 +36,6 @@ export function TagInput({
     .map((t) => t.trim())
     .filter(Boolean);
   const lastTag = currentTags[currentTags.length - 1] || "";
-  const prefix =
-    currentTags.slice(0, -1).join(", ") + (currentTags.length > 1 ? ", " : "");
 
   // Filter suggestions based on the last tag being typed
   const filteredSuggestions = suggestions
@@ -129,7 +128,9 @@ export function TagInput({
   return (
     <div className={className}>
       {label && (
-        <label className="block text-sm font-medium text-slate-300 mb-1">
+        <label
+          htmlFor={inputId}
+          className="block text-sm font-medium text-slate-300 mb-1">
           {label}
         </label>
       )}
@@ -145,7 +146,7 @@ export function TagInput({
               <button
                 type="button"
                 onClick={() => removeTag(index)}
-                className="p-0.5 hover:bg-safety/30 rounded-full transition-colors"
+                className="p-0.5 hover:bg-safety/30 rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-safety"
                 aria-label={`Remove ${tag}`}>
                 <X size={12} />
               </button>
@@ -157,6 +158,7 @@ export function TagInput({
       {/* Input Field */}
       <div className="relative">
         <input
+          id={inputId}
           ref={inputRef}
           type="text"
           value={value}
@@ -185,7 +187,7 @@ export function TagInput({
                     ? "bg-safety/20 text-safety"
                     : "text-slate-300 hover:bg-white/5"
                 }`}>
-                <Tag size={14} className="mr-2 inline-block" />
+                <Tag size={14} className="mr-2 inline-block" aria-hidden="true" />
                 {suggestion}
               </button>
             ))}
@@ -193,7 +195,7 @@ export function TagInput({
         )}
       </div>
 
-      <p className="text-xs text-slate-500 mt-1">{helperText}</p>
+      <p className="text-xs text-slate-400 mt-1">{helperText}</p>
     </div>
   );
 }

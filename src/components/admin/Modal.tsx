@@ -2,7 +2,7 @@
 
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Loader2, AlertTriangle, Info as InfoIcon } from "lucide-react";
-import { ReactNode, forwardRef, useEffect, useState } from "react";
+import { ReactNode, forwardRef, useEffect, useId, useState } from "react";
 import { createPortal } from "react-dom";
 
 interface ModalProps {
@@ -31,10 +31,22 @@ export const Modal = forwardRef<HTMLDivElement, ModalProps>(
     ref,
   ) => {
     const [mounted, setMounted] = useState(false);
+    const titleId = useId();
 
     useEffect(() => {
       setMounted(true);
     }, []);
+
+    useEffect(() => {
+      if (!isOpen) return;
+      const handleKeyDown = (e: KeyboardEvent) => {
+        if (e.key === "Escape") {
+          onClose();
+        }
+      };
+      window.addEventListener("keydown", handleKeyDown);
+      return () => window.removeEventListener("keydown", handleKeyDown);
+    }, [isOpen, onClose]);
 
     useEffect(() => {
       if (isOpen) {
@@ -63,11 +75,11 @@ export const Modal = forwardRef<HTMLDivElement, ModalProps>(
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/80 p-3 backdrop-blur-sm sm:p-4"
+            className="admin-dashboard fixed inset-0 z-[9999] flex items-center justify-center bg-black/80 p-3 backdrop-blur-sm sm:p-4"
             onClick={closeOnOverlayClick ? onClose : undefined}
             role="dialog"
             aria-modal="true"
-            aria-labelledby="modal-title">
+            aria-labelledby={titleId}>
             <motion.div
               ref={ref}
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
@@ -77,14 +89,15 @@ export const Modal = forwardRef<HTMLDivElement, ModalProps>(
               onClick={(e) => e.stopPropagation()}>
               <div className="flex shrink-0 items-center justify-between gap-2 border-b border-white/20 p-3 sm:p-5">
                 <h3
-                  id="modal-title"
+                  id={titleId}
                   className="min-w-0 break-words text-lg font-bold text-white">
                   {title}
                 </h3>
                 {showCloseButton && (
                   <button
+                    type="button"
                     onClick={onClose}
-                    className="grid size-11 shrink-0 place-items-center rounded-lg text-slate-300 transition-colors hover:bg-white/10 hover:text-white"
+                    className="grid size-11 shrink-0 place-items-center rounded-lg text-slate-300 transition-colors hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-safety"
                     aria-label="Close modal">
                     <X size={20} className="text-white" strokeWidth={2.5} />
                   </button>
@@ -189,7 +202,7 @@ export function ConfirmModal({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/80 backdrop-blur-md p-4"
+          className="admin-dashboard fixed inset-0 z-[9999] flex items-center justify-center bg-black/80 backdrop-blur-md p-4"
           onClick={isLoading ? undefined : onClose}
           role="dialog"
           aria-modal="true"

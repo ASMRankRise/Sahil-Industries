@@ -1,9 +1,10 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Image, Mail, RefreshCw } from "lucide-react";
+import { Image as ImageIcon, Mail, RefreshCw } from "lucide-react";
 import { AdminDashboardLayoutWrapper } from "@/components/AdminDashboardLayout";
 import { AdminAnalyticsSkeleton } from "@/components/AdminSkeleton";
+import { MetricCard } from "@/components/admin";
 
 type Enquiry = {
   id: string;
@@ -85,17 +86,20 @@ export default function AnalyticsPage() {
       <div className="space-y-6">
         <div className="flex justify-end">
           <button
+            type="button"
             onClick={load}
             disabled={loading}
-            className="flex items-center gap-2 rounded-lg border border-white/10 px-3 py-2 text-sm text-slate-300 hover:bg-white/5">
-            <RefreshCw size={15} className={loading ? "animate-spin" : ""} />
+            className="flex items-center gap-2 rounded-lg border border-white/10 px-3 py-2 text-sm text-slate-300 hover:bg-white/5 disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-safety">
+            <RefreshCw size={15} className={loading ? "animate-spin" : ""} aria-hidden="true" />
             Refresh
           </button>
         </div>
         {error && (
-          <div className="rounded-xl border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-300">
+          <div
+            role="alert"
+            className="rounded-xl border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-300">
             {error}{" "}
-            <button onClick={load} className="ml-2 underline">
+            <button type="button" onClick={load} className="ml-2 underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-safety rounded">
               Retry
             </button>
           </div>
@@ -105,17 +109,17 @@ export default function AnalyticsPage() {
         ) : (
           <>
             <section className="grid gap-4 sm:grid-cols-3">
-              <Metric
+              <MetricCard
                 label="Total enquiries"
                 value={enquiries.length}
                 icon={<Mail />}
               />
-              <Metric
+              <MetricCard
                 label="Gallery images"
                 value={galleryCount}
-                icon={<Image />}
+                icon={<ImageIcon />}
               />
-              <Metric
+              <MetricCard
                 label="Statuses tracked"
                 value={Object.keys(statuses).length}
                 icon={<Mail />}
@@ -141,7 +145,7 @@ export default function AnalyticsPage() {
                           height: `${Math.max(4, (item.count / maxMonthly) * 100)}%`,
                         }}
                       />
-                      <span className="text-xs text-slate-500">
+                      <span className="text-xs text-slate-400">
                         {item.label}
                       </span>
                     </div>
@@ -149,7 +153,7 @@ export default function AnalyticsPage() {
                 </div>
               </div>
               <div className="rounded-2xl border border-white/10 bg-surface p-6">
-                <h3 className="font-bold text-white">Enquiry status</h3>
+                <h2 className="font-bold text-white">Enquiry status</h2>
                 <p className="mb-6 text-xs text-slate-400">
                   Current distribution of database records
                 </p>
@@ -185,27 +189,5 @@ export default function AnalyticsPage() {
         )}
       </div>
     </AdminDashboardLayoutWrapper>
-  );
-}
-
-function Metric({
-  label,
-  value,
-  icon,
-}: {
-  label: string;
-  value: number | string;
-  icon: React.ReactNode;
-}) {
-  return (
-    <div className="rounded-2xl border border-white/10 bg-surface p-5">
-      <div className="mb-4 flex items-center justify-between">
-        <p className="text-xs uppercase tracking-wider text-slate-400">
-          {label}
-        </p>
-        <span className="text-safety">{icon}</span>
-      </div>
-      <p className="text-3xl font-bold text-white">{value}</p>
-    </div>
   );
 }

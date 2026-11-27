@@ -33,7 +33,6 @@ interface DataTableProps<T> {
 const CELL_PADDING_X = "px-4";
 const CELL_PADDING_Y = "py-3.5";
 const CHECKBOX_COL_WIDTH = "w-12";
-const ACTIONS_COL_WIDTH = "w-24";
 const SORT_ICON_SIZE = 12;
 const ROW_TRANSITION_DURATION = 0.2;
 const ROW_STAGGER_DELAY = 0.02;
@@ -147,11 +146,6 @@ export function DataTable<T>({
                   </div>
                 </th>
               ))}
-              <th
-                scope="col"
-                className={`${CELL_PADDING_X} ${CELL_PADDING_Y} ${ACTIONS_COL_WIDTH} text-center`}>
-                Actions
-              </th>
             </tr>
           </thead>
           <tbody className="divide-y divide-white/5">
@@ -185,12 +179,6 @@ export function DataTable<T>({
                     {column.render(item, index)}
                   </td>
                 ))}
-                <td
-                  className={`${CELL_PADDING_X} ${CELL_PADDING_Y} ${ACTIONS_COL_WIDTH} text-center`}>
-                  <div className="flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-150">
-                    {/* Actions will be rendered by parent via render prop or children */}
-                  </div>
-                </td>
               </motion.tr>
             ))}
           </tbody>

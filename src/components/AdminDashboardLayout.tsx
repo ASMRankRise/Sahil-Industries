@@ -1,51 +1,23 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, ReactNode } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   LayoutDashboard,
-  Users,
   BarChart3,
   LogOut,
   Mail,
-  ChevronRight,
-  Plus,
   X,
   Menu,
-  TrendingUp,
-  TrendingDown,
-  Clock,
-  CheckCircle,
-  AlertCircle,
-  Loader2,
-  DollarSign,
-  UserPlus,
-  MessageSquare,
-  Activity,
-  Eye,
-  Edit,
   User,
-  Trash2,
-  Filter,
-  Search,
-  Download,
-  Upload,
   Moon,
   Sun,
-  HelpCircle,
-  Zap,
-  Target,
-  RefreshCw,
-  Image as LucideImage,
   Image,
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { AdminPageSkeleton } from "@/components/AdminSkeleton";
-import { ReactNode } from "react";
-import { AdminDataProvider, useAdminData } from "@/context/AdminDataContext";
-
-const asset = (path: string) => `/sahilcrane/${path}`;
+import { useAdminData } from "@/context/AdminDataContext";
 
 const navItems = [
   { label: "Dashboard", href: "/admin", icon: LayoutDashboard },
@@ -155,23 +127,30 @@ export function AdminDashboardLayout({
             </div>
           </Link>
           <button
+            type="button"
             onClick={() => setSidebarOpen(false)}
-            className={`grid size-11 shrink-0 place-items-center rounded-lg transition-colors lg:hidden ${theme === "light" ? "text-slate-600 hover:bg-amber-100 hover:text-slate-900" : "text-white/60 hover:bg-white/10 hover:text-white"}`}
+            className={`grid size-11 shrink-0 place-items-center rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-safety lg:hidden ${theme === "light" ? "text-slate-600 hover:bg-amber-100 hover:text-slate-900" : "text-white/60 hover:bg-white/10 hover:text-white"}`}
             aria-label="Close sidebar">
             <X size={18} />
           </button>
         </div>
 
         {/* Sidebar Navigation */}
-        <nav className="min-h-0 flex-1 overflow-y-auto px-3 py-4 space-y-1">
-          {navItems.map((item, index) => {
+        <nav
+          aria-label="Admin navigation"
+          className="min-h-0 flex-1 overflow-y-auto px-3 py-4 space-y-1">
+          {navItems.map((item) => {
             const Icon = item.icon;
             const isActive = activeNav === item.href;
             return (
               <Link
                 key={item.label}
                 href={item.href}
-                className={`flex w-full items-center gap-3 px-3.5 py-3 text-sm font-medium rounded-xl transition-all duration-200 relative group text-left ${
+                aria-current={isActive ? "page" : undefined}
+                onClick={() => {
+                  if (isMobile) setSidebarOpen(false);
+                }}
+                className={`flex w-full items-center gap-3 px-3.5 py-3 text-sm font-medium rounded-xl transition-all duration-200 relative group text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-safety ${
                   isActive
                     ? theme === "light"
                       ? "bg-amber-200/70 text-amber-950 border-l-4 border-amber-600 shadow-sm shadow-amber-200"
@@ -182,7 +161,7 @@ export function AdminDashboardLayout({
                 }`}>
                 <div
                   className={`flex-shrink-0 transition-colors duration-200 ${isActive ? (theme === "light" ? "text-amber-700" : "text-safety") : theme === "light" ? "text-slate-500 group-hover:text-amber-800" : "text-slate-400 group-hover:text-white"}`}>
-                  <Icon size={19} />
+                  <Icon size={19} aria-hidden="true" />
                 </div>
                 <span className="flex-1 truncate">{item.label}</span>
                 {item.label === "Enquiries" && enquiryCount > 0 && (
@@ -199,16 +178,18 @@ export function AdminDashboardLayout({
         <div
           className={`mt-auto flex-shrink-0 border-t p-4 ${theme === "light" ? "border-amber-200" : "border-white/10"}`}>
           <button
+            type="button"
             onClick={async () => {
               await logout();
               // Hard navigation prevents the current protected page from
               // rendering once more while the auth context is updating.
               window.location.replace("/admin");
             }}
-            className={`flex w-full items-center gap-3 rounded-xl border px-3 py-2.5 text-sm font-medium transition-all group hover:shadow-lg ${theme === "light" ? "border-red-300 bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700 hover:shadow-red-200" : "border-red-500/20 bg-red-500/5 text-red-300 hover:bg-red-500/15 hover:text-red-200 hover:shadow-red-950/30"}`}>
+            className={`flex w-full items-center gap-3 rounded-xl border px-3 py-2.5 text-sm font-medium transition-all group hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400 ${theme === "light" ? "border-red-300 bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700 hover:shadow-red-200" : "border-red-500/20 bg-red-500/5 text-red-300 hover:bg-red-500/15 hover:text-red-200 hover:shadow-red-950/30"}`}>
             <LogOut
               size={17}
               className="group-hover:text-red-400 transition-colors"
+              aria-hidden="true"
             />
             <span>Sign Out</span>
           </button>
@@ -222,8 +203,9 @@ export function AdminDashboardLayout({
         <header className="sticky top-0 z-30 flex h-16 w-full items-center justify-between gap-2 px-2 sm:px-6 md:px-8 border-b border-white/10 bg-ink/95 backdrop-blur-md">
           <div className="flex min-w-0 flex-1 items-center gap-1.5 sm:gap-4">
             <button
+              type="button"
               onClick={() => setSidebarOpen(!sidebarOpen)}
-              className="grid size-11 shrink-0 place-items-center rounded-lg text-white/70 transition-colors hover:bg-white/10 hover:text-white"
+              className="grid size-11 shrink-0 place-items-center rounded-lg text-white/70 transition-colors hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-safety"
               aria-label="Toggle sidebar"
               aria-controls="admin-sidebar"
               aria-expanded={sidebarOpen}
@@ -231,10 +213,10 @@ export function AdminDashboardLayout({
               <Menu size={20} />
             </button>
             <div className="min-w-0 flex-1">
-              <h1 className="whitespace-nowrap truncate text-[11px] font-bold tracking-tight bg-gradient-to-r from-white to-safety bg-clip-text text-transparent leading-none sm:text-base md:text-lg">
+              <h1 className="whitespace-nowrap truncate text-base font-bold tracking-tight bg-gradient-to-r from-white to-safety bg-clip-text text-transparent leading-tight sm:text-lg">
                 {pageTitle}
               </h1>
-              <p className="text-[11px] text-slate-400 hidden sm:block mt-0.5">
+              <p className="text-[11px] text-slate-400 hidden sm:block mt-0.5 truncate">
                 {pageDescription}
               </p>
             </div>
@@ -243,8 +225,9 @@ export function AdminDashboardLayout({
           <div className="flex shrink-0 items-center gap-1 sm:gap-3">
             {/* Theme Toggle */}
             <button
+              type="button"
               onClick={toggleTheme}
-              className={`grid size-11 place-items-center rounded-lg transition-colors ${
+              className={`grid size-11 place-items-center rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-safety ${
                 theme === "dark"
                   ? "text-amber-400 hover:text-amber-300 hover:bg-white/10"
                   : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
@@ -283,9 +266,6 @@ export function AdminDashboardLayout({
         {/* Dashboard Body */}
         <main
           className={`mx-auto w-full min-w-0 max-w-[1600px] flex-1 space-y-6 px-4 py-6 sm:px-6 md:px-8 ${theme === "dark" ? "bg-ink" : "bg-slate-100"}`}>
-          <h2 className="text-2xl sm:text-3xl font-bold tracking-tight bg-gradient-to-r from-white to-safety bg-clip-text text-transparent">
-            {pageTitle}
-          </h2>
           {children}
         </main>
       </div>

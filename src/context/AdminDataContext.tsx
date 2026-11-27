@@ -946,6 +946,11 @@ export function AdminDataProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [user, setUser] = useState<{ name: string; email: string } | null>(
+    null,
+  );
+
   // Business data is server-backed. Remove keys created by the former
   // localStorage-based admin implementation so stale temporary data cannot
   // remain in a browser after upgrading.
@@ -959,11 +964,36 @@ export function AdminDataProvider({ children }: { children: ReactNode }) {
       "admin_settings",
       "admin_gallery_images",
     ].forEach((key) => localStorage.removeItem(key));
+  }, []);
 
+  useEffect(() => {
+    fetch("/api/auth/session")
+      .then(async (response) => {
+        if (!response.ok) return;
+        const data = await response.json();
+        if (data.authenticated) {
+          setUser(data.user);
+          setIsAuthenticated(true);
+        }
+      })
+      .catch(() => undefined)
+      .finally(() => setLoading(false));
+  }, []);
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      setGalleryImages([]);
+      setGalleryLoading(false);
+      return;
+    }
+
+    let cancelled = false;
+    setGalleryLoading(true);
     fetch("/api/admin/gallery")
       .then(async (response) => {
         if (!response.ok) throw new Error("Unable to load gallery");
         const data = await response.json();
+        if (cancelled) return;
         setGalleryImages(
           (data.images || []).map(
             (image: Record<string, unknown>, index: number) => ({
@@ -1005,28 +1035,17 @@ export function AdminDataProvider({ children }: { children: ReactNode }) {
           ),
         );
       })
-      .catch(() => setGalleryImages([]))
-      .finally(() => setGalleryLoading(false));
-  }, []);
-
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [user, setUser] = useState<{ name: string; email: string } | null>(
-    null,
-  );
-
-  useEffect(() => {
-    fetch("/api/auth/session")
-      .then(async (response) => {
-        if (!response.ok) return;
-        const data = await response.json();
-        if (data.authenticated) {
-          setUser(data.user);
-          setIsAuthenticated(true);
-        }
+      .catch(() => {
+        if (!cancelled) setGalleryImages([]);
       })
-      .catch(() => undefined)
-      .finally(() => setLoading(false));
-  }, []);
+      .finally(() => {
+        if (!cancelled) setGalleryLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [isAuthenticated]);
 
   const login = useCallback(
     async (credentials: { email: string; password: string }) => {
@@ -1206,33 +1225,35 @@ export function AdminDataProvider({ children }: { children: ReactNode }) {
       const result = await response.json();
       if (!response.ok) throw new Error(result.error || "Upload failed");
 
-      const maxOrder =
-        galleryImages.length > 0
-          ? Math.max(...galleryImages.map((img) => img.order || 0))
-          : 0;
+      let createdImage!: GalleryImage;
+      setGalleryImages((prev) => {
+        const maxOrder =
+          prev.length > 0 ? Math.max(...prev.map((img) => img.order || 0)) : 0;
 
-      const newImage: GalleryImage = {
-        id: result.id,
-        title: result.title,
-        description: metadata.description || "",
-        url: result.url,
-        thumbnailUrl: result.url,
-        category: metadata.category || "products",
-        status: metadata.status || "active",
-        tags: metadata.tags || [],
-        altText: metadata.altText || "",
-        isFeatured: metadata.isFeatured || false,
-        date: new Date().toISOString().split("T")[0],
-        size: file.size,
-        width: result.width,
-        height: result.height,
-        order: metadata.order || maxOrder + 1,
-      };
+        createdImage = {
+          id: result.id,
+          title: result.title,
+          description: metadata.description || "",
+          url: result.url,
+          thumbnailUrl: result.url,
+          category: metadata.category || "products",
+          status: metadata.status || "active",
+          tags: metadata.tags || [],
+          altText: metadata.altText || "",
+          isFeatured: metadata.isFeatured || false,
+          date: new Date().toISOString().split("T")[0],
+          size: file.size,
+          width: result.width,
+          height: result.height,
+          order: metadata.order || maxOrder + 1,
+        };
 
-      setGalleryImages((prev) => [newImage, ...prev]);
-      return newImage;
+        return [createdImage, ...prev];
+      });
+
+      return createdImage;
     },
-    [galleryImages.length],
+    [],
   );
 
   return (
