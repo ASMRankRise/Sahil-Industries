@@ -52,8 +52,9 @@ function PremiumPageHero({
 
   return (
     <section
-      className="relative isolate flex h-[390px] items-center overflow-hidden bg-cover bg-center py-10 text-white max-md:h-[430px] max-md:py-8"
-      style={{ backgroundImage: "url('/sahilcrane/about/about-img.jpg')" }}>
+      className="hero-section relative isolate flex h-[390px] items-center overflow-hidden bg-cover bg-center py-10 text-white max-md:h-[430px] max-md:py-8"
+      style={{ backgroundImage: "url('/sahilcrane/about/about-img.jpg')" }}
+      suppressHydrationWarning>
       <div className="absolute inset-0 -z-10 bg-[linear-gradient(90deg,rgba(5,12,20,.94)_0%,rgba(5,12,20,.72)_42%,rgba(5,12,20,.25)_100%)]" />
       <div className="absolute inset-x-0 bottom-0 -z-10 h-24 bg-gradient-to-t from-ink/40 to-transparent" />
 

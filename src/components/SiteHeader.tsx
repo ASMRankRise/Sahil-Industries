@@ -74,9 +74,12 @@ export function SiteHeader() {
   return (
     <>
       <header
-        className={`fixed inset-x-0 top-0 z-50 border-b border-white/10 bg-surface text-white transition-all duration-300 ${
-          scrolled ? "shadow-xl bg-surface/95 backdrop-blur-sm" : ""
-        }`}>
+        className={[
+          "fixed inset-x-0 top-0 z-50 border-b border-white/10 bg-surface text-white transition-all duration-300",
+          scrolled ? "shadow-xl bg-surface/95 backdrop-blur-sm" : "",
+        ]
+          .filter(Boolean)
+          .join(" ")}>
         <div
           className={`mx-auto flex max-w-[1440px] items-center justify-between px-[18px] lg:grid lg:grid-cols-[220px_minmax(0,1fr)] lg:items-stretch lg:px-0 xl:grid-cols-[252px_minmax(0,1fr)_auto] ${HEADER_HEIGHT}`}>
           {/* Logo with magnetic effect */}

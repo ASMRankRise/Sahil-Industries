@@ -1,6 +1,6 @@
 "use client";
 
-import { useLayoutEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { prefersReducedMotion } from "@/components/animations/gsapUtils";
@@ -25,10 +25,14 @@ gsap.registerPlugin(ScrollTrigger);
 export function GSAPEnhancements() {
   const contextRef = useRef<gsap.Context | null>(null);
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     if (prefersReducedMotion()) return;
 
-    contextRef.current = gsap.context(() => {
+    let timeoutId: ReturnType<typeof setTimeout>;
+
+    // Defer execution until after the initial React hydration pass is complete
+    timeoutId = setTimeout(() => {
+      contextRef.current = gsap.context(() => {
       // 1. Section fade-up animations with ScrollTrigger (skips hero and pinned timeline sections)
       const sections = document.querySelectorAll(
         "section:not(.hero-section):not([data-pinned-section])",
@@ -386,8 +390,10 @@ export function GSAPEnhancements() {
         });
       });
     }, document.body);
+    }, 100);
 
     return () => {
+      clearTimeout(timeoutId);
       contextRef.current?.revert();
       ScrollTrigger.getAll().forEach((st) => st.kill());
     };
@@ -406,7 +412,7 @@ export function useGSAPAnimation(
 ) {
   const elementRef = useRef<HTMLElement | null>(null);
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     if (prefersReducedMotion()) return;
 
     const ctx = gsap.context(() => {
