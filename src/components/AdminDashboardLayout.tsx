@@ -14,6 +14,7 @@ import {
   Sun,
   Image,
 } from "lucide-react";
+import NextImage from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { AdminPageSkeleton } from "@/components/AdminSkeleton";
@@ -105,13 +106,16 @@ export function AdminDashboardLayout({
           className={`flex h-16 shrink-0 items-center justify-between gap-2 border-b px-4 sm:px-6 ${theme === "light" ? "border-amber-200" : "border-white/10"}`}>
           <Link href="/" className="group flex items-center gap-3">
             <div className="flex h-9 w-11 shrink-0 items-center justify-center rounded-lg border border-safety/50 bg-safety/10 shadow-md shadow-safety/10 transition-transform group-hover:scale-105">
-              <img
+              <NextImage
                 src={
                   theme === "dark"
                     ? "/media/logo/logo%20svg1.svg"
                     : "/media/logo/logo%20svg.svg"
                 }
                 alt=""
+                width={36}
+                height={28}
+                unoptimized
                 className="h-7 w-9 object-contain"
               />
             </div>

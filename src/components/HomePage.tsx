@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { LegacyRuntime } from "@/components/LegacyRuntime";
 import { LegacyStyles } from "@/components/LegacyStyles";
 import { clientLogos, homeProducts, industries } from "@/data/home";
@@ -155,10 +156,12 @@ export function LegacyHeader() {
         <div className="main-logo-box-three">
           <div className="logo-bg" />
           <a href="/">
-            <img
-              className="img-logo"
+            <Image
+              className="img-logo h-auto w-auto"
               src={asset("logo/logo.png")}
               alt="Awesome Logo"
+              width={183}
+              height={72}
               title=""
             />
           </a>
@@ -252,7 +255,14 @@ export function LegacyHeader() {
           <div className="clearfix">
             <div className="logo float-left py-2">
               <a href="/" className="img-responsive">
-                <img src={asset("logo/logo1.png")} alt="" title="" />
+                <Image
+                  src={asset("logo/logo1.png")}
+                  alt=""
+                  width={160}
+                  height={56}
+                  className="h-auto w-auto"
+                  title=""
+                />
               </a>
             </div>
             <div className="right-col float-right">
@@ -269,7 +279,14 @@ export function LegacyHeader() {
         <nav className="menu-box">
           <div className="nav-logo">
             <a href="/">
-              <img src={asset("logo/logo-footer.png")} alt="" title="" />
+              <Image
+                src={asset("logo/logo-footer.png")}
+                alt=""
+                width={183}
+                height={72}
+                className="h-auto w-auto"
+                title=""
+              />
             </a>
           </div>
           <div className="menu-outer" />
@@ -421,11 +438,23 @@ function AboutSection() {
             <div className="about-style2__image-box">
               <div className="big-title paroller">SAHIL</div>
               <div className="img-box1 js-tilt">
-                <img src={asset("home/about-01.jpg")} alt="Image" />
+                <Image
+                  src={asset("home/about-01.jpg")}
+                  alt="Image"
+                  width={500}
+                  height={560}
+                  className="h-auto w-full"
+                />
               </div>
               <div className="img-box2">
                 <div className="inner">
-                  <img src={asset("home/about.jpg")} alt="Image" />
+                  <Image
+                    src={asset("home/about.jpg")}
+                    alt="Image"
+                    width={360}
+                    height={380}
+                    className="h-auto w-full"
+                  />
                 </div>
               </div>
               <div className="overlay-box">
@@ -439,7 +468,13 @@ function AboutSection() {
                 </h3>
               </div>
               <div className="icon-box">
-                <img src={asset("home/about-logo.png")} alt="Logo" />
+                <Image
+                  src={asset("home/about-logo.png")}
+                  alt="Logo"
+                  width={140}
+                  height={140}
+                  className="h-auto w-auto"
+                />
               </div>
             </div>
           </div>
@@ -476,9 +511,12 @@ function ProductsSection({ onImageClick }: ProductsSectionProps) {
                 className={`single-project-item-style2${index > 2 ? " mb-lg-0" : ""}`}>
                 <div className="img-holder">
                   <div className="inner">
-                    <img
+                    <Image
                       src={asset(`products/${product.image}`)}
                       alt={product.title}
+                      width={450}
+                      height={450}
+                      className="h-auto w-full"
                     />
                   </div>
                   <div className="overlay-content text-center">
@@ -584,9 +622,12 @@ function IndustriesSection() {
                   <div className="img-holder">
                     <div className="gradient-bg" />
                     <div className="inner">
-                      <img
+                      <Image
                         src={asset(`industries-we-serve/${industry.image}`)}
                         alt={industry.title}
+                        width={450}
+                        height={450}
+                        className="h-auto w-full"
                       />
                     </div>
                     <div className="overlay-content">
@@ -614,10 +655,12 @@ function ClientsSection() {
         <div className="row justify-content-center">
           {clientLogos.map((logo) => (
             <div className="col-6 col-lg-2 mb-5" key={logo}>
-              <img
+              <Image
                 src={asset(`customers/${logo}`)}
                 alt="Sahil Industries customer"
-                className="border1"
+                width={200}
+                height={120}
+                className="border1 h-auto w-full"
               />
             </div>
           ))}
@@ -665,7 +708,13 @@ export function ContactCta() {
               <div className="left-box">
                 <div className="footer-logo">
                   <a href="/">
-                    <img src={asset("logo/logo.png")} alt="" />
+                    <Image
+                      src={asset("logo/logo.png")}
+                      alt=""
+                      width={183}
+                      height={72}
+                      className="h-auto w-auto"
+                    />
                   </a>
                 </div>
                 <div className="title">
@@ -715,7 +764,13 @@ export function LegacyFooter() {
                 <div className="our-company-info">
                   <div className="footer-logo">
                     <a href="/">
-                      <img src={asset("logo/logo-footer.png")} alt="" />
+                      <Image
+                        src={asset("logo/logo-footer.png")}
+                        alt=""
+                        width={183}
+                        height={72}
+                        className="h-auto w-auto"
+                      />
                     </a>
                   </div>
                   <div className="text-box pb-0">

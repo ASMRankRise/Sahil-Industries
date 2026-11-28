@@ -2,6 +2,7 @@ import { ModernPageShell } from "@/components/ModernPageShell";
 import { Reveal } from "@/components/ui/Reveal";
 import { Award, Factory, Shield, Wrench, ArrowRight } from "lucide-react";
 import { WhyChooseTimeline } from "@/components/WhyChooseTimeline";
+import Image from "next/image";
 import Link from "next/link";
 
 const asset = (path: string) => `/sahilcrane/${path}`;
@@ -146,9 +147,11 @@ export default function AboutPage() {
 
               {/* Main Image Card */}
               <div className="relative overflow-hidden rounded-2xl border border-slate-200/90 bg-ink shadow-2xl">
-                <img
+                <Image
                   src={asset("about/sahilcrane-img.jpg")}
                   alt="Sahil Industries manufacturing facility in Five Star MIDC, Kagal"
+                  width={800}
+                  height={600}
                   className="h-[420px] sm:h-[480px] w-full object-cover transition-transform duration-700 hover:scale-105"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-ink/90 via-ink/20 to-transparent pointer-events-none" />
@@ -193,10 +196,12 @@ export default function AboutPage() {
         <div className="mx-auto grid w-[min(1240px,calc(100%-64px))] grid-cols-[330px_1fr] items-center gap-[clamp(48px,8vw,130px)] max-md:w-[calc(100%-36px)] max-md:grid-cols-1">
           <Reveal>
             <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-surface shadow-2xl">
-              <img
+              <Image
                 src={asset("about/abhijit-patil.jpg")}
                 alt="Mr. Satyajeet Patil and Mr. Abhijeet Patil"
-                className="w-full object-cover"
+                width={660}
+                height={800}
+                className="h-auto w-full object-cover"
               />
             </div>
           </Reveal>

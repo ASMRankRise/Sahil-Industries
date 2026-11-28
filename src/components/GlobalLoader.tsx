@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
@@ -52,9 +53,13 @@ export function GlobalLoader() {
                 ease: "easeInOut",
               }}
             />
-            <img
+            <Image
               src="/media/logo/hero-center.svg?v=4"
               alt="Sahil Industries"
+              width={128}
+              height={96}
+              unoptimized
+              priority
               className="relative z-10 h-24 w-32 object-contain"
             />
           </motion.div>

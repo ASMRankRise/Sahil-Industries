@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useId, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Mail, Lock, ArrowRight, AlertCircle } from "lucide-react";
@@ -63,9 +64,12 @@ export default function AdminLogin() {
         {/* Brand */}
         <div className="mb-8 flex flex-col items-center justify-center">
           <div className="flex h-16 w-20 items-center justify-center rounded-xl border border-safety/50 bg-safety/10 shadow-lg shadow-safety/10">
-            <img
+            <Image
               src="/media/logo/logo%20svg1.svg"
               alt="Sahil Industries"
+              width={64}
+              height={48}
+              unoptimized
               className="h-12 w-16 object-contain"
             />
           </div>

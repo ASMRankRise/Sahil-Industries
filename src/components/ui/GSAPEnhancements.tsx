@@ -35,10 +35,11 @@ export function GSAPEnhancements({
     let cancelled = false;
     let rafId = 0;
 
-    // Defer execution until after React hydration and initial paint
-    rafId = window.requestAnimationFrame(() => {
+    const run = () => {
       if (cancelled) return;
-      contextRef.current = gsap.context(() => {
+      rafId = window.requestAnimationFrame(() => {
+        if (cancelled) return;
+        contextRef.current = gsap.context(() => {
       // 1. Section fade-up animations with ScrollTrigger (skips hero and pinned timeline sections)
       const sections = document.querySelectorAll(
         "section:not(.hero-section):not([data-pinned-section])",
@@ -360,25 +361,7 @@ export function GSAPEnhancements({
         }
       });
 
-      // 14. Navbar scroll effect enhancement
-      const navbar = document.querySelector("header, nav[role='navigation']");
-      if (navbar) {
-        ScrollTrigger.create({
-          trigger: document.body,
-          start: "top top",
-          end: "bottom bottom",
-          onUpdate: (self) => {
-            const progress = self.progress;
-            if (progress > 0.01) {
-              navbar.classList.add("scrolled");
-            } else {
-              navbar.classList.remove("scrolled");
-            }
-          },
-        });
-      }
-
-      // 15. Smooth anchor link scrolling
+      // 14. Smooth anchor link scrolling
       document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
         anchor.addEventListener("click", function (this: HTMLAnchorElement, e) {
           const targetId = this.getAttribute("href");
@@ -396,10 +379,18 @@ export function GSAPEnhancements({
         });
       });
     }, document.body);
-    });
+      });
+    };
+
+    if (document.readyState === "complete") {
+      run();
+    } else {
+      window.addEventListener("load", run, { once: true });
+    }
 
     return () => {
       cancelled = true;
+      window.removeEventListener("load", run);
       window.cancelAnimationFrame(rafId);
       contextRef.current?.revert();
       ScrollTrigger.getAll().forEach((st) => st.kill());

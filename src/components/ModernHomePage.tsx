@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, Check, Download, Phone } from "lucide-react";
 import { motion, useAnimation } from "framer-motion";
@@ -563,9 +564,12 @@ export default function ModernHomePage() {
                 </span>
               </motion.div>
               <div className="absolute bottom-2 left-5 z-30 w-[25%] max-md:w-[30%]">
-                <img
+                <Image
                   src="/media/home/about-logo.png"
                   alt="Sahil Industries certified"
+                  width={200}
+                  height={200}
+                  className="h-auto w-full"
                 />
               </div>
               <div className="absolute right-[-28px] top-[34%] z-0 rotate-90 text-[86px] font-black tracking-[.18em] text-white/80 max-md:text-[55px]">

@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useState, useEffect, useMemo, useCallback, useId } from "react";
 import { useToast } from "@/context/ToastContext";
 import {
@@ -1316,11 +1317,13 @@ function ReplaceImageForm({
         <p className="block text-sm font-medium text-slate-300 mb-2">
           Current Image
         </p>
-        <div className="aspect-[4/3] rounded-lg overflow-hidden border border-white/10">
-          <img
+        <div className="aspect-[4/3] rounded-lg overflow-hidden border border-white/10 relative">
+          <Image
             src={image.url || FALLBACK_IMAGE_URI}
             alt={image.title}
-            className="w-full h-full object-cover"
+            fill
+            unoptimized
+            className="object-cover"
           />
         </div>
         <p className="text-xs text-slate-400 mt-1 truncate">{image.title}</p>
@@ -1352,10 +1355,12 @@ function ReplaceImageForm({
             {replaceImageFile && previewUrl ? (
               <div className="flex flex-col items-center gap-3">
                 <div className="h-24 w-24 rounded-lg overflow-hidden border border-white/10 relative">
-                  <img
+                  <Image
                     src={previewUrl}
                     alt="Replacement preview"
-                    className="w-full h-full object-cover"
+                    fill
+                    unoptimized
+                    className="object-cover"
                   />
                 </div>
                 <p className="text-sm text-slate-300">
@@ -1529,10 +1534,12 @@ function SortableGalleryItem({
 
       {/* Image */}
       <div className="aspect-[4/3] relative overflow-hidden bg-black/30">
-        <img
+        <Image
           src={image.url || FALLBACK_IMAGE_URI}
           alt={image.altText || image.title}
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+          fill
+          unoptimized
+          className="object-cover group-hover:scale-105 transition-transform duration-500"
           loading="lazy"
           onError={(e) => {
             e.currentTarget.src = FALLBACK_IMAGE_URI;
@@ -1813,11 +1820,13 @@ function EditImageForm({
           <p className="block text-sm font-medium text-slate-300 mb-2">
             Current Image
           </p>
-          <div className="aspect-[4/3] max-w-xs rounded-lg overflow-hidden border border-white/10">
-            <img
+          <div className="aspect-[4/3] max-w-xs rounded-lg overflow-hidden border border-white/10 relative">
+            <Image
               src={image.url || FALLBACK_IMAGE_URI}
               alt={image.title}
-              className="w-full h-full object-cover"
+              fill
+              unoptimized
+              className="object-cover"
             />
           </div>
         </div>

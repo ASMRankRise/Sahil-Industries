@@ -33,7 +33,18 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
-  images: { unoptimized: true },
+  images: {
+    dangerouslyAllowSVG: true,
+    localPatterns: [
+      { pathname: '/media/**' },
+      { pathname: '/sahilcrane/**' },
+      { pathname: '/assets/**' },
+    ],
+    remotePatterns: [
+      { protocol: 'https', hostname: 'picsum.photos' },
+      { protocol: 'https', hostname: '*.googleusercontent.com' },
+    ],
+  },
   async headers() {
     return [{ source: '/(.*)', headers: securityHeaders }];
   },

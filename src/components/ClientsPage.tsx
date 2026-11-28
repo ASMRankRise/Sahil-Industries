@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { ModernPageShell } from "@/components/ModernPageShell";
 import { clients } from "@/data/clients";
 
@@ -22,10 +23,12 @@ export default function ClientsPage() {
               <div
                 key={image}
                 className="flex h-[120px] items-center justify-center rounded-xl border border-ink/10 bg-white p-5 shadow-sm max-md:h-[92px] max-md:p-3">
-                <img
-                  className="max-h-[65px] max-w-full object-contain grayscale opacity-70 transition hover:grayscale-0 hover:opacity-100"
+                <Image
+                  className="h-auto max-h-[65px] w-auto max-w-full object-contain grayscale opacity-70 transition hover:grayscale-0 hover:opacity-100"
                   src={`/sahilcrane/customers/${image}`}
                   alt={name}
+                  width={160}
+                  height={65}
                   loading="lazy"
                 />
               </div>

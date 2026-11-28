@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, Navigation, Pagination } from "swiper/modules";
 import { useRef } from "react";
@@ -54,8 +55,10 @@ export function IndustriesCarousel() {
           <SwiperSlide key={industry.title}>
             <article
               className={`group relative ${CARD_MIN_H} overflow-hidden rounded-xl bg-ink text-white shadow-sm ring-1 ring-ink/10`}>
-              <img
-                className={`absolute inset-0 h-full w-full object-cover opacity-70 ${CARD_IMG_TRANSITION}`}
+              <Image
+                fill
+                sizes="(max-width: 640px) 90vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 25vw"
+                className={`object-cover opacity-70 ${CARD_IMG_TRANSITION}`}
                 src={asset(`industries-we-serve/${industry.image}`)}
                 alt={industry.title}
               />

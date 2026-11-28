@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useLayoutEffect, useRef } from "react";
 import { gsap } from "gsap";
 
@@ -103,10 +104,13 @@ export function HeroMotion() {
         <span
           className={`${ORB_RING_CLASS} hero-motion__orb-ring--inner inset-[23%] opacity-90`}
         />
-        <img
+        <Image
           className={ORB_CORE_CLASS}
           src="/media/logo/hero-center.svg?v=4"
           alt=""
+          width={240}
+          height={240}
+          unoptimized
         />
       </span>
     </div>
