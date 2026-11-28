@@ -22,16 +22,22 @@ gsap.registerPlugin(ScrollTrigger);
  * 8. Scroll progress indicator
  */
 
-export function GSAPEnhancements() {
+export function GSAPEnhancements({
+  children,
+}: {
+  children?: React.ReactNode;
+}) {
   const contextRef = useRef<gsap.Context | null>(null);
 
   useEffect(() => {
     if (prefersReducedMotion()) return;
 
-    let timeoutId: ReturnType<typeof setTimeout>;
+    let cancelled = false;
+    let rafId = 0;
 
-    // Defer execution until after the initial React hydration pass is complete
-    timeoutId = setTimeout(() => {
+    // Defer execution until after React hydration and initial paint
+    rafId = window.requestAnimationFrame(() => {
+      if (cancelled) return;
       contextRef.current = gsap.context(() => {
       // 1. Section fade-up animations with ScrollTrigger (skips hero and pinned timeline sections)
       const sections = document.querySelectorAll(
@@ -390,16 +396,17 @@ export function GSAPEnhancements() {
         });
       });
     }, document.body);
-    }, 100);
+    });
 
     return () => {
-      clearTimeout(timeoutId);
+      cancelled = true;
+      window.cancelAnimationFrame(rafId);
       contextRef.current?.revert();
       ScrollTrigger.getAll().forEach((st) => st.kill());
     };
   }, []);
 
-  return null; // This component doesn't render anything
+  return <>{children}</>;
 }
 
 /**

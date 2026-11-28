@@ -18,7 +18,7 @@ const HEADER_HEIGHT = "min-h-[74px] lg:min-h-[88px]";
 const LOGO_PADDING_X = "px-[34px]";
 const TOP_BAR_HEIGHT = "h-[31px]";
 const NAV_HEIGHT = "h-[57px]";
-const NAV_SPACING = "gap-5 pr-5 xl:gap-7 xl:pr-[38px]";
+const NAV_SPACING = "gap-5 px-5 xl:gap-7 xl:px-[38px]";
 const CONTACT_ICON_SIZE = 20;
 const CONTACT_ICON_SIZE_MOBILE = 22;
 const TOOLTIP_OFFSET = "mb-2";
@@ -147,7 +147,7 @@ export function SiteHeader() {
               </div>
             </div>
             <nav
-              className={`flex items-center justify-end ${NAV_SPACING} ${NAV_HEIGHT}`}
+              className={`flex items-center justify-center ${NAV_SPACING} ${NAV_HEIGHT}`}
               aria-label="Primary navigation">
               {primaryItems.slice(0, 2).map((item) => (
                 <MotionLink

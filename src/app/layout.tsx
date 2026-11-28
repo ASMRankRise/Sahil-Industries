@@ -24,9 +24,8 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={inter.variable}>
-        <GSAPEnhancements />
         <GlobalLoader />
-        {children}
+        <GSAPEnhancements>{children}</GSAPEnhancements>
       </body>
     </html>
   );

@@ -227,7 +227,7 @@ export default function ModernHomePage() {
 
       {/* Hero Section */}
       <section
-        className={`relative flex flex-col justify-center overflow-hidden bg-ink text-white ${HERO_MIN_H} ${HERO_MIN_H_MD}`}>
+        className={`hero-section relative flex flex-col justify-center overflow-hidden bg-ink text-white ${HERO_MIN_H} ${HERO_MIN_H_MD}`}>
         {/* Background slider with enhanced transitions */}
         <HeroSliderBackdrop />
 
