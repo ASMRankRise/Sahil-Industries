@@ -38,7 +38,6 @@ export const primaryNavigation: NavigationItem[] = [
   { label: "Enquiry", href: "/enquiry" },
   { label: "Contact", href: "/contact" },
   { label: "Gallery", href: "/gallery" },
-  { label: "Admin Panel", href: "/admin" },
 ];
 
 export const siteContact = {

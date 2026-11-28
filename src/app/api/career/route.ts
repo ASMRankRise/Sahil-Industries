@@ -22,7 +22,7 @@ export async function POST(request: NextRequest) {
     const formData = await request.formData();
 
     // Extract form fields
-    if (rateLimited(`career:${clientAddress(request)}`))
+    if (await rateLimited(`career:${clientAddress(request)}`))
       return NextResponse.json(
         { error: "Too many submissions. Please try again later." },
         { status: 429 },

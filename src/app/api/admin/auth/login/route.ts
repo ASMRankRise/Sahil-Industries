@@ -6,9 +6,16 @@ import {
   SESSION_TTL_SECONDS,
   tokenHash,
 } from "@/lib/admin-auth";
+import { clientAddress, rateLimited } from "@/lib/form-security";
 
 export async function POST(request: NextRequest) {
   try {
+    if (await rateLimited(`admin-login:${clientAddress(request)}`, 10)) {
+      return NextResponse.json(
+        { error: "Too many login attempts. Please try again later." },
+        { status: 429 },
+      );
+    }
     const { email, password } = await request.json();
     if (typeof email !== "string" || typeof password !== "string") {
       return NextResponse.json(

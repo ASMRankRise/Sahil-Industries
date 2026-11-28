@@ -19,7 +19,7 @@ export const runtime = "nodejs";
 
 export async function POST(request: NextRequest) {
   try {
-    if (rateLimited(`contact:${clientAddress(request)}`))
+    if (await rateLimited(`contact:${clientAddress(request)}`))
       return NextResponse.json(
         { error: "Too many submissions. Please try again later." },
         { status: 429 },
